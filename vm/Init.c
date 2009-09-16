@@ -849,7 +849,7 @@ static void setCommandLineDefaults()
      * we know we're using the "desktop" build we should probably be
      * using "portable" rather than "fast".
      */
-    gDvm.executionMode = kExecutionModeInterpPortable;
+    gDvm.executionMode = kExecutionModeInterpFast;
 }
 
 
