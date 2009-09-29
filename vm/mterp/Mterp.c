@@ -49,7 +49,7 @@ bool dvmCheckAsmConstants(void)
 #ifdef ARCH_ARM
     const int width = 64;
 #endif
-#if ARCH_MIPS
+#ifdef ARCH_MIPS
     const int width = 128;
 #endif
     int interpSize = dvmAsmInstructionEnd - dvmAsmInstructionStart;
