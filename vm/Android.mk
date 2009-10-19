@@ -253,8 +253,8 @@ else
       LOCAL_SHARED_LIBRARIES += libffi
 
       LOCAL_SRC_FILES += \
-		mterp/out/InterpC-allstubs.c \
-		mterp/out/InterpAsm-allstubs.S
+		mterp/out/InterpC-mips.c \
+		mterp/out/InterpAsm-mips.S
     else
       # unknown architecture, try to use FFI
       LOCAL_C_INCLUDES += external/libffi/$(TARGET_OS)-$(TARGET_ARCH)
