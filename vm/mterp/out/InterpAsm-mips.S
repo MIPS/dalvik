@@ -10,15 +10,12 @@
 #include <asm/regdef.h>
 #include <asm/fpregdef.h>
 
-/*
-Float opcodes need to be fixed before enabling hard float.
-#if	__mips_hard_float
+#ifdef	__mips_hard_float
 #define		HARD_FLOAT
 #else
 #define		SOFT_FLOAT
 #endif
-*/
-#define		SOFT_FLOAT
+
 /* MIPS definitions and declarations 
  
    reg	nick		purpose
@@ -150,8 +147,17 @@ Float opcodes need to be fixed before enabling hard float.
 #define LOAD64_off(rlo,rhi,rbase,off)	lw	rlo, off(rbase);	\
 					lw	rhi, (off+4)(rbase)
 
+/* Tested only on a Little Endian System */
+#define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, off(rbase);	\
+						s.s	rhi, (off+4)(rbase)
+#define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, off(rbase);	\
+						l.s	rhi, (off+4)(rbase)
+
 #define STORE64(rlo,rhi,rbase)		STORE64_off(rlo,rhi,rbase,0)
 #define LOAD64(rlo,rhi,rbase)		LOAD64_off(rlo,rhi,rbase,0)
+
+#define STORE64_F(rlo,rhi,rbase)	STORE64_off_F(rlo,rhi,rbase,0)
+#define LOAD64_F(rlo,rhi,rbase)		LOAD64_off_F(rlo,rhi,rbase,0)
 
 #define STORE64_lo(rd,rbase)		sw	rd, 0(rbase)
 #define STORE64_hi(rd,rbase)		sw	rd, 4(rbase)
@@ -326,12 +332,12 @@ strBadEntryPoint:
 
     .global dvmAsmInstructionStart
     .type   dvmAsmInstructionStart, %function
-dvmAsmInstructionStart = .L_OP_NOP
+dvmAsmInstructionStart = L_OP_NOP
     .text
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NOP: /* 0x00 */
+L_OP_NOP: /* 0x00 */
 /* File: mips/OP_NOP.S */
     FETCH_ADVANCE_INST(1)               # advance to next instr, load rINST
     GET_INST_OPCODE(t0)                 
@@ -348,7 +354,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE: /* 0x01 */
+L_OP_MOVE: /* 0x01 */
 /* File: mips/OP_MOVE.S */
     /* for move, move-object, long-to-int */
     /* op vA, vB */
@@ -362,7 +368,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_FROM16: /* 0x02 */
+L_OP_MOVE_FROM16: /* 0x02 */
 /* File: mips/OP_MOVE_FROM16.S */
     /* for: move/from16, move-object/from16 */
     /* op vAA, vBBBB */
@@ -376,7 +382,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_16: /* 0x03 */
+L_OP_MOVE_16: /* 0x03 */
 /* File: mips/OP_MOVE_16.S */
     /* for: move/16, move-object/16 */
     /* op vAAAA, vBBBB */
@@ -390,7 +396,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_WIDE: /* 0x04 */
+L_OP_MOVE_WIDE: /* 0x04 */
 /* File: mips/OP_MOVE_WIDE.S */
     /* move-wide vA, vB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -407,7 +413,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_WIDE_FROM16: /* 0x05 */
+L_OP_MOVE_WIDE_FROM16: /* 0x05 */
 /* File: mips/OP_MOVE_WIDE_FROM16.S */
     /* move-wide/from16 vAA, vBBBB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -424,7 +430,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_WIDE_16: /* 0x06 */
+L_OP_MOVE_WIDE_16: /* 0x06 */
 /* File: mips/OP_MOVE_WIDE_16.S */
     /* move-wide/16 vAAAA, vBBBB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -441,7 +447,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_OBJECT: /* 0x07 */
+L_OP_MOVE_OBJECT: /* 0x07 */
 /* File: mips/OP_MOVE_OBJECT.S */
 /* File: mips/OP_MOVE.S */
     /* for move, move-object, long-to-int */
@@ -457,7 +463,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_OBJECT_FROM16: /* 0x08 */
+L_OP_MOVE_OBJECT_FROM16: /* 0x08 */
 /* File: mips/OP_MOVE_OBJECT_FROM16.S */
 /* File: mips/OP_MOVE_FROM16.S */
     /* for: move/from16, move-object/from16 */
@@ -473,7 +479,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_OBJECT_16: /* 0x09 */
+L_OP_MOVE_OBJECT_16: /* 0x09 */
 /* File: mips/OP_MOVE_OBJECT_16.S */
 /* File: mips/OP_MOVE_16.S */
     /* for: move/16, move-object/16 */
@@ -489,7 +495,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_RESULT: /* 0x0a */
+L_OP_MOVE_RESULT: /* 0x0a */
 /* File: mips/OP_MOVE_RESULT.S */
     /* for: move-result, move-result-object */
     /* op vAA */
@@ -502,7 +508,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_RESULT_WIDE: /* 0x0b */
+L_OP_MOVE_RESULT_WIDE: /* 0x0b */
 /* File: mips/OP_MOVE_RESULT_WIDE.S */
     /* move-result-wide vAA */
     GET_OPA(a2)			        # a2<- AA
@@ -517,7 +523,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_RESULT_OBJECT: /* 0x0c */
+L_OP_MOVE_RESULT_OBJECT: /* 0x0c */
 /* File: mips/OP_MOVE_RESULT_OBJECT.S */
 /* File: mips/OP_MOVE_RESULT.S */
     /* for: move-result, move-result-object */
@@ -532,7 +538,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MOVE_EXCEPTION: /* 0x0d */
+L_OP_MOVE_EXCEPTION: /* 0x0d */
 /* File: mips/OP_MOVE_EXCEPTION.S */
     /* move-exception vAA */
     LOAD_rGLUE_self(a0)                   # a0<- glue->self
@@ -548,14 +554,14 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_RETURN_VOID: /* 0x0e */
+L_OP_RETURN_VOID: /* 0x0e */
 /* File: mips/OP_RETURN_VOID.S */
     b       common_returnFromMethod
 
 
 /* ------------------------------ */
     .balign 128
-.L_OP_RETURN: /* 0x0f */
+L_OP_RETURN: /* 0x0f */
 /* File: mips/OP_RETURN.S */
     /*
      * Return a 32-bit value.  Copies the return value into the "glue"
@@ -572,7 +578,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_RETURN_WIDE: /* 0x10 */
+L_OP_RETURN_WIDE: /* 0x10 */
 /* File: mips/OP_RETURN_WIDE.S */
     /*
      * Return a 64-bit value.  Copies the return value into the "glue"
@@ -589,7 +595,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_RETURN_OBJECT: /* 0x11 */
+L_OP_RETURN_OBJECT: /* 0x11 */
 /* File: mips/OP_RETURN_OBJECT.S */
 /* File: mips/OP_RETURN.S */
     /*
@@ -608,7 +614,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_4: /* 0x12 */
+L_OP_CONST_4: /* 0x12 */
 /* File: mips/OP_CONST_4.S */
     /* const/4 vA, #+B */
     sll	   a1, rINST, 16		# a1<- Bxxx0000
@@ -622,7 +628,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_16: /* 0x13 */
+L_OP_CONST_16: /* 0x13 */
 /* File: mips/OP_CONST_16.S */
     /* const/16 vAA, #+BBBB */
     FETCH_S(a0, 1)                      # a0<- ssssBBBB (sign-extended)
@@ -634,7 +640,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST: /* 0x14 */
+L_OP_CONST: /* 0x14 */
 /* File: mips/OP_CONST.S */
     /* const vAA, #+BBBBbbbb */
     GET_OPA(a3)			        # a3<- AA
@@ -649,7 +655,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_HIGH16: /* 0x15 */
+L_OP_CONST_HIGH16: /* 0x15 */
 /* File: mips/OP_CONST_HIGH16.S */
     /* const/high16 vAA, #+BBBB0000 */
     FETCH(a0, 1)                        # a0<- 0000BBBB (zero-extended)
@@ -662,7 +668,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_WIDE_16: /* 0x16 */
+L_OP_CONST_WIDE_16: /* 0x16 */
 /* File: mips/OP_CONST_WIDE_16.S */
     /* const-wide/16 vAA, #+BBBB */
     FETCH_S(a0, 1)			# a0<- ssssBBBB (sign-extended)
@@ -677,7 +683,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_WIDE_32: /* 0x17 */
+L_OP_CONST_WIDE_32: /* 0x17 */
 /* File: mips/OP_CONST_WIDE_32.S */
     /* const-wide/32 vAA, #+BBBBbbbb */
     FETCH(a0, 1)                        # a0<- 0000bbbb (low)
@@ -695,7 +701,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_WIDE: /* 0x18 */
+L_OP_CONST_WIDE: /* 0x18 */
 /* File: mips/OP_CONST_WIDE.S */
     /* const-wide vAA, #+HHHHhhhhBBBBbbbb */
     FETCH(a0, 1)                        # a0<- bbbb (low)
@@ -716,7 +722,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_WIDE_HIGH16: /* 0x19 */
+L_OP_CONST_WIDE_HIGH16: /* 0x19 */
 /* File: mips/OP_CONST_WIDE_HIGH16.S */
     /* const-wide/high16 vAA, #+BBBB000000000000 */
     FETCH(a1, 1)                        # a1<- 0000BBBB (zero-extended)
@@ -732,7 +738,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_STRING: /* 0x1a */
+L_OP_CONST_STRING: /* 0x1a */
 /* File: mips/OP_CONST_STRING.S */
     /* const/string vAA, String  #BBBB */
     FETCH(a1, 1)                                # a1<- BBBB
@@ -766,7 +772,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_STRING_JUMBO: /* 0x1b */
+L_OP_CONST_STRING_JUMBO: /* 0x1b */
 /* File: mips/OP_CONST_STRING_JUMBO.S */
     /* const/string vAA, String        #BBBBBBBB */
     FETCH(a0, 1)                                # a0<- bbbb (low)
@@ -799,7 +805,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CONST_CLASS: /* 0x1c */
+L_OP_CONST_CLASS: /* 0x1c */
 /* File: mips/OP_CONST_CLASS.S */
     /* const/class vAA, Class  #BBBB */
     FETCH(a1, 1)                                # a1<- BBBB
@@ -831,7 +837,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MONITOR_ENTER: /* 0x1d */
+L_OP_MONITOR_ENTER: /* 0x1d */
 /* File: mips/OP_MONITOR_ENTER.S */
     /*
      * Synchronize on an object.
@@ -859,7 +865,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MONITOR_EXIT: /* 0x1e */
+L_OP_MONITOR_EXIT: /* 0x1e */
 /* File: mips/OP_MONITOR_EXIT.S */
     /*
      * Unlock an object.
@@ -885,7 +891,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CHECK_CAST: /* 0x1f */
+L_OP_CHECK_CAST: /* 0x1f */
 /* File: mips/OP_CHECK_CAST.S */
     /*
      * Check to see if a cast from one class to another is allowed.
@@ -926,7 +932,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INSTANCE_OF: /* 0x20 */
+L_OP_INSTANCE_OF: /* 0x20 */
 /* File: mips/OP_INSTANCE_OF.S */
     /*
      * Check to see if an object reference is an instance of a class.
@@ -972,7 +978,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ARRAY_LENGTH: /* 0x21 */
+L_OP_ARRAY_LENGTH: /* 0x21 */
 /* File: mips/OP_ARRAY_LENGTH.S */
     /*
      * Return the length of an array.
@@ -990,7 +996,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NEW_INSTANCE: /* 0x22 */
+L_OP_NEW_INSTANCE: /* 0x22 */
 /* File: mips/OP_NEW_INSTANCE.S */
     /*
      * Create a new instance of a class.
@@ -1027,7 +1033,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NEW_ARRAY: /* 0x23 */
+L_OP_NEW_ARRAY: /* 0x23 */
 /* File: mips/OP_NEW_ARRAY.S */
     /*
      * Allocate an array of objects, specified with the array class
@@ -1068,7 +1074,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_FILLED_NEW_ARRAY: /* 0x24 */
+L_OP_FILLED_NEW_ARRAY: /* 0x24 */
     /* (stub) */
 	SAVE_PC_TO_GLUE()
 	SAVE_FP_TO_GLUE()
@@ -1081,7 +1087,7 @@ dalvik_inst:
 	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
-.L_OP_FILLED_NEW_ARRAY_RANGE: /* 0x25 */
+L_OP_FILLED_NEW_ARRAY_RANGE: /* 0x25 */
     /* (stub) */
 	SAVE_PC_TO_GLUE()
 	SAVE_FP_TO_GLUE()
@@ -1094,7 +1100,7 @@ dalvik_inst:
 	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
-.L_OP_FILL_ARRAY_DATA: /* 0x26 */
+L_OP_FILL_ARRAY_DATA: /* 0x26 */
 /* File: mips/OP_FILL_ARRAY_DATA.S */
     /* fill-array-data vAA, +BBBBBBBB */
     FETCH(a0, 1)				# a0<- bbbb (lo)
@@ -1114,7 +1120,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_THROW: /* 0x27 */
+L_OP_THROW: /* 0x27 */
 /* File: mips/OP_THROW.S */
     /*
      * Throw an exception object in the current thread.
@@ -1132,7 +1138,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_GOTO: /* 0x28 */
+L_OP_GOTO: /* 0x28 */
 /* File: mips/OP_GOTO.S */
     /*
      * Unconditional branch, 8-bit offset.
@@ -1152,7 +1158,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_GOTO_16: /* 0x29 */
+L_OP_GOTO_16: /* 0x29 */
 /* File: mips/OP_GOTO_16.S */
     /*
      * Unconditional branch, 16-bit offset.
@@ -1171,7 +1177,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_GOTO_32: /* 0x2a */
+L_OP_GOTO_32: /* 0x2a */
 /* File: mips/OP_GOTO_32.S */
     /*
      * Unconditional branch, 32-bit offset.
@@ -1198,7 +1204,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_PACKED_SWITCH: /* 0x2b */
+L_OP_PACKED_SWITCH: /* 0x2b */
 /* File: mips/OP_PACKED_SWITCH.S */
     /*
      * Handle a packed-switch or sparse-switch instruction.  In both cases
@@ -1227,7 +1233,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SPARSE_SWITCH: /* 0x2c */
+L_OP_SPARSE_SWITCH: /* 0x2c */
 /* File: mips/OP_SPARSE_SWITCH.S */
 /* File: mips/OP_PACKED_SWITCH.S */
     /*
@@ -1258,7 +1264,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CMPL_FLOAT: /* 0x2d */
+L_OP_CMPL_FLOAT: /* 0x2d */
 /* File: mips/OP_CMPL_FLOAT.S */
     /*
      * Compare two floating-point values.  Puts 0, 1, or -1 into the
@@ -1320,7 +1326,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CMPG_FLOAT: /* 0x2e */
+L_OP_CMPG_FLOAT: /* 0x2e */
 /* File: mips/OP_CMPG_FLOAT.S */
 /* File: mips/OP_CMPL_FLOAT.S */
     /*
@@ -1384,7 +1390,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CMPL_DOUBLE: /* 0x2f */
+L_OP_CMPL_DOUBLE: /* 0x2f */
 /* File: mips/OP_CMPL_DOUBLE.S */
     /*
      * Compare two floating-point values.  Puts 0, 1, or -1 into the
@@ -1419,23 +1425,23 @@ dalvik_inst:
     LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
     b		OP_CMPL_DOUBLE_continue 
 #else
-    l.d		fs0, 0(rOBJ)
-    l.d		fs1, 0(rBIX)
+    LOAD64_F(fs0, fs0f, rOBJ)
+    LOAD64_F(fs1, fs1f, rBIX)
     c.olt.d     fcc0, fs0, fs1
     li		rSELF, -1
-    bc1t        fcc0, OP_CMPL_DOUBLE_finish
-    c.olt.d     fcc0, fs1, fs0
-    li          rSELF, 1
+    bc1t	fcc0, OP_CMPL_DOUBLE_finish
+    c.olt.d	fcc0, fs1, fs0
+    li		rSELF, 1
     bc1t        fcc0, OP_CMPL_DOUBLE_finish
     c.eq.d      fcc0, fs0, fs1
-    li          rSELF, 0
-    bc1t        fcc0, OP_CMPL_DOUBLE_finish
-    b           OP_CMPL_DOUBLE_nan
+    li		rSELF, 0
+    bc1t	fcc0, OP_CMPL_DOUBLE_finish
+    b		OP_CMPL_DOUBLE_nan
 #endif
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CMPG_DOUBLE: /* 0x30 */
+L_OP_CMPG_DOUBLE: /* 0x30 */
 /* File: mips/OP_CMPG_DOUBLE.S */
 /* File: mips/OP_CMPL_DOUBLE.S */
     /*
@@ -1471,24 +1477,24 @@ dalvik_inst:
     LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
     b		OP_CMPG_DOUBLE_continue 
 #else
-    l.d		fs0, 0(rOBJ)
-    l.d		fs1, 0(rBIX)
+    LOAD64_F(fs0, fs0f, rOBJ)
+    LOAD64_F(fs1, fs1f, rBIX)
     c.olt.d     fcc0, fs0, fs1
     li		rSELF, -1
-    bc1t        fcc0, OP_CMPG_DOUBLE_finish
-    c.olt.d     fcc0, fs1, fs0
-    li          rSELF, 1
+    bc1t	fcc0, OP_CMPG_DOUBLE_finish
+    c.olt.d	fcc0, fs1, fs0
+    li		rSELF, 1
     bc1t        fcc0, OP_CMPG_DOUBLE_finish
     c.eq.d      fcc0, fs0, fs1
-    li          rSELF, 0
-    bc1t        fcc0, OP_CMPG_DOUBLE_finish
-    b           OP_CMPG_DOUBLE_nan
+    li		rSELF, 0
+    bc1t	fcc0, OP_CMPG_DOUBLE_finish
+    b		OP_CMPG_DOUBLE_nan
 #endif
 
 
 /* ------------------------------ */
     .balign 128
-.L_OP_CMP_LONG: /* 0x31 */
+L_OP_CMP_LONG: /* 0x31 */
 /* File: mips/OP_CMP_LONG.S */
     /*
      * Compare two 64-bit values
@@ -1529,7 +1535,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_EQ: /* 0x32 */
+L_OP_IF_EQ: /* 0x32 */
 /* File: mips/OP_IF_EQ.S */
 /* File: mips/bincmp.S */
     /*
@@ -1557,7 +1563,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_NE: /* 0x33 */
+L_OP_IF_NE: /* 0x33 */
 /* File: mips/OP_IF_NE.S */
 /* File: mips/bincmp.S */
     /*
@@ -1585,7 +1591,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_LT: /* 0x34 */
+L_OP_IF_LT: /* 0x34 */
 /* File: mips/OP_IF_LT.S */
 /* File: mips/bincmp.S */
     /*
@@ -1613,7 +1619,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_GE: /* 0x35 */
+L_OP_IF_GE: /* 0x35 */
 /* File: mips/OP_IF_GE.S */
 /* File: mips/bincmp.S */
     /*
@@ -1641,7 +1647,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_GT: /* 0x36 */
+L_OP_IF_GT: /* 0x36 */
 /* File: mips/OP_IF_GT.S */
 /* File: mips/bincmp.S */
     /*
@@ -1669,7 +1675,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_LE: /* 0x37 */
+L_OP_IF_LE: /* 0x37 */
 /* File: mips/OP_IF_LE.S */
 /* File: mips/bincmp.S */
     /*
@@ -1697,7 +1703,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_EQZ: /* 0x38 */
+L_OP_IF_EQZ: /* 0x38 */
 /* File: mips/OP_IF_EQZ.S */
 /* File: mips/zcmp.S */
     /*
@@ -1723,7 +1729,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_NEZ: /* 0x39 */
+L_OP_IF_NEZ: /* 0x39 */
 /* File: mips/OP_IF_NEZ.S */
 /* File: mips/zcmp.S */
     /*
@@ -1749,7 +1755,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_LTZ: /* 0x3a */
+L_OP_IF_LTZ: /* 0x3a */
 /* File: mips/OP_IF_LTZ.S */
 /* File: mips/zcmp.S */
     /*
@@ -1775,7 +1781,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_GEZ: /* 0x3b */
+L_OP_IF_GEZ: /* 0x3b */
 /* File: mips/OP_IF_GEZ.S */
 /* File: mips/zcmp.S */
     /*
@@ -1801,7 +1807,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_GTZ: /* 0x3c */
+L_OP_IF_GTZ: /* 0x3c */
 /* File: mips/OP_IF_GTZ.S */
 /* File: mips/zcmp.S */
     /*
@@ -1827,7 +1833,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IF_LEZ: /* 0x3d */
+L_OP_IF_LEZ: /* 0x3d */
 /* File: mips/OP_IF_LEZ.S */
 /* File: mips/zcmp.S */
     /*
@@ -1853,7 +1859,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_3E: /* 0x3e */
+L_OP_UNUSED_3E: /* 0x3e */
 /* File: mips/OP_UNUSED_3E.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -1862,7 +1868,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_3F: /* 0x3f */
+L_OP_UNUSED_3F: /* 0x3f */
 /* File: mips/OP_UNUSED_3F.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -1871,7 +1877,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_40: /* 0x40 */
+L_OP_UNUSED_40: /* 0x40 */
 /* File: mips/OP_UNUSED_40.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -1880,7 +1886,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_41: /* 0x41 */
+L_OP_UNUSED_41: /* 0x41 */
 /* File: mips/OP_UNUSED_41.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -1889,7 +1895,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_42: /* 0x42 */
+L_OP_UNUSED_42: /* 0x42 */
 /* File: mips/OP_UNUSED_42.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -1898,7 +1904,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_43: /* 0x43 */
+L_OP_UNUSED_43: /* 0x43 */
 /* File: mips/OP_UNUSED_43.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -1907,7 +1913,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AGET: /* 0x44 */
+L_OP_AGET: /* 0x44 */
 /* File: mips/OP_AGET.S */
     /*
      * Array get, 32 bits or less.  vAA <- vBB[vCC].
@@ -1941,7 +1947,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AGET_WIDE: /* 0x45 */
+L_OP_AGET_WIDE: /* 0x45 */
 /* File: mips/OP_AGET_WIDE.S */
     /*
      * Array get, 64 bits.  vAA <- vBB[vCC].
@@ -1972,7 +1978,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AGET_OBJECT: /* 0x46 */
+L_OP_AGET_OBJECT: /* 0x46 */
 /* File: mips/OP_AGET_OBJECT.S */
 /* File: mips/OP_AGET.S */
     /*
@@ -2008,7 +2014,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AGET_BOOLEAN: /* 0x47 */
+L_OP_AGET_BOOLEAN: /* 0x47 */
 /* File: mips/OP_AGET_BOOLEAN.S */
 /* File: mips/OP_AGET.S */
     /*
@@ -2044,7 +2050,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AGET_BYTE: /* 0x48 */
+L_OP_AGET_BYTE: /* 0x48 */
 /* File: mips/OP_AGET_BYTE.S */
 /* File: mips/OP_AGET.S */
     /*
@@ -2080,7 +2086,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AGET_CHAR: /* 0x49 */
+L_OP_AGET_CHAR: /* 0x49 */
 /* File: mips/OP_AGET_CHAR.S */
 /* File: mips/OP_AGET.S */
     /*
@@ -2116,7 +2122,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AGET_SHORT: /* 0x4a */
+L_OP_AGET_SHORT: /* 0x4a */
 /* File: mips/OP_AGET_SHORT.S */
 /* File: mips/OP_AGET.S */
     /*
@@ -2152,7 +2158,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_APUT: /* 0x4b */
+L_OP_APUT: /* 0x4b */
 /* File: mips/OP_APUT.S */
     /*
      * Array put, 32 bits or less.  vBB[vCC] <- vAA.
@@ -2182,7 +2188,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_APUT_WIDE: /* 0x4c */
+L_OP_APUT_WIDE: /* 0x4c */
 /* File: mips/OP_APUT_WIDE.S */
     /*
      * Array put, 64 bits.  vBB[vCC] <- vAA.
@@ -2213,7 +2219,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_APUT_OBJECT: /* 0x4d */
+L_OP_APUT_OBJECT: /* 0x4d */
 /* File: mips/OP_APUT_OBJECT.S */
     /*
      * Store an object into an array.  vBB[vCC] <- vAA.
@@ -2250,7 +2256,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_APUT_BOOLEAN: /* 0x4e */
+L_OP_APUT_BOOLEAN: /* 0x4e */
 /* File: mips/OP_APUT_BOOLEAN.S */
 /* File: mips/OP_APUT.S */
     /*
@@ -2282,7 +2288,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_APUT_BYTE: /* 0x4f */
+L_OP_APUT_BYTE: /* 0x4f */
 /* File: mips/OP_APUT_BYTE.S */
 /* File: mips/OP_APUT.S */
     /*
@@ -2314,7 +2320,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_APUT_CHAR: /* 0x50 */
+L_OP_APUT_CHAR: /* 0x50 */
 /* File: mips/OP_APUT_CHAR.S */
 /* File: mips/OP_APUT.S */
     /*
@@ -2346,7 +2352,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_APUT_SHORT: /* 0x51 */
+L_OP_APUT_SHORT: /* 0x51 */
 /* File: mips/OP_APUT_SHORT.S */
 /* File: mips/OP_APUT.S */
     /*
@@ -2378,7 +2384,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET: /* 0x52 */
+L_OP_IGET: /* 0x52 */
 /* File: mips/OP_IGET.S */
     /*
      * General 32-bit instance field get.
@@ -2405,7 +2411,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_WIDE: /* 0x53 */
+L_OP_IGET_WIDE: /* 0x53 */
 /* File: mips/OP_IGET_WIDE.S */
     /*
      * Wide 32-bit instance field get.
@@ -2430,7 +2436,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_OBJECT: /* 0x54 */
+L_OP_IGET_OBJECT: /* 0x54 */
 /* File: mips/OP_IGET_OBJECT.S */
 /* File: mips/OP_IGET.S */
     /*
@@ -2459,7 +2465,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_BOOLEAN: /* 0x55 */
+L_OP_IGET_BOOLEAN: /* 0x55 */
 /* File: mips/OP_IGET_BOOLEAN.S */
 /* File: mips/OP_IGET.S */
     /*
@@ -2488,7 +2494,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_BYTE: /* 0x56 */
+L_OP_IGET_BYTE: /* 0x56 */
 /* File: mips/OP_IGET_BYTE.S */
 /* File: mips/OP_IGET.S */
     /*
@@ -2517,7 +2523,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_CHAR: /* 0x57 */
+L_OP_IGET_CHAR: /* 0x57 */
 /* File: mips/OP_IGET_CHAR.S */
 /* File: mips/OP_IGET.S */
     /*
@@ -2546,7 +2552,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_SHORT: /* 0x58 */
+L_OP_IGET_SHORT: /* 0x58 */
 /* File: mips/OP_IGET_SHORT.S */
 /* File: mips/OP_IGET.S */
     /*
@@ -2575,7 +2581,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT: /* 0x59 */
+L_OP_IPUT: /* 0x59 */
 /* File: mips/OP_IPUT.S */
     /*
      * General 32-bit instance field put.
@@ -2602,7 +2608,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_WIDE: /* 0x5a */
+L_OP_IPUT_WIDE: /* 0x5a */
 /* File: mips/OP_IPUT_WIDE.S */
     /* iput-wide vA, vB, field#CCCC */
     GET_OPB(a0)			                # a0<- B
@@ -2624,7 +2630,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_OBJECT: /* 0x5b */
+L_OP_IPUT_OBJECT: /* 0x5b */
 /* File: mips/OP_IPUT_OBJECT.S */
 /* File: mips/OP_IPUT.S */
     /*
@@ -2653,7 +2659,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_BOOLEAN: /* 0x5c */
+L_OP_IPUT_BOOLEAN: /* 0x5c */
 /* File: mips/OP_IPUT_BOOLEAN.S */
 /* File: mips/OP_IPUT.S */
     /*
@@ -2682,7 +2688,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_BYTE: /* 0x5d */
+L_OP_IPUT_BYTE: /* 0x5d */
 /* File: mips/OP_IPUT_BYTE.S */
 /* File: mips/OP_IPUT.S */
     /*
@@ -2711,7 +2717,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_CHAR: /* 0x5e */
+L_OP_IPUT_CHAR: /* 0x5e */
 /* File: mips/OP_IPUT_CHAR.S */
 /* File: mips/OP_IPUT.S */
     /*
@@ -2740,7 +2746,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_SHORT: /* 0x5f */
+L_OP_IPUT_SHORT: /* 0x5f */
 /* File: mips/OP_IPUT_SHORT.S */
 /* File: mips/OP_IPUT.S */
     /*
@@ -2769,7 +2775,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SGET: /* 0x60 */
+L_OP_SGET: /* 0x60 */
 /* File: mips/OP_SGET.S */
     /*
      * General 32-bit SGET handler.
@@ -2804,7 +2810,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SGET_WIDE: /* 0x61 */
+L_OP_SGET_WIDE: /* 0x61 */
 /* File: mips/OP_SGET_WIDE.S */
     /*
      * 64-bit SGET handler.
@@ -2837,7 +2843,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SGET_OBJECT: /* 0x62 */
+L_OP_SGET_OBJECT: /* 0x62 */
 /* File: mips/OP_SGET_OBJECT.S */
 /* File: mips/OP_SGET.S */
     /*
@@ -2874,7 +2880,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SGET_BOOLEAN: /* 0x63 */
+L_OP_SGET_BOOLEAN: /* 0x63 */
 /* File: mips/OP_SGET_BOOLEAN.S */
 /* File: mips/OP_SGET.S */
     /*
@@ -2911,7 +2917,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SGET_BYTE: /* 0x64 */
+L_OP_SGET_BYTE: /* 0x64 */
 /* File: mips/OP_SGET_BYTE.S */
 /* File: mips/OP_SGET.S */
     /*
@@ -2948,7 +2954,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SGET_CHAR: /* 0x65 */
+L_OP_SGET_CHAR: /* 0x65 */
 /* File: mips/OP_SGET_CHAR.S */
 /* File: mips/OP_SGET.S */
     /*
@@ -2985,7 +2991,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SGET_SHORT: /* 0x66 */
+L_OP_SGET_SHORT: /* 0x66 */
 /* File: mips/OP_SGET_SHORT.S */
 /* File: mips/OP_SGET.S */
     /*
@@ -3022,7 +3028,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SPUT: /* 0x67 */
+L_OP_SPUT: /* 0x67 */
 /* File: mips/OP_SPUT.S */
     /*
      * General 32-bit SPUT handler.
@@ -3054,7 +3060,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SPUT_WIDE: /* 0x68 */
+L_OP_SPUT_WIDE: /* 0x68 */
 /* File: mips/OP_SPUT_WIDE.S */
     /*
      * 64-bit SPUT handler.
@@ -3089,7 +3095,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SPUT_OBJECT: /* 0x69 */
+L_OP_SPUT_OBJECT: /* 0x69 */
 /* File: mips/OP_SPUT_OBJECT.S */
 /* File: mips/OP_SPUT.S */
     /*
@@ -3123,7 +3129,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SPUT_BOOLEAN: /* 0x6a */
+L_OP_SPUT_BOOLEAN: /* 0x6a */
 /* File: mips/OP_SPUT_BOOLEAN.S */
 /* File: mips/OP_SPUT.S */
     /*
@@ -3157,7 +3163,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SPUT_BYTE: /* 0x6b */
+L_OP_SPUT_BYTE: /* 0x6b */
 /* File: mips/OP_SPUT_BYTE.S */
 /* File: mips/OP_SPUT.S */
     /*
@@ -3191,7 +3197,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SPUT_CHAR: /* 0x6c */
+L_OP_SPUT_CHAR: /* 0x6c */
 /* File: mips/OP_SPUT_CHAR.S */
 /* File: mips/OP_SPUT.S */
     /*
@@ -3225,7 +3231,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SPUT_SHORT: /* 0x6d */
+L_OP_SPUT_SHORT: /* 0x6d */
 /* File: mips/OP_SPUT_SHORT.S */
 /* File: mips/OP_SPUT.S */
     /*
@@ -3259,7 +3265,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_VIRTUAL: /* 0x6e */
+L_OP_INVOKE_VIRTUAL: /* 0x6e */
 /* File: mips/OP_INVOKE_VIRTUAL.S */
     /*
      * Handle a virtual method call.
@@ -3291,7 +3297,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_SUPER: /* 0x6f */
+L_OP_INVOKE_SUPER: /* 0x6f */
 /* File: mips/OP_INVOKE_SUPER.S */
     /*
      * Handle a "super" method call.
@@ -3327,7 +3333,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_DIRECT: /* 0x70 */
+L_OP_INVOKE_DIRECT: /* 0x70 */
 /* File: mips/OP_INVOKE_DIRECT.S */
     /*
      * Handle a direct method call.
@@ -3372,7 +3378,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_STATIC: /* 0x71 */
+L_OP_INVOKE_STATIC: /* 0x71 */
     /* (stub) */
 	SAVE_PC_TO_GLUE()
 	SAVE_FP_TO_GLUE()
@@ -3385,7 +3391,7 @@ dalvik_inst:
 	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_INTERFACE: /* 0x72 */
+L_OP_INVOKE_INTERFACE: /* 0x72 */
 /* File: mips/OP_INVOKE_INTERFACE.S */
     /*
      * Handle an interface method call.
@@ -3415,7 +3421,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_73: /* 0x73 */
+L_OP_UNUSED_73: /* 0x73 */
 /* File: mips/OP_UNUSED_73.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -3424,7 +3430,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_VIRTUAL_RANGE: /* 0x74 */
+L_OP_INVOKE_VIRTUAL_RANGE: /* 0x74 */
 /* File: mips/OP_INVOKE_VIRTUAL_RANGE.S */
 /* File: mips/OP_INVOKE_VIRTUAL.S */
     /*
@@ -3458,7 +3464,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_SUPER_RANGE: /* 0x75 */
+L_OP_INVOKE_SUPER_RANGE: /* 0x75 */
 /* File: mips/OP_INVOKE_SUPER_RANGE.S */
 /* File: mips/OP_INVOKE_SUPER.S */
     /*
@@ -3496,7 +3502,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_DIRECT_RANGE: /* 0x76 */
+L_OP_INVOKE_DIRECT_RANGE: /* 0x76 */
 /* File: mips/OP_INVOKE_DIRECT_RANGE.S */
 /* File: mips/OP_INVOKE_DIRECT.S */
     /*
@@ -3543,7 +3549,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_STATIC_RANGE: /* 0x77 */
+L_OP_INVOKE_STATIC_RANGE: /* 0x77 */
     /* (stub) */
 	SAVE_PC_TO_GLUE()
 	SAVE_FP_TO_GLUE()
@@ -3556,7 +3562,7 @@ dalvik_inst:
 	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_INTERFACE_RANGE: /* 0x78 */
+L_OP_INVOKE_INTERFACE_RANGE: /* 0x78 */
 /* File: mips/OP_INVOKE_INTERFACE_RANGE.S */
 /* File: mips/OP_INVOKE_INTERFACE.S */
     /*
@@ -3588,7 +3594,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_79: /* 0x79 */
+L_OP_UNUSED_79: /* 0x79 */
 /* File: mips/OP_UNUSED_79.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -3597,7 +3603,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_7A: /* 0x7a */
+L_OP_UNUSED_7A: /* 0x7a */
 /* File: mips/OP_UNUSED_7A.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -3606,7 +3612,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NEG_INT: /* 0x7b */
+L_OP_NEG_INT: /* 0x7b */
 /* File: mips/OP_NEG_INT.S */
 /* File: mips/unop.S */
     /*
@@ -3631,7 +3637,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NOT_INT: /* 0x7c */
+L_OP_NOT_INT: /* 0x7c */
 /* File: mips/OP_NOT_INT.S */
 /* File: mips/unop.S */
     /*
@@ -3656,7 +3662,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NEG_LONG: /* 0x7d */
+L_OP_NEG_LONG: /* 0x7d */
 /* File: mips/OP_NEG_LONG.S */
 /* File: mips/unopWide.S */
     /*
@@ -3685,7 +3691,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NOT_LONG: /* 0x7e */
+L_OP_NOT_LONG: /* 0x7e */
 /* File: mips/OP_NOT_LONG.S */
 /* File: mips/unopWide.S */
     /*
@@ -3713,7 +3719,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NEG_FLOAT: /* 0x7f */
+L_OP_NEG_FLOAT: /* 0x7f */
 /* File: mips/OP_NEG_FLOAT.S */
 /* File: mips/unop.S */
     /*
@@ -3738,7 +3744,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_NEG_DOUBLE: /* 0x80 */
+L_OP_NEG_DOUBLE: /* 0x80 */
 /* File: mips/OP_NEG_DOUBLE.S */
 /* File: mips/unopWide.S */
     /*
@@ -3766,7 +3772,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INT_TO_LONG: /* 0x81 */
+L_OP_INT_TO_LONG: /* 0x81 */
 /* File: mips/OP_INT_TO_LONG.S */
 /* File: mips/unopWider.S */
     /*
@@ -3792,7 +3798,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INT_TO_FLOAT: /* 0x82 */
+L_OP_INT_TO_FLOAT: /* 0x82 */
 /* File: mips/OP_INT_TO_FLOAT.S */
 /* File: mips/unflop.S */
     /*
@@ -3830,7 +3836,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INT_TO_DOUBLE: /* 0x83 */
+L_OP_INT_TO_DOUBLE: /* 0x83 */
 /* File: mips/OP_INT_TO_DOUBLE.S */
 /* File: mips/unflopWider.S */
     /*
@@ -3860,7 +3866,7 @@ dalvik_inst:
     cvt.d.w	fv0, fa0
 
 .LOP_INT_TO_DOUBLE_set_vreg:
-    s.d	fv0, 0(rOBJ)               # vA/vA+1<- a0/a1
+    STORE64_F(fv0, fv0f, rOBJ)				# vA/vA+1<- a0/a1
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -3869,7 +3875,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_LONG_TO_INT: /* 0x84 */
+L_OP_LONG_TO_INT: /* 0x84 */
 /* File: mips/OP_LONG_TO_INT.S */
 /* we ignore the high word, making this equivalent to a 32-bit reg move */
 /* File: mips/OP_MOVE.S */
@@ -3886,7 +3892,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_LONG_TO_FLOAT: /* 0x85 */
+L_OP_LONG_TO_FLOAT: /* 0x85 */
 /* File: mips/OP_LONG_TO_FLOAT.S */
 /* File: mips/unopNarrower.S */
     /*
@@ -3929,7 +3935,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_LONG_TO_DOUBLE: /* 0x86 */
+L_OP_LONG_TO_DOUBLE: /* 0x86 */
 /* File: mips/OP_LONG_TO_DOUBLE.S */
 /* File: mips/unflopWide.S */
     /*
@@ -3957,7 +3963,7 @@ dalvik_inst:
 #ifdef	SOFT_FLOAT
     STORE64(v0, v1, rOBJ)              # vAA<- a0/a1
 #else
-    s.d	fv0, 0(rOBJ)                         # vAA<- a0/a1
+    STORE64_F(fv0, fv0f, rOBJ)                         # vAA<- a0/a1
 #endif
     GET_INST_OPCODE(t0)                # extract opcode from rINST
     GOTO_OPCODE(t0)                    # jump to next instruction
@@ -3967,7 +3973,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_FLOAT_TO_INT: /* 0x87 */
+L_OP_FLOAT_TO_INT: /* 0x87 */
 /* File: mips/OP_FLOAT_TO_INT.S */
 /* File: mips/unflop.S */
     /*
@@ -4005,7 +4011,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_FLOAT_TO_LONG: /* 0x88 */
+L_OP_FLOAT_TO_LONG: /* 0x88 */
 /* File: mips/OP_FLOAT_TO_LONG.S */
 /* File: mips/unflopWider.S */
     /*
@@ -4035,7 +4041,7 @@ dalvik_inst:
     b f2l_doconv
 
 .LOP_FLOAT_TO_LONG_set_vreg:
-    STORE64(v0, v1, rOBJ)               # vA/vA+1<- a0/a1
+    STORE64(v0, v1, rOBJ)				# vA/vA+1<- a0/a1
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -4044,7 +4050,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_FLOAT_TO_DOUBLE: /* 0x89 */
+L_OP_FLOAT_TO_DOUBLE: /* 0x89 */
 /* File: mips/OP_FLOAT_TO_DOUBLE.S */
 /* File: mips/unflopWider.S */
     /*
@@ -4071,10 +4077,10 @@ dalvik_inst:
 .LOP_FLOAT_TO_DOUBLE_set_vreg:
     STORE64(v0, v1, rOBJ)               # vA/vA+1<- a0/a1
 #else
-    cvt.d.s fv0, fa1
+    cvt.d.s fv0, fa0
 
 .LOP_FLOAT_TO_DOUBLE_set_vreg:
-    s.d	fv0, 0(rOBJ)               # vA/vA+1<- a0/a1
+    STORE64_F(fv0, fv0f, rOBJ)				# vA/vA+1<- a0/a1
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -4083,7 +4089,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DOUBLE_TO_INT: /* 0x8a */
+L_OP_DOUBLE_TO_INT: /* 0x8a */
 /* File: mips/OP_DOUBLE_TO_INT.S */
 /* File: mips/unopNarrower.S */
     /*
@@ -4104,7 +4110,7 @@ dalvik_inst:
 #ifdef	SOFT_FLOAT
     LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
 #else
-    l.d fa0, 0(a3)
+    LOAD64_F(fa0, fa0f, a3)
 #endif	   
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
                                # optional op
@@ -4134,7 +4140,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DOUBLE_TO_LONG: /* 0x8b */
+L_OP_DOUBLE_TO_LONG: /* 0x8b */
 /* File: mips/OP_DOUBLE_TO_LONG.S */
 /* File: mips/unflopWide.S */
     /*
@@ -4152,7 +4158,7 @@ dalvik_inst:
 #ifdef	SOFT_FLOAT
     LOAD64(a0, a1, a3)                 # a0/a1<- vAA
 #else
-    l.d	fa0, 0(a3)
+    LOAD64_F(fa0, fa0f, a3)
 #endif
     FETCH_ADVANCE_INST(1)              # advance rPC, load rINST
                               # optional op
@@ -4172,7 +4178,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DOUBLE_TO_FLOAT: /* 0x8c */
+L_OP_DOUBLE_TO_FLOAT: /* 0x8c */
 /* File: mips/OP_DOUBLE_TO_FLOAT.S */
 /* File: mips/unopNarrower.S */
     /*
@@ -4193,7 +4199,7 @@ dalvik_inst:
 #ifdef	SOFT_FLOAT
     LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
 #else
-    l.d fa0, 0(a3)
+    LOAD64_F(fa0, fa0f, a3)
 #endif	   
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
                                # optional op
@@ -4215,7 +4221,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INT_TO_BYTE: /* 0x8d */
+L_OP_INT_TO_BYTE: /* 0x8d */
 /* File: mips/OP_INT_TO_BYTE.S */
 /* File: mips/unop.S */
     /*
@@ -4240,7 +4246,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INT_TO_CHAR: /* 0x8e */
+L_OP_INT_TO_CHAR: /* 0x8e */
 /* File: mips/OP_INT_TO_CHAR.S */
 /* File: mips/unop.S */
     /*
@@ -4265,7 +4271,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INT_TO_SHORT: /* 0x8f */
+L_OP_INT_TO_SHORT: /* 0x8f */
 /* File: mips/OP_INT_TO_SHORT.S */
 /* File: mips/unop.S */
     /*
@@ -4290,7 +4296,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_INT: /* 0x90 */
+L_OP_ADD_INT: /* 0x90 */
 /* File: mips/OP_ADD_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4330,7 +4336,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SUB_INT: /* 0x91 */
+L_OP_SUB_INT: /* 0x91 */
 /* File: mips/OP_SUB_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4370,7 +4376,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_INT: /* 0x92 */
+L_OP_MUL_INT: /* 0x92 */
 /* File: mips/OP_MUL_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4410,7 +4416,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_INT: /* 0x93 */
+L_OP_DIV_INT: /* 0x93 */
 /* File: mips/OP_DIV_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4450,7 +4456,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_INT: /* 0x94 */
+L_OP_REM_INT: /* 0x94 */
 /* File: mips/OP_REM_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4490,7 +4496,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AND_INT: /* 0x95 */
+L_OP_AND_INT: /* 0x95 */
 /* File: mips/OP_AND_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4530,7 +4536,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_OR_INT: /* 0x96 */
+L_OP_OR_INT: /* 0x96 */
 /* File: mips/OP_OR_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4570,7 +4576,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_XOR_INT: /* 0x97 */
+L_OP_XOR_INT: /* 0x97 */
 /* File: mips/OP_XOR_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4610,7 +4616,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHL_INT: /* 0x98 */
+L_OP_SHL_INT: /* 0x98 */
 /* File: mips/OP_SHL_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4650,7 +4656,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHR_INT: /* 0x99 */
+L_OP_SHR_INT: /* 0x99 */
 /* File: mips/OP_SHR_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4690,7 +4696,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_USHR_INT: /* 0x9a */
+L_OP_USHR_INT: /* 0x9a */
 /* File: mips/OP_USHR_INT.S */
 /* File: mips/binop.S */
     /*
@@ -4730,7 +4736,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_LONG: /* 0x9b */
+L_OP_ADD_LONG: /* 0x9b */
 /* File: mips/OP_ADD_LONG.S */
 /*
  *  The compiler generates the following sequence for
@@ -4782,7 +4788,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SUB_LONG: /* 0x9c */
+L_OP_SUB_LONG: /* 0x9c */
 /* File: mips/OP_SUB_LONG.S */
 /*
  * For little endian the code sequence looks as follows:
@@ -4834,7 +4840,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_LONG: /* 0x9d */
+L_OP_MUL_LONG: /* 0x9d */
 /* File: mips/OP_MUL_LONG.S */
     /*
      * Signed 64-bit integer multiply.
@@ -4872,7 +4878,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_LONG: /* 0x9e */
+L_OP_DIV_LONG: /* 0x9e */
 /* File: mips/OP_DIV_LONG.S */
 /* File: mips/binopWide.S */
     /*
@@ -4916,7 +4922,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_LONG: /* 0x9f */
+L_OP_REM_LONG: /* 0x9f */
 /* File: mips/OP_REM_LONG.S */
 /* ldivmod returns quotient in a0/a1 and remainder in a2/a3 */
 /* File: mips/binopWide.S */
@@ -4961,7 +4967,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AND_LONG: /* 0xa0 */
+L_OP_AND_LONG: /* 0xa0 */
 /* File: mips/OP_AND_LONG.S */
 /* File: mips/binopWide.S */
     /*
@@ -5005,7 +5011,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_OR_LONG: /* 0xa1 */
+L_OP_OR_LONG: /* 0xa1 */
 /* File: mips/OP_OR_LONG.S */
 /* File: mips/binopWide.S */
     /*
@@ -5049,7 +5055,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_XOR_LONG: /* 0xa2 */
+L_OP_XOR_LONG: /* 0xa2 */
 /* File: mips/OP_XOR_LONG.S */
 /* File: mips/binopWide.S */
     /*
@@ -5093,7 +5099,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHL_LONG: /* 0xa3 */
+L_OP_SHL_LONG: /* 0xa3 */
 /* File: mips/OP_SHL_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -5134,7 +5140,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHR_LONG: /* 0xa4 */
+L_OP_SHR_LONG: /* 0xa4 */
 /* File: mips/OP_SHR_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -5171,7 +5177,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_USHR_LONG: /* 0xa5 */
+L_OP_USHR_LONG: /* 0xa5 */
 /* File: mips/OP_USHR_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -5215,7 +5221,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_FLOAT: /* 0xa6 */
+L_OP_ADD_FLOAT: /* 0xa6 */
 /* File: mips/OP_ADD_FLOAT.S */
 /* File: mips/binflop.S */
     /*
@@ -5265,7 +5271,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SUB_FLOAT: /* 0xa7 */
+L_OP_SUB_FLOAT: /* 0xa7 */
 /* File: mips/OP_SUB_FLOAT.S */
 /* File: mips/binflop.S */
     /*
@@ -5315,7 +5321,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_FLOAT: /* 0xa8 */
+L_OP_MUL_FLOAT: /* 0xa8 */
 /* File: mips/OP_MUL_FLOAT.S */
 /* File: mips/binflop.S */
     /*
@@ -5365,7 +5371,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_FLOAT: /* 0xa9 */
+L_OP_DIV_FLOAT: /* 0xa9 */
 /* File: mips/OP_DIV_FLOAT.S */
 /* File: mips/binflop.S */
     /*
@@ -5415,7 +5421,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_FLOAT: /* 0xaa */
+L_OP_REM_FLOAT: /* 0xaa */
 /* File: mips/OP_REM_FLOAT.S */
 /* File: mips/binflop.S */
     /*
@@ -5465,7 +5471,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_DOUBLE: /* 0xab */
+L_OP_ADD_DOUBLE: /* 0xab */
 /* File: mips/OP_ADD_DOUBLE.S */
 /* File: mips/binflopWide.S */
     /*
@@ -5497,8 +5503,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa0, 0(a2)		# fa0/fa0f <- vBB/vBB+1	
-    l.d		fa1, 0(a3)		# fa1/fa1f <- vCC/vCC+1
+    LOAD64_F(fa0, fa0f, a2)
+    LOAD64_F(fa1, fa1f, a3)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5510,11 +5516,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__adddf3)                              # result<- op, a0-a3 changed
-    sw     v0, 0(rOBJ)
-    sw     v1, 4(rOBJ)			# vAA/vAA+1
+    STORE64(v0, v1, rOBJ)
 #else
-    JAL(__adddf3)
-    s.d		fv0, 0(rOBJ)
+    add.d fv0, fa0, fa1
+     STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -5524,7 +5529,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SUB_DOUBLE: /* 0xac */
+L_OP_SUB_DOUBLE: /* 0xac */
 /* File: mips/OP_SUB_DOUBLE.S */
 /* File: mips/binflopWide.S */
     /*
@@ -5556,8 +5561,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa0, 0(a2)		# fa0/fa0f <- vBB/vBB+1	
-    l.d		fa1, 0(a3)		# fa1/fa1f <- vCC/vCC+1
+    LOAD64_F(fa0, fa0f, a2)
+    LOAD64_F(fa1, fa1f, a3)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5569,11 +5574,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__subdf3)                              # result<- op, a0-a3 changed
-    sw     v0, 0(rOBJ)
-    sw     v1, 4(rOBJ)			# vAA/vAA+1
+    STORE64(v0, v1, rOBJ)
 #else
-    JAL(__subdf3)
-    s.d		fv0, 0(rOBJ)
+    sub.d fv0, fa0, fa1
+     STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -5583,7 +5587,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_DOUBLE: /* 0xad */
+L_OP_MUL_DOUBLE: /* 0xad */
 /* File: mips/OP_MUL_DOUBLE.S */
 /* File: mips/binflopWide.S */
     /*
@@ -5615,8 +5619,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa0, 0(a2)		# fa0/fa0f <- vBB/vBB+1	
-    l.d		fa1, 0(a3)		# fa1/fa1f <- vCC/vCC+1
+    LOAD64_F(fa0, fa0f, a2)
+    LOAD64_F(fa1, fa1f, a3)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5628,11 +5632,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__muldf3)                              # result<- op, a0-a3 changed
-    sw     v0, 0(rOBJ)
-    sw     v1, 4(rOBJ)			# vAA/vAA+1
+    STORE64(v0, v1, rOBJ)
 #else
     mul.d fv0, fa0, fa1
-    s.d		fv0, 0(rOBJ)
+     STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -5642,7 +5645,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_DOUBLE: /* 0xae */
+L_OP_DIV_DOUBLE: /* 0xae */
 /* File: mips/OP_DIV_DOUBLE.S */
 /* File: mips/binflopWide.S */
     /*
@@ -5674,8 +5677,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa0, 0(a2)		# fa0/fa0f <- vBB/vBB+1	
-    l.d		fa1, 0(a3)		# fa1/fa1f <- vCC/vCC+1
+    LOAD64_F(fa0, fa0f, a2)
+    LOAD64_F(fa1, fa1f, a3)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5687,11 +5690,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__divdf3)                              # result<- op, a0-a3 changed
-    sw     v0, 0(rOBJ)
-    sw     v1, 4(rOBJ)			# vAA/vAA+1
+    STORE64(v0, v1, rOBJ)
 #else
-    JAL(__divdf3)
-    s.d		fv0, 0(rOBJ)
+    div.d fv0, fa0, fa1
+     STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -5701,7 +5703,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_DOUBLE: /* 0xaf */
+L_OP_REM_DOUBLE: /* 0xaf */
 /* File: mips/OP_REM_DOUBLE.S */
 /* File: mips/binflopWide.S */
     /*
@@ -5733,8 +5735,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa0, 0(a2)		# fa0/fa0f <- vBB/vBB+1	
-    l.d		fa1, 0(a3)		# fa1/fa1f <- vCC/vCC+1
+    LOAD64_F(fa0, fa0f, a2)
+    LOAD64_F(fa1, fa1f, a3)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5746,11 +5748,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(fmod)                              # result<- op, a0-a3 changed
-    sw     v0, 0(rOBJ)
-    sw     v1, 4(rOBJ)			# vAA/vAA+1
+    STORE64(v0, v1, rOBJ)
 #else
     JAL(fmod)
-    s.d		fv0, 0(rOBJ)
+     STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -5760,7 +5761,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_INT_2ADDR: /* 0xb0 */
+L_OP_ADD_INT_2ADDR: /* 0xb0 */
 /* File: mips/OP_ADD_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -5796,7 +5797,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SUB_INT_2ADDR: /* 0xb1 */
+L_OP_SUB_INT_2ADDR: /* 0xb1 */
 /* File: mips/OP_SUB_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -5832,7 +5833,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_INT_2ADDR: /* 0xb2 */
+L_OP_MUL_INT_2ADDR: /* 0xb2 */
 /* File: mips/OP_MUL_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -5868,7 +5869,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_INT_2ADDR: /* 0xb3 */
+L_OP_DIV_INT_2ADDR: /* 0xb3 */
 /* File: mips/OP_DIV_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -5904,7 +5905,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_INT_2ADDR: /* 0xb4 */
+L_OP_REM_INT_2ADDR: /* 0xb4 */
 /* File: mips/OP_REM_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -5940,7 +5941,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AND_INT_2ADDR: /* 0xb5 */
+L_OP_AND_INT_2ADDR: /* 0xb5 */
 /* File: mips/OP_AND_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -5976,7 +5977,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_OR_INT_2ADDR: /* 0xb6 */
+L_OP_OR_INT_2ADDR: /* 0xb6 */
 /* File: mips/OP_OR_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -6012,7 +6013,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_XOR_INT_2ADDR: /* 0xb7 */
+L_OP_XOR_INT_2ADDR: /* 0xb7 */
 /* File: mips/OP_XOR_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -6048,7 +6049,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHL_INT_2ADDR: /* 0xb8 */
+L_OP_SHL_INT_2ADDR: /* 0xb8 */
 /* File: mips/OP_SHL_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -6084,7 +6085,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHR_INT_2ADDR: /* 0xb9 */
+L_OP_SHR_INT_2ADDR: /* 0xb9 */
 /* File: mips/OP_SHR_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -6120,7 +6121,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_USHR_INT_2ADDR: /* 0xba */
+L_OP_USHR_INT_2ADDR: /* 0xba */
 /* File: mips/OP_USHR_INT_2ADDR.S */
 /* File: mips/binop2addr.S */
     /*
@@ -6156,7 +6157,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_LONG_2ADDR: /* 0xbb */
+L_OP_ADD_LONG_2ADDR: /* 0xbb */
 /* File: mips/OP_ADD_LONG_2ADDR.S */
 /*
  *See OP_ADD_LONG.S for details
@@ -6199,7 +6200,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SUB_LONG_2ADDR: /* 0xbc */
+L_OP_SUB_LONG_2ADDR: /* 0xbc */
 /* File: mips/OP_SUB_LONG_2ADDR.S */
 /*
  * See comments in OP_SUB_LONG.S
@@ -6242,7 +6243,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_LONG_2ADDR: /* 0xbd */
+L_OP_MUL_LONG_2ADDR: /* 0xbd */
 /* File: mips/OP_MUL_LONG_2ADDR.S */
     /*
      * See comments in OP_MUL_LONG.S
@@ -6274,7 +6275,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_LONG_2ADDR: /* 0xbe */
+L_OP_DIV_LONG_2ADDR: /* 0xbe */
 /* File: mips/OP_DIV_LONG_2ADDR.S */
 /* File: mips/binopWide2addr.S */
     /*
@@ -6314,7 +6315,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_LONG_2ADDR: /* 0xbf */
+L_OP_REM_LONG_2ADDR: /* 0xbf */
 /* File: mips/OP_REM_LONG_2ADDR.S */
 /* File: mips/binopWide2addr.S */
     /*
@@ -6354,7 +6355,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AND_LONG_2ADDR: /* 0xc0 */
+L_OP_AND_LONG_2ADDR: /* 0xc0 */
 /* File: mips/OP_AND_LONG_2ADDR.S */
 /* File: mips/binopWide2addr.S */
     /*
@@ -6394,7 +6395,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_OR_LONG_2ADDR: /* 0xc1 */
+L_OP_OR_LONG_2ADDR: /* 0xc1 */
 /* File: mips/OP_OR_LONG_2ADDR.S */
 /* File: mips/binopWide2addr.S */
     /*
@@ -6434,7 +6435,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_XOR_LONG_2ADDR: /* 0xc2 */
+L_OP_XOR_LONG_2ADDR: /* 0xc2 */
 /* File: mips/OP_XOR_LONG_2ADDR.S */
 /* File: mips/binopWide2addr.S */
     /*
@@ -6474,7 +6475,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHL_LONG_2ADDR: /* 0xc3 */
+L_OP_SHL_LONG_2ADDR: /* 0xc3 */
 /* File: mips/OP_SHL_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -6508,7 +6509,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHR_LONG_2ADDR: /* 0xc4 */
+L_OP_SHR_LONG_2ADDR: /* 0xc4 */
 /* File: mips/OP_SHR_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -6541,7 +6542,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_USHR_LONG_2ADDR: /* 0xc5 */
+L_OP_USHR_LONG_2ADDR: /* 0xc5 */
 /* File: mips/OP_USHR_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -6574,7 +6575,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_FLOAT_2ADDR: /* 0xc6 */
+L_OP_ADD_FLOAT_2ADDR: /* 0xc6 */
 /* File: mips/OP_ADD_FLOAT_2ADDR.S */
 /* File: mips/binflop2addr.S */
     /*
@@ -6625,7 +6626,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SUB_FLOAT_2ADDR: /* 0xc7 */
+L_OP_SUB_FLOAT_2ADDR: /* 0xc7 */
 /* File: mips/OP_SUB_FLOAT_2ADDR.S */
 /* File: mips/binflop2addr.S */
     /*
@@ -6676,7 +6677,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_FLOAT_2ADDR: /* 0xc8 */
+L_OP_MUL_FLOAT_2ADDR: /* 0xc8 */
 /* File: mips/OP_MUL_FLOAT_2ADDR.S */
 /* File: mips/binflop2addr.S */
     /*
@@ -6727,7 +6728,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_FLOAT_2ADDR: /* 0xc9 */
+L_OP_DIV_FLOAT_2ADDR: /* 0xc9 */
 /* File: mips/OP_DIV_FLOAT_2ADDR.S */
 /* File: mips/binflop2addr.S */
     /*
@@ -6778,7 +6779,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_FLOAT_2ADDR: /* 0xca */
+L_OP_REM_FLOAT_2ADDR: /* 0xca */
 /* File: mips/OP_REM_FLOAT_2ADDR.S */
 /* File: mips/binflop2addr.S */
     /*
@@ -6829,7 +6830,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_DOUBLE_2ADDR: /* 0xcb */
+L_OP_ADD_DOUBLE_2ADDR: /* 0xcb */
 /* File: mips/OP_ADD_DOUBLE_2ADDR.S */
 /* File: mips/binflopWide2addr.S */
     /*
@@ -6855,8 +6856,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa1, 0(a1)	
-    l.d		fa0, 0(rOBJ)	
+    LOAD64_F(fa0, fa0f, rOBJ)
+    LOAD64_F(fa1, fa1f, a1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -6868,11 +6869,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__adddf3)                              # result<- op, a0-a3 changed
-    sw      v0, 0(rOBJ)  
-    sw      v1, 4(rOBJ)			# vAA/vAA+1<- result0/result1
+    STORE64(v0, v1, rOBJ)
 #else
-    JAL(__adddf3)
-    s.d		fv0, 0(rOBJ)
+    add.d fv0, fa0, fa1
+    STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -6882,7 +6882,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SUB_DOUBLE_2ADDR: /* 0xcc */
+L_OP_SUB_DOUBLE_2ADDR: /* 0xcc */
 /* File: mips/OP_SUB_DOUBLE_2ADDR.S */
 /* File: mips/binflopWide2addr.S */
     /*
@@ -6908,8 +6908,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa1, 0(a1)	
-    l.d		fa0, 0(rOBJ)	
+    LOAD64_F(fa0, fa0f, rOBJ)
+    LOAD64_F(fa1, fa1f, a1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -6921,11 +6921,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__subdf3)                              # result<- op, a0-a3 changed
-    sw      v0, 0(rOBJ)  
-    sw      v1, 4(rOBJ)			# vAA/vAA+1<- result0/result1
+    STORE64(v0, v1, rOBJ)
 #else
-    JAL(__subdf3)
-    s.d		fv0, 0(rOBJ)
+    sub.d fv0, fa0, fa1
+    STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -6935,7 +6934,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_DOUBLE_2ADDR: /* 0xcd */
+L_OP_MUL_DOUBLE_2ADDR: /* 0xcd */
 /* File: mips/OP_MUL_DOUBLE_2ADDR.S */
 /* File: mips/binflopWide2addr.S */
     /*
@@ -6961,8 +6960,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa1, 0(a1)	
-    l.d		fa0, 0(rOBJ)	
+    LOAD64_F(fa0, fa0f, rOBJ)
+    LOAD64_F(fa1, fa1f, a1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -6974,11 +6973,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__muldf3)                              # result<- op, a0-a3 changed
-    sw      v0, 0(rOBJ)  
-    sw      v1, 4(rOBJ)			# vAA/vAA+1<- result0/result1
+    STORE64(v0, v1, rOBJ)
 #else
     mul.d fv0, fa0, fa1
-    s.d		fv0, 0(rOBJ)
+    STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -6988,7 +6986,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_DOUBLE_2ADDR: /* 0xce */
+L_OP_DIV_DOUBLE_2ADDR: /* 0xce */
 /* File: mips/OP_DIV_DOUBLE_2ADDR.S */
 /* File: mips/binflopWide2addr.S */
     /*
@@ -7014,8 +7012,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa1, 0(a1)	
-    l.d		fa0, 0(rOBJ)	
+    LOAD64_F(fa0, fa0f, rOBJ)
+    LOAD64_F(fa1, fa1f, a1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -7027,11 +7025,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__divdf3)                              # result<- op, a0-a3 changed
-    sw      v0, 0(rOBJ)  
-    sw      v1, 4(rOBJ)			# vAA/vAA+1<- result0/result1
+    STORE64(v0, v1, rOBJ)
 #else
-    JAL(__divdf3)
-    s.d		fv0, 0(rOBJ)
+    div.d fv0, fa0, fa1
+    STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -7041,7 +7038,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_DOUBLE_2ADDR: /* 0xcf */
+L_OP_REM_DOUBLE_2ADDR: /* 0xcf */
 /* File: mips/OP_REM_DOUBLE_2ADDR.S */
 /* File: mips/binflopWide2addr.S */
     /*
@@ -7067,8 +7064,8 @@ dalvik_inst:
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa1, 0(a1)	
-    l.d		fa0, 0(rOBJ)	
+    LOAD64_F(fa0, fa0f, rOBJ)
+    LOAD64_F(fa1, fa1f, a1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -7080,11 +7077,10 @@ dalvik_inst:
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(fmod)                              # result<- op, a0-a3 changed
-    sw      v0, 0(rOBJ)  
-    sw      v1, 4(rOBJ)			# vAA/vAA+1<- result0/result1
+    STORE64(v0, v1, rOBJ)
 #else
     JAL(fmod)
-    s.d		fv0, 0(rOBJ)
+    STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -7094,7 +7090,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_INT_LIT16: /* 0xd0 */
+L_OP_ADD_INT_LIT16: /* 0xd0 */
 /* File: mips/OP_ADD_INT_LIT16.S */
 /* File: mips/binopLit16.S */
     /*
@@ -7130,7 +7126,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_RSUB_INT: /* 0xd1 */
+L_OP_RSUB_INT: /* 0xd1 */
 /* File: mips/OP_RSUB_INT.S */
 /* this op is "rsub-int", but can be thought of as "rsub-int/lit16" */
 /* File: mips/binopLit16.S */
@@ -7167,7 +7163,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_INT_LIT16: /* 0xd2 */
+L_OP_MUL_INT_LIT16: /* 0xd2 */
 /* File: mips/OP_MUL_INT_LIT16.S */
 /* File: mips/binopLit16.S */
     /*
@@ -7203,7 +7199,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_INT_LIT16: /* 0xd3 */
+L_OP_DIV_INT_LIT16: /* 0xd3 */
 /* File: mips/OP_DIV_INT_LIT16.S */
 /* File: mips/binopLit16.S */
     /*
@@ -7239,7 +7235,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_INT_LIT16: /* 0xd4 */
+L_OP_REM_INT_LIT16: /* 0xd4 */
 /* File: mips/OP_REM_INT_LIT16.S */
 /* File: mips/binopLit16.S */
     /*
@@ -7275,7 +7271,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AND_INT_LIT16: /* 0xd5 */
+L_OP_AND_INT_LIT16: /* 0xd5 */
 /* File: mips/OP_AND_INT_LIT16.S */
 /* File: mips/binopLit16.S */
     /*
@@ -7311,7 +7307,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_OR_INT_LIT16: /* 0xd6 */
+L_OP_OR_INT_LIT16: /* 0xd6 */
 /* File: mips/OP_OR_INT_LIT16.S */
 /* File: mips/binopLit16.S */
     /*
@@ -7347,7 +7343,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_XOR_INT_LIT16: /* 0xd7 */
+L_OP_XOR_INT_LIT16: /* 0xd7 */
 /* File: mips/OP_XOR_INT_LIT16.S */
 /* File: mips/binopLit16.S */
     /*
@@ -7383,7 +7379,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_ADD_INT_LIT8: /* 0xd8 */
+L_OP_ADD_INT_LIT8: /* 0xd8 */
 /* File: mips/OP_ADD_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7421,7 +7417,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_RSUB_INT_LIT8: /* 0xd9 */
+L_OP_RSUB_INT_LIT8: /* 0xd9 */
 /* File: mips/OP_RSUB_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7459,7 +7455,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_MUL_INT_LIT8: /* 0xda */
+L_OP_MUL_INT_LIT8: /* 0xda */
 /* File: mips/OP_MUL_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7497,7 +7493,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_DIV_INT_LIT8: /* 0xdb */
+L_OP_DIV_INT_LIT8: /* 0xdb */
 /* File: mips/OP_DIV_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7535,7 +7531,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_REM_INT_LIT8: /* 0xdc */
+L_OP_REM_INT_LIT8: /* 0xdc */
 /* File: mips/OP_REM_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7573,7 +7569,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_AND_INT_LIT8: /* 0xdd */
+L_OP_AND_INT_LIT8: /* 0xdd */
 /* File: mips/OP_AND_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7611,7 +7607,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_OR_INT_LIT8: /* 0xde */
+L_OP_OR_INT_LIT8: /* 0xde */
 /* File: mips/OP_OR_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7649,7 +7645,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_XOR_INT_LIT8: /* 0xdf */
+L_OP_XOR_INT_LIT8: /* 0xdf */
 /* File: mips/OP_XOR_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7687,7 +7683,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHL_INT_LIT8: /* 0xe0 */
+L_OP_SHL_INT_LIT8: /* 0xe0 */
 /* File: mips/OP_SHL_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7725,7 +7721,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_SHR_INT_LIT8: /* 0xe1 */
+L_OP_SHR_INT_LIT8: /* 0xe1 */
 /* File: mips/OP_SHR_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7763,7 +7759,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_USHR_INT_LIT8: /* 0xe2 */
+L_OP_USHR_INT_LIT8: /* 0xe2 */
 /* File: mips/OP_USHR_INT_LIT8.S */
 /* File: mips/binopLit8.S */
     /*
@@ -7801,7 +7797,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E3: /* 0xe3 */
+L_OP_UNUSED_E3: /* 0xe3 */
 /* File: mips/OP_UNUSED_E3.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7810,7 +7806,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E4: /* 0xe4 */
+L_OP_UNUSED_E4: /* 0xe4 */
 /* File: mips/OP_UNUSED_E4.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7819,7 +7815,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E5: /* 0xe5 */
+L_OP_UNUSED_E5: /* 0xe5 */
 /* File: mips/OP_UNUSED_E5.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7828,7 +7824,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E6: /* 0xe6 */
+L_OP_UNUSED_E6: /* 0xe6 */
 /* File: mips/OP_UNUSED_E6.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7837,7 +7833,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E7: /* 0xe7 */
+L_OP_UNUSED_E7: /* 0xe7 */
 /* File: mips/OP_UNUSED_E7.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7846,7 +7842,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E8: /* 0xe8 */
+L_OP_UNUSED_E8: /* 0xe8 */
 /* File: mips/OP_UNUSED_E8.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7855,7 +7851,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E9: /* 0xe9 */
+L_OP_UNUSED_E9: /* 0xe9 */
 /* File: mips/OP_UNUSED_E9.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7864,7 +7860,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_EA: /* 0xea */
+L_OP_UNUSED_EA: /* 0xea */
 /* File: mips/OP_UNUSED_EA.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7873,7 +7869,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_EB: /* 0xeb */
+L_OP_UNUSED_EB: /* 0xeb */
 /* File: mips/OP_UNUSED_EB.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7882,7 +7878,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_EC: /* 0xec */
+L_OP_UNUSED_EC: /* 0xec */
 /* File: mips/OP_UNUSED_EC.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7891,7 +7887,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_ED: /* 0xed */
+L_OP_UNUSED_ED: /* 0xed */
 /* File: mips/OP_UNUSED_ED.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7900,7 +7896,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_EXECUTE_INLINE: /* 0xee */
+L_OP_EXECUTE_INLINE: /* 0xee */
 /* File: mips/OP_EXECUTE_INLINE.S */
     /*
      * Execute a "native inline" instruction.
@@ -7927,7 +7923,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_EF: /* 0xef */
+L_OP_UNUSED_EF: /* 0xef */
 /* File: mips/OP_UNUSED_EF.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7936,7 +7932,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_DIRECT_EMPTY: /* 0xf0 */
+L_OP_INVOKE_DIRECT_EMPTY: /* 0xf0 */
 /* File: mips/OP_INVOKE_DIRECT_EMPTY.S */
     /*
      * invoke-direct-empty is a no-op in a "standard" interpreter.
@@ -7947,7 +7943,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_F1: /* 0xf1 */
+L_OP_UNUSED_F1: /* 0xf1 */
 /* File: mips/OP_UNUSED_F1.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -7956,7 +7952,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_QUICK: /* 0xf2 */
+L_OP_IGET_QUICK: /* 0xf2 */
 /* File: mips/OP_IGET_QUICK.S */
     /* For: iget-quick, iget-object-quick */
     /* op vA, vB, offset#CCCC */
@@ -7976,7 +7972,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_WIDE_QUICK: /* 0xf3 */
+L_OP_IGET_WIDE_QUICK: /* 0xf3 */
 /* File: mips/OP_IGET_WIDE_QUICK.S */
     /* iget-wide-quick vA, vB, offset#CCCC */
     GET_OPB(a2)			        # a2<- B
@@ -7996,7 +7992,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IGET_OBJECT_QUICK: /* 0xf4 */
+L_OP_IGET_OBJECT_QUICK: /* 0xf4 */
 /* File: mips/OP_IGET_OBJECT_QUICK.S */
 /* File: mips/OP_IGET_QUICK.S */
     /* For: iget-quick, iget-object-quick */
@@ -8018,7 +8014,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_QUICK: /* 0xf5 */
+L_OP_IPUT_QUICK: /* 0xf5 */
 /* File: mips/OP_IPUT_QUICK.S */
     /* For: iput-quick, iput-object-quick */
     /* op vA, vB, offset#CCCC */
@@ -8037,7 +8033,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_WIDE_QUICK: /* 0xf6 */
+L_OP_IPUT_WIDE_QUICK: /* 0xf6 */
 /* File: mips/OP_IPUT_WIDE_QUICK.S */
     /* iput-wide-quick vA, vB, offset#CCCC */
     GET_OPA4(a0)		        # a0<- A(+)
@@ -8057,7 +8053,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_IPUT_OBJECT_QUICK: /* 0xf7 */
+L_OP_IPUT_OBJECT_QUICK: /* 0xf7 */
 /* File: mips/OP_IPUT_OBJECT_QUICK.S */
 /* File: mips/OP_IPUT_QUICK.S */
     /* For: iput-quick, iput-object-quick */
@@ -8078,7 +8074,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */
+L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */
     /* (stub) */
 	SAVE_PC_TO_GLUE()
 	SAVE_FP_TO_GLUE()
@@ -8091,7 +8087,7 @@ dalvik_inst:
 	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_VIRTUAL_QUICK_RANGE: /* 0xf9 */
+L_OP_INVOKE_VIRTUAL_QUICK_RANGE: /* 0xf9 */
     /* (stub) */
 	SAVE_PC_TO_GLUE()
 	SAVE_FP_TO_GLUE()
@@ -8104,7 +8100,7 @@ dalvik_inst:
 	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_SUPER_QUICK: /* 0xfa */
+L_OP_INVOKE_SUPER_QUICK: /* 0xfa */
 /* File: mips/OP_INVOKE_SUPER_QUICK.S */
     /*
      * Handle an optimized "super" method call.
@@ -8132,7 +8128,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_INVOKE_SUPER_QUICK_RANGE: /* 0xfb */
+L_OP_INVOKE_SUPER_QUICK_RANGE: /* 0xfb */
 /* File: mips/OP_INVOKE_SUPER_QUICK_RANGE.S */
 /* File: mips/OP_INVOKE_SUPER_QUICK.S */
     /*
@@ -8162,7 +8158,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_FC: /* 0xfc */
+L_OP_UNUSED_FC: /* 0xfc */
 /* File: mips/OP_UNUSED_FC.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -8171,7 +8167,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_FD: /* 0xfd */
+L_OP_UNUSED_FD: /* 0xfd */
 /* File: mips/OP_UNUSED_FD.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -8180,7 +8176,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_FE: /* 0xfe */
+L_OP_UNUSED_FE: /* 0xfe */
 /* File: mips/OP_UNUSED_FE.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -8189,7 +8185,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_FF: /* 0xff */
+L_OP_UNUSED_FF: /* 0xff */
 /* File: mips/OP_UNUSED_FF.S */
 /* File: mips/unused.S */
     b      common_abort
@@ -8933,17 +8929,20 @@ f2l_doconv:
 #else
     l.s		fa1, .LLONG_TO_max
     c.ole.s	fcc0, fa1, fa0
-    li		v0, ~0x80000000
+    li		v0, ~0
+    li		v1, ~0x80000000
     bc1t	.LOP_FLOAT_TO_LONG_set_vreg
 	
-    l.s	fa1,	.LLONG_TO_min
+    l.s		fa1, .LLONG_TO_min
     c.ole.s	fcc0, fa0, fa1
-    li		v0, 0x80000000
+    li		v0, 0
+    li		v1, 0x80000000
     bc1t	.LOP_FLOAT_TO_LONG_set_vreg
 
     mov.s	fa1, fa0
     c.un.s	fcc0, fa0, fa1
     li		v0, 0
+    li		v1, 0
     bc1t	.LOP_FLOAT_TO_LONG_set_vreg
 	
     JAL(__fixsfdi)
@@ -8962,7 +8961,8 @@ f2l_doconv:
 
 d2i_doconv:
 #ifdef SOFT_FLOAT
-    ld		a2, .LDOUBLE_TO_INT_max        # (double)maxint, lo
+    la		t0, .LDOUBLE_TO_INT_max
+    LOAD64(a2, a3, t0)
     move	rBIX, a0                       # save a0
     move	rSELF, a1                      #  and a1
     JAL(__gedf2)			       # is arg >= maxint?
@@ -8973,7 +8973,8 @@ d2i_doconv:
 
     move	a0, rBIX                       # recover arg
     move	a1, rSELF
-    ld		a2, .LDOUBLE_TO_INT_min        # (double)minint
+    la		t0, .LDOUBLE_TO_INT_min
+    LOAD64(a2, a3, t0)
     JAL(__ledf2) 	            	       # is arg <= minint?
 
     move	t0, v0
@@ -8995,18 +8996,20 @@ d2i_doconv:
     JAL(__fixdfsi)			# convert double to int
     b		.LOP_DOUBLE_TO_INT_set_vreg
 #else
-    l.d		fa1, .LDOUBLE_TO_INT_max
+    la		t0, .LDOUBLE_TO_INT_max
+    LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa1, fa0
     l.s		fv0, .LDOUBLE_TO_INT_maxret
     bc1t	.LOP_DOUBLE_TO_INT_set_vreg_f
-	
-    l.d		fa1, .LDOUBLE_TO_INT_min  
+    
+    la		t0, .LDOUBLE_TO_INT_min
+    LOAD64_F(fa1, fa1f, t0)	
     c.ole.d	fcc0, fa0, fa1
     l.s		fv0, .LDOUBLE_TO_INT_minret
     bc1t	.LOP_DOUBLE_TO_INT_set_vreg_f
     
     mov.d	fa1, fa0
-    c.un.s	fcc0, fa0, fa1
+    c.un.d	fcc0, fa0, fa1
     li.s	fv0, 0
     bc1t	.LOP_DOUBLE_TO_INT_set_vreg_f
 
@@ -9020,7 +9023,7 @@ d2i_doconv:
 .LDOUBLE_TO_INT_min:
     .dword   0xc1e0000000000000                  # minint, as a double (high word)
 .LDOUBLE_TO_INT_maxret:
-    .word   ~0x80000000
+    .word   0x7fffffff
 .LDOUBLE_TO_INT_minret:
     .word   0x80000000
 
@@ -9028,23 +9031,27 @@ d2i_doconv:
 
 d2l_doconv:
 #ifdef	SOFT_FLOAT
-    ld		a2, .LDOUBLE_TO_LONG_max        # maxlong, as a double (high word)
-    move	rBIX, a0			# save a0	
-    move	rSELF, a1			#  and a1
+    la		t0, .LDOUBLE_TO_LONG_max
+    LOAD64(a2, a3, t0)
+    move	rBIX, a0		# save a0	
+    move	rSELF, a1		#  and a1
     JAL(__gedf2)
 
-    move	t0, v0
-    ld		v0, .LDOUBLE_TO_LONG_ret_max
-    bgez	t0, .LOP_DOUBLE_TO_LONG_set_vreg
+    move	t1, v0
+    la		t0, .LDOUBLE_TO_LONG_ret_max
+    LOAD64(v0, v1, t0)
+    bgez	t1, .LOP_DOUBLE_TO_LONG_set_vreg
 
     move	a0, rBIX
     move	a1, rSELF
-    ld		a2, .LDOUBLE_TO_LONG_min        # minlong, as a double (high word)
+    la		t0, .LDOUBLE_TO_LONG_min
+    LOAD64(a2, a3, t0)
     JAL(__ledf2)
 
-    move	t0, v0
-    ld		v0, .LDOUBLE_TO_LONG_ret_min
-    blez	t0, .LOP_DOUBLE_TO_LONG_set_vreg
+    move	t1, v0
+    la		t0, .LDOUBLE_TO_LONG_ret_min
+    LOAD64(v0, v1, t0)
+    blez	t1, .LOP_DOUBLE_TO_LONG_set_vreg
     
     move	a0, rBIX
     move	a1, rSELF
@@ -9062,19 +9069,24 @@ d2l_doconv:
    JAL(__fixdfdi)
 
 #else
-    l.d		fa1, .LDOUBLE_TO_LONG_max       # maxlong, as a double (high word)
+    la		t0, .LDOUBLE_TO_LONG_max
+    LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa1, fa0
-    l.d		fv0, .LDOUBLE_TO_LONG_ret_max
+    la		t0, .LDOUBLE_TO_LONG_ret_max
+    LOAD64	(v0, v1, t0)
     bc1t	.LOP_DOUBLE_TO_LONG_set_vreg
 	
-    l.d		fa1, .LDOUBLE_TO_LONG_min       # minlong, as a double (high word)
+    la		t0, .LDOUBLE_TO_LONG_min
+    LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa0, fa1
-    l.d		fv0, .LDOUBLE_TO_LONG_ret_min
+    la		t0, .LDOUBLE_TO_LONG_ret_min
+    LOAD64(v0, v1, t0)
     bc1t	.LOP_DOUBLE_TO_LONG_set_vreg
     
     mov.d	fa1, fa0
     c.un.d	fcc0, fa0, fa1
-    li.d	fv0, 0
+    li		v0, 0
+    li		v1, 0
     bc1t	.LOP_DOUBLE_TO_LONG_set_vreg
     JAL(__fixdfdi)
 #endif

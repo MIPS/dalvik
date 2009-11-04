@@ -7,11 +7,11 @@
 
     .global dvmAsmInstructionStart
     .type   dvmAsmInstructionStart, %function
-dvmAsmInstructionStart = .L_OP_NOP
+dvmAsmInstructionStart = L_OP_NOP
     .text
 
     .balign 64
-.L_OP_NOP:   /* dummy */
+L_OP_NOP:   /* dummy */
 
     .balign 64
     .size   dvmAsmInstructionStart, .-dvmAsmInstructionStart

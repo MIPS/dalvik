@@ -1,4 +1,4 @@
-%default {"preinstr":"", "ld_arg":"l.d	fa0, 0(a3)","st_result":"s.d	fv0, 0(rOBJ)"}
+%default {"preinstr":"", "ld_arg":"LOAD64_F(fa0, fa0f, a3)","st_result":"STORE64_F(fv0, fv0f, rOBJ)"}
     /*
      * Generic 64-bit unary operation.  Provide an "instr" line that
      * specifies an instruction that performs "result = op a0/a1".

@@ -1,4 +1,4 @@
-%default {"preinstr":"", "load":"l.d fa0, 0(a3)"}
+%default {"preinstr":"", "load":"LOAD64_F(fa0, fa0f, a3)"}
     /*
      * Generic 64bit-to-32bit unary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = op a0/a1", where
