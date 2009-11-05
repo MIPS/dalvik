@@ -13,7 +13,8 @@
 
 d2i_doconv:
 #ifdef SOFT_FLOAT
-    ld		a2, .LDOUBLE_TO_INT_max        # (double)maxint, lo
+    la		t0, .LDOUBLE_TO_INT_max
+    LOAD64(a2, a3, t0)
     move	rBIX, a0                       # save a0
     move	rSELF, a1                      #  and a1
     JAL(__gedf2)			       # is arg >= maxint?
@@ -24,7 +25,8 @@ d2i_doconv:
 
     move	a0, rBIX                       # recover arg
     move	a1, rSELF
-    ld		a2, .LDOUBLE_TO_INT_min        # (double)minint
+    la		t0, .LDOUBLE_TO_INT_min
+    LOAD64(a2, a3, t0)
     JAL(__ledf2) 	            	       # is arg <= minint?
 
     move	t0, v0
@@ -46,18 +48,20 @@ d2i_doconv:
     JAL(__fixdfsi)			# convert double to int
     b		.L${opcode}_set_vreg
 #else
-    l.d		fa1, .LDOUBLE_TO_INT_max
+    la		t0, .LDOUBLE_TO_INT_max
+    LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa1, fa0
     l.s		fv0, .LDOUBLE_TO_INT_maxret
     bc1t	.L${opcode}_set_vreg_f
-	
-    l.d		fa1, .LDOUBLE_TO_INT_min  
+    
+    la		t0, .LDOUBLE_TO_INT_min
+    LOAD64_F(fa1, fa1f, t0)	
     c.ole.d	fcc0, fa0, fa1
     l.s		fv0, .LDOUBLE_TO_INT_minret
     bc1t	.L${opcode}_set_vreg_f
     
     mov.d	fa1, fa0
-    c.un.s	fcc0, fa0, fa1
+    c.un.d	fcc0, fa0, fa1
     li.s	fv0, 0
     bc1t	.L${opcode}_set_vreg_f
 
@@ -71,6 +75,6 @@ d2i_doconv:
 .LDOUBLE_TO_INT_min:
     .dword   0xc1e0000000000000                  # minint, as a double (high word)
 .LDOUBLE_TO_INT_maxret:
-    .word   ~0x80000000
+    .word   0x7fffffff
 .LDOUBLE_TO_INT_minret:
     .word   0x80000000

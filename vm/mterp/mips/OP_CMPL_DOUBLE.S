@@ -36,18 +36,18 @@
     LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
     b		${opcode}_continue 
 #else
-    l.d		fs0, 0(rOBJ)
-    l.d		fs1, 0(rBIX)
+    LOAD64_F(fs0, fs0f, rOBJ)
+    LOAD64_F(fs1, fs1f, rBIX)
     c.olt.d     fcc0, fs0, fs1
     li		rSELF, -1
-    bc1t        fcc0, ${opcode}_finish
-    c.olt.d     fcc0, fs1, fs0
-    li          rSELF, 1
+    bc1t	fcc0, ${opcode}_finish
+    c.olt.d	fcc0, fs1, fs0
+    li		rSELF, 1
     bc1t        fcc0, ${opcode}_finish
     c.eq.d      fcc0, fs0, fs1
-    li          rSELF, 0
-    bc1t        fcc0, ${opcode}_finish
-    b           ${opcode}_nan
+    li		rSELF, 0
+    bc1t	fcc0, ${opcode}_finish
+    b		${opcode}_nan
 #endif
 %break
 
