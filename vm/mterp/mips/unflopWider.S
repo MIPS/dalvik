@@ -1,4 +1,4 @@
-%default {"preinstr":"", "st_result":"s.d	fv0, 0(rOBJ)"}
+%default {"preinstr":"", "st_result":"STORE64_F(fv0, fv0f, rOBJ)"}
     /*
      * Generic 32bit-to-64bit unary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = op a0", where
@@ -26,7 +26,7 @@
     $instr_f
 
 .L${opcode}_set_vreg:
-    $st_result               # vA/vA+1<- a0/a1
+    $st_result				# vA/vA+1<- a0/a1
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction

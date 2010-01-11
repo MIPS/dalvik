@@ -28,8 +28,8 @@
     beqz	t0, common_errDivideByZero
     .endif
 #else
-    l.d		fa0, 0(a2)		# fa0/fa0f <- vBB/vBB+1	
-    l.d		fa1, 0(a3)		# fa1/fa1f <- vCC/vCC+1
+    LOAD64_F(fa0, fa0f, a2)
+    LOAD64_F(fa1, fa1f, a3)
     .if $chkzero
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -41,11 +41,10 @@
     $preinstr                           # optional op
 #ifdef	SOFT_FLOAT
     $instr                              # result<- op, a0-a3 changed
-    sw     v0, 0(rOBJ)
-    sw     v1, 4(rOBJ)			# vAA/vAA+1
+    STORE64(v0, v1, rOBJ)
 #else
     $instr_f
-    s.d		fv0, 0(rOBJ)
+     STORE64_F(fv0, fv0f, rOBJ)
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction

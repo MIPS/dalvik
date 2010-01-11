@@ -31,7 +31,7 @@ in_op_start = 0             # 0=not started, 1=started, 2=ended
 default_op_dir = None
 opcode_locations = {}
 asm_stub_text = []
-label_prefix = ".L"         # use ".L" to hide labels from gdb
+label_prefix = "L"         # use ".L" to hide labels from gdb
 
 
 # Exception class.

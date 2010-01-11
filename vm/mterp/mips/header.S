@@ -3,15 +3,12 @@
 #include <asm/regdef.h>
 #include <asm/fpregdef.h>
 
-/*
-Float opcodes need to be fixed before enabling hard float.
-#if	__mips_hard_float
+#ifdef	__mips_hard_float
 #define		HARD_FLOAT
 #else
 #define		SOFT_FLOAT
 #endif
-*/
-#define		SOFT_FLOAT
+
 /* MIPS definitions and declarations 
  
    reg	nick		purpose
@@ -143,8 +140,17 @@ Float opcodes need to be fixed before enabling hard float.
 #define LOAD64_off(rlo,rhi,rbase,off)	lw	rlo, off(rbase);	\
 					lw	rhi, (off+4)(rbase)
 
+/* Tested only on a Little Endian System */
+#define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, off(rbase);	\
+						s.s	rhi, (off+4)(rbase)
+#define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, off(rbase);	\
+						l.s	rhi, (off+4)(rbase)
+
 #define STORE64(rlo,rhi,rbase)		STORE64_off(rlo,rhi,rbase,0)
 #define LOAD64(rlo,rhi,rbase)		LOAD64_off(rlo,rhi,rbase,0)
+
+#define STORE64_F(rlo,rhi,rbase)	STORE64_off_F(rlo,rhi,rbase,0)
+#define LOAD64_F(rlo,rhi,rbase)		LOAD64_off_F(rlo,rhi,rbase,0)
 
 #define STORE64_lo(rd,rbase)		sw	rd, 0(rbase)
 #define STORE64_hi(rd,rbase)		sw	rd, 4(rbase)

@@ -78,7 +78,14 @@
 # define NO_UNALIGN_64__MEMCPY
 #endif
 
+/*
+ * MIPS ABI requires 64-bit alignment for access to 64-bit data types.
+ *
+ * The __UNION version copies data in and out of a union.  The __MEMCPY
+ * version uses a memcpy() call to do the transfer
+ */
 #if defined(__mips__)
+/* # define NO_UNALIGN_64__UNION */
 # define NO_UNALIGN_64__MEMCPY
 #endif
 
