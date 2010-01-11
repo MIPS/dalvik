@@ -312,8 +312,8 @@ ifeq ($(TARGET_ARCH),mips)
   LOCAL_SRC_FILES += \
 		arch/generic/Call.c \
 		arch/generic/Hints.c \
-		mterp/out/InterpC-allstubs.c \
-		mterp/out/InterpAsm-allstubs.S
+		mterp/out/InterpC-mips.c \
+		mterp/out/InterpAsm-mips.S
 endif
 
 ifeq ($(MTERP_ARCH_KNOWN),false)
