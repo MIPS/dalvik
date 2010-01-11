@@ -218,12 +218,12 @@ Notes:
 
     .global dvmAsmInstructionStart
     .type   dvmAsmInstructionStart, %function
-dvmAsmInstructionStart = .L_OP_NOP
+dvmAsmInstructionStart = L_OP_NOP
     .text
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NOP: /* 0x00 */
+L_OP_NOP: /* 0x00 */
 /* File: x86/OP_NOP.S */
     FETCH_INST_WORD(1)
     ADVANCE_PC(1)
@@ -231,7 +231,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE: /* 0x01 */
+L_OP_MOVE: /* 0x01 */
 /* File: x86/OP_MOVE.S */
     /* for move, move-object, long-to-int */
     /* op vA, vB */
@@ -246,7 +246,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_FROM16: /* 0x02 */
+L_OP_MOVE_FROM16: /* 0x02 */
 /* File: x86/OP_MOVE_FROM16.S */
     /* for: move/from16, move-object/from16 */
     /* op vAA, vBBBB */
@@ -261,7 +261,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_16: /* 0x03 */
+L_OP_MOVE_16: /* 0x03 */
 /* File: x86/OP_MOVE_16.S */
     /* for: move/16, move-object/16 */
     /* op vAAAA, vBBBB */
@@ -275,7 +275,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_WIDE: /* 0x04 */
+L_OP_MOVE_WIDE: /* 0x04 */
 /* File: x86/OP_MOVE_WIDE.S */
     /* move-wide vA, vB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -292,7 +292,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_WIDE_FROM16: /* 0x05 */
+L_OP_MOVE_WIDE_FROM16: /* 0x05 */
 /* File: x86/OP_MOVE_WIDE_FROM16.S */
     /* move-wide/from16 vAA, vBBBB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -308,7 +308,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_WIDE_16: /* 0x06 */
+L_OP_MOVE_WIDE_16: /* 0x06 */
 /* File: x86/OP_MOVE_WIDE_16.S */
     /* move-wide/16 vAAAA, vBBBB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -324,7 +324,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_OBJECT: /* 0x07 */
+L_OP_MOVE_OBJECT: /* 0x07 */
 /* File: x86/OP_MOVE_OBJECT.S */
 /* File: x86/OP_MOVE.S */
     /* for move, move-object, long-to-int */
@@ -341,7 +341,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_OBJECT_FROM16: /* 0x08 */
+L_OP_MOVE_OBJECT_FROM16: /* 0x08 */
 /* File: x86/OP_MOVE_OBJECT_FROM16.S */
 /* File: x86/OP_MOVE_FROM16.S */
     /* for: move/from16, move-object/from16 */
@@ -358,7 +358,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_OBJECT_16: /* 0x09 */
+L_OP_MOVE_OBJECT_16: /* 0x09 */
 /* File: x86/OP_MOVE_OBJECT_16.S */
 /* File: x86/OP_MOVE_16.S */
     /* for: move/16, move-object/16 */
@@ -374,7 +374,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_RESULT: /* 0x0a */
+L_OP_MOVE_RESULT: /* 0x0a */
 /* File: x86/OP_MOVE_RESULT.S */
     /* for: move-result, move-result-object */
     /* op vAA */
@@ -388,7 +388,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_RESULT_WIDE: /* 0x0b */
+L_OP_MOVE_RESULT_WIDE: /* 0x0b */
 /* File: x86/OP_MOVE_RESULT_WIDE.S */
     /* move-result-wide vAA */
     GET_GLUE(%ecx)
@@ -403,7 +403,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_RESULT_OBJECT: /* 0x0c */
+L_OP_MOVE_RESULT_OBJECT: /* 0x0c */
 /* File: x86/OP_MOVE_RESULT_OBJECT.S */
 /* File: x86/OP_MOVE_RESULT.S */
     /* for: move-result, move-result-object */
@@ -419,7 +419,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_EXCEPTION: /* 0x0d */
+L_OP_MOVE_EXCEPTION: /* 0x0d */
 /* File: x86/OP_MOVE_EXCEPTION.S */
     /* move-exception vAA */
     GET_GLUE(%ecx)
@@ -434,14 +434,14 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RETURN_VOID: /* 0x0e */
+L_OP_RETURN_VOID: /* 0x0e */
 /* File: x86/OP_RETURN_VOID.S */
     jmp       common_returnFromMethod
 
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RETURN: /* 0x0f */
+L_OP_RETURN: /* 0x0f */
 /* File: x86/OP_RETURN.S */
     /*
      * Return a 32-bit value.  Copies the return value into the "glue"
@@ -458,7 +458,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RETURN_WIDE: /* 0x10 */
+L_OP_RETURN_WIDE: /* 0x10 */
 /* File: x86/OP_RETURN_WIDE.S */
     /*
      * Return a 64-bit value.  Copies the return value into the "glue"
@@ -475,7 +475,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RETURN_OBJECT: /* 0x11 */
+L_OP_RETURN_OBJECT: /* 0x11 */
 /* File: x86/OP_RETURN_OBJECT.S */
 /* File: x86/OP_RETURN.S */
     /*
@@ -494,7 +494,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_4: /* 0x12 */
+L_OP_CONST_4: /* 0x12 */
 /* File: x86/OP_CONST_4.S */
     /* const/4 vA, #+B */
     movsx   rINST_HI,%eax              # eax<-ssssssBx
@@ -509,7 +509,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_16: /* 0x13 */
+L_OP_CONST_16: /* 0x13 */
 /* File: x86/OP_CONST_16.S */
     /* const/16 vAA, #+BBBB */
     movswl  2(rPC),%ecx                # ecx<- ssssBBBB
@@ -521,7 +521,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST: /* 0x14 */
+L_OP_CONST: /* 0x14 */
 /* File: x86/OP_CONST.S */
     /* const vAA, #+BBBBbbbb */
     movzbl    rINST_HI,%ecx           # ecx<- AA
@@ -533,7 +533,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_HIGH16: /* 0x15 */
+L_OP_CONST_HIGH16: /* 0x15 */
 /* File: x86/OP_CONST_HIGH16.S */
     /* const/high16 vAA, #+BBBB0000 */
     movzwl     2(rPC),%eax                # eax<- 0000BBBB
@@ -546,7 +546,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_WIDE_16: /* 0x16 */
+L_OP_CONST_WIDE_16: /* 0x16 */
 /* File: x86/OP_CONST_WIDE_16.S */
     /* const-wide/16 vAA, #+BBBB */
     movswl    2(rPC),%eax               # eax<- ssssBBBB
@@ -562,7 +562,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_WIDE_32: /* 0x17 */
+L_OP_CONST_WIDE_32: /* 0x17 */
 /* File: x86/OP_CONST_WIDE_32.S */
     /* const-wide/32 vAA, #+BBBBbbbb */
     movl     2(rPC),%eax               # eax<- BBBBbbbb
@@ -578,7 +578,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_WIDE: /* 0x18 */
+L_OP_CONST_WIDE: /* 0x18 */
 /* File: x86/OP_CONST_WIDE.S */
     /* const-wide vAA, #+HHHHhhhhBBBBbbbb */
     movl      2(rPC),%eax         # eax<- lsw
@@ -594,7 +594,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_WIDE_HIGH16: /* 0x19 */
+L_OP_CONST_WIDE_HIGH16: /* 0x19 */
 /* File: x86/OP_CONST_WIDE_HIGH16.S */
     /* const-wide/high16 vAA, #+BBBB000000000000 */
     movzwl     2(rPC),%eax                # eax<- 0000BBBB
@@ -610,7 +610,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_STRING: /* 0x1a */
+L_OP_CONST_STRING: /* 0x1a */
 /* File: x86/OP_CONST_STRING.S */
 
     /* const/string vAA, String@BBBB */
@@ -630,7 +630,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_STRING_JUMBO: /* 0x1b */
+L_OP_CONST_STRING_JUMBO: /* 0x1b */
 /* File: x86/OP_CONST_STRING_JUMBO.S */
 
     /* const/string vAA, String@BBBBBBBB */
@@ -650,7 +650,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_CLASS: /* 0x1c */
+L_OP_CONST_CLASS: /* 0x1c */
 /* File: x86/OP_CONST_CLASS.S */
 
     /* const/class vAA, Class@BBBB */
@@ -670,7 +670,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MONITOR_ENTER: /* 0x1d */
+L_OP_MONITOR_ENTER: /* 0x1d */
 /* File: x86/OP_MONITOR_ENTER.S */
     /*
      * Synchronize on an object.
@@ -688,7 +688,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MONITOR_EXIT: /* 0x1e */
+L_OP_MONITOR_EXIT: /* 0x1e */
 /* File: x86/OP_MONITOR_EXIT.S */
     /*
      * Unlock an object.
@@ -712,7 +712,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CHECK_CAST: /* 0x1f */
+L_OP_CHECK_CAST: /* 0x1f */
 /* File: x86/OP_CHECK_CAST.S */
     /*
      * Check to see if a cast from one class to another is allowed.
@@ -740,7 +740,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INSTANCE_OF: /* 0x20 */
+L_OP_INSTANCE_OF: /* 0x20 */
 /* File: x86/OP_INSTANCE_OF.S */
     /*
      * Check to see if an object reference is an instance of a class.
@@ -770,7 +770,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ARRAY_LENGTH: /* 0x21 */
+L_OP_ARRAY_LENGTH: /* 0x21 */
 /* File: x86/OP_ARRAY_LENGTH.S */
     /*
      * Return the length of an array.
@@ -789,7 +789,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEW_INSTANCE: /* 0x22 */
+L_OP_NEW_INSTANCE: /* 0x22 */
 /* File: x86/OP_NEW_INSTANCE.S */
     /*
      * Create a new instance of a class.
@@ -812,7 +812,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEW_ARRAY: /* 0x23 */
+L_OP_NEW_ARRAY: /* 0x23 */
 /* File: x86/OP_NEW_ARRAY.S */
     /*
      * Allocate an array of objects, specified with the array class
@@ -841,7 +841,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FILLED_NEW_ARRAY: /* 0x24 */
+L_OP_FILLED_NEW_ARRAY: /* 0x24 */
 /* File: x86/OP_FILLED_NEW_ARRAY.S */
     /*
      * Create a new array with elements filled from registers.
@@ -869,7 +869,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FILLED_NEW_ARRAY_RANGE: /* 0x25 */
+L_OP_FILLED_NEW_ARRAY_RANGE: /* 0x25 */
 /* File: x86/OP_FILLED_NEW_ARRAY_RANGE.S */
 /* File: x86/OP_FILLED_NEW_ARRAY.S */
     /*
@@ -899,7 +899,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FILL_ARRAY_DATA: /* 0x26 */
+L_OP_FILL_ARRAY_DATA: /* 0x26 */
 /* File: x86/OP_FILL_ARRAY_DATA.S */
     /* fill-array-data vAA, +BBBBBBBB */
     movl    2(rPC),%ecx                # ecx<- BBBBbbbb
@@ -920,7 +920,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_THROW: /* 0x27 */
+L_OP_THROW: /* 0x27 */
 /* File: x86/OP_THROW.S */
     /*
      * Throw an exception object in the current thread.
@@ -937,7 +937,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_GOTO: /* 0x28 */
+L_OP_GOTO: /* 0x28 */
 /* File: x86/OP_GOTO.S */
     /*
      * Unconditional branch, 8-bit offset.
@@ -956,7 +956,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_GOTO_16: /* 0x29 */
+L_OP_GOTO_16: /* 0x29 */
 /* File: x86/OP_GOTO_16.S */
     /*
      * Unconditional branch, 16-bit offset.
@@ -974,7 +974,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_GOTO_32: /* 0x2a */
+L_OP_GOTO_32: /* 0x2a */
 /* File: x86/OP_GOTO_32.S */
     /*
      * Unconditional branch, 32-bit offset.
@@ -995,7 +995,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_PACKED_SWITCH: /* 0x2b */
+L_OP_PACKED_SWITCH: /* 0x2b */
 /* File: x86/OP_PACKED_SWITCH.S */
     /*
      * Handle a packed-switch or sparse-switch instruction.  In both cases
@@ -1025,7 +1025,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPARSE_SWITCH: /* 0x2c */
+L_OP_SPARSE_SWITCH: /* 0x2c */
 /* File: x86/OP_SPARSE_SWITCH.S */
 /* File: x86/OP_PACKED_SWITCH.S */
     /*
@@ -1057,7 +1057,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMPL_FLOAT: /* 0x2d */
+L_OP_CMPL_FLOAT: /* 0x2d */
 /* File: x86/OP_CMPL_FLOAT.S */
 /* File: x86/OP_CMPG_DOUBLE.S */
     /* float/double_cmp[gl] vAA, vBB, vCC */
@@ -1090,7 +1090,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMPG_FLOAT: /* 0x2e */
+L_OP_CMPG_FLOAT: /* 0x2e */
 /* File: x86/OP_CMPG_FLOAT.S */
 /* File: x86/OP_CMPG_DOUBLE.S */
     /* float/double_cmp[gl] vAA, vBB, vCC */
@@ -1123,7 +1123,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMPL_DOUBLE: /* 0x2f */
+L_OP_CMPL_DOUBLE: /* 0x2f */
 /* File: x86/OP_CMPL_DOUBLE.S */
 /* File: x86/OP_CMPG_DOUBLE.S */
     /* float/double_cmp[gl] vAA, vBB, vCC */
@@ -1156,7 +1156,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMPG_DOUBLE: /* 0x30 */
+L_OP_CMPG_DOUBLE: /* 0x30 */
 /* File: x86/OP_CMPG_DOUBLE.S */
     /* float/double_cmp[gl] vAA, vBB, vCC */
     movzbl    3(rPC),%eax             # eax<- CC
@@ -1187,7 +1187,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMP_LONG: /* 0x31 */
+L_OP_CMP_LONG: /* 0x31 */
 /* File: x86/OP_CMP_LONG.S */
     /*
      * Compare two 64-bit values.  Puts 0, 1, or -1 into the destination
@@ -1211,7 +1211,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_EQ: /* 0x32 */
+L_OP_IF_EQ: /* 0x32 */
 /* File: x86/OP_IF_EQ.S */
 /* File: x86/bincmp.S */
     /*
@@ -1242,7 +1242,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_NE: /* 0x33 */
+L_OP_IF_NE: /* 0x33 */
 /* File: x86/OP_IF_NE.S */
 /* File: x86/bincmp.S */
     /*
@@ -1273,7 +1273,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_LT: /* 0x34 */
+L_OP_IF_LT: /* 0x34 */
 /* File: x86/OP_IF_LT.S */
 /* File: x86/bincmp.S */
     /*
@@ -1304,7 +1304,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_GE: /* 0x35 */
+L_OP_IF_GE: /* 0x35 */
 /* File: x86/OP_IF_GE.S */
 /* File: x86/bincmp.S */
     /*
@@ -1335,7 +1335,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_GT: /* 0x36 */
+L_OP_IF_GT: /* 0x36 */
 /* File: x86/OP_IF_GT.S */
 /* File: x86/bincmp.S */
     /*
@@ -1366,7 +1366,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_LE: /* 0x37 */
+L_OP_IF_LE: /* 0x37 */
 /* File: x86/OP_IF_LE.S */
 /* File: x86/bincmp.S */
     /*
@@ -1397,7 +1397,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_EQZ: /* 0x38 */
+L_OP_IF_EQZ: /* 0x38 */
 /* File: x86/OP_IF_EQZ.S */
 /* File: x86/zcmp.S */
     /*
@@ -1425,7 +1425,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_NEZ: /* 0x39 */
+L_OP_IF_NEZ: /* 0x39 */
 /* File: x86/OP_IF_NEZ.S */
 /* File: x86/zcmp.S */
     /*
@@ -1453,7 +1453,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_LTZ: /* 0x3a */
+L_OP_IF_LTZ: /* 0x3a */
 /* File: x86/OP_IF_LTZ.S */
 /* File: x86/zcmp.S */
     /*
@@ -1481,7 +1481,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_GEZ: /* 0x3b */
+L_OP_IF_GEZ: /* 0x3b */
 /* File: x86/OP_IF_GEZ.S */
 /* File: x86/zcmp.S */
     /*
@@ -1509,7 +1509,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_GTZ: /* 0x3c */
+L_OP_IF_GTZ: /* 0x3c */
 /* File: x86/OP_IF_GTZ.S */
 /* File: x86/zcmp.S */
     /*
@@ -1537,7 +1537,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_LEZ: /* 0x3d */
+L_OP_IF_LEZ: /* 0x3d */
 /* File: x86/OP_IF_LEZ.S */
 /* File: x86/zcmp.S */
     /*
@@ -1565,7 +1565,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_3E: /* 0x3e */
+L_OP_UNUSED_3E: /* 0x3e */
 /* File: x86/OP_UNUSED_3E.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -1573,7 +1573,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_3F: /* 0x3f */
+L_OP_UNUSED_3F: /* 0x3f */
 /* File: x86/OP_UNUSED_3F.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -1581,7 +1581,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_40: /* 0x40 */
+L_OP_UNUSED_40: /* 0x40 */
 /* File: x86/OP_UNUSED_40.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -1589,7 +1589,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_41: /* 0x41 */
+L_OP_UNUSED_41: /* 0x41 */
 /* File: x86/OP_UNUSED_41.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -1597,7 +1597,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_42: /* 0x42 */
+L_OP_UNUSED_42: /* 0x42 */
 /* File: x86/OP_UNUSED_42.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -1605,7 +1605,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_43: /* 0x43 */
+L_OP_UNUSED_43: /* 0x43 */
 /* File: x86/OP_UNUSED_43.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -1613,7 +1613,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET: /* 0x44 */
+L_OP_AGET: /* 0x44 */
 /* File: x86/OP_AGET.S */
     /*
      * Array get, 32 bits or less.  vAA <- vBB[vCC].
@@ -1640,7 +1640,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_WIDE: /* 0x45 */
+L_OP_AGET_WIDE: /* 0x45 */
 /* File: x86/OP_AGET_WIDE.S */
     /*
      * Array get, 64 bits.  vAA <- vBB[vCC].
@@ -1660,7 +1660,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_OBJECT: /* 0x46 */
+L_OP_AGET_OBJECT: /* 0x46 */
 /* File: x86/OP_AGET_OBJECT.S */
 /* File: x86/OP_AGET.S */
     /*
@@ -1689,7 +1689,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_BOOLEAN: /* 0x47 */
+L_OP_AGET_BOOLEAN: /* 0x47 */
 /* File: x86/OP_AGET_BOOLEAN.S */
 /* File: x86/OP_AGET.S */
     /*
@@ -1718,7 +1718,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_BYTE: /* 0x48 */
+L_OP_AGET_BYTE: /* 0x48 */
 /* File: x86/OP_AGET_BYTE.S */
 /* File: x86/OP_AGET.S */
     /*
@@ -1747,7 +1747,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_CHAR: /* 0x49 */
+L_OP_AGET_CHAR: /* 0x49 */
 /* File: x86/OP_AGET_CHAR.S */
 /* File: x86/OP_AGET.S */
     /*
@@ -1776,7 +1776,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_SHORT: /* 0x4a */
+L_OP_AGET_SHORT: /* 0x4a */
 /* File: x86/OP_AGET_SHORT.S */
 /* File: x86/OP_AGET.S */
     /*
@@ -1805,7 +1805,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT: /* 0x4b */
+L_OP_APUT: /* 0x4b */
 /* File: x86/OP_APUT.S */
     /*
      * Array put, 32 bits or less.  vBB[vCC] <- vAA
@@ -1832,7 +1832,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_WIDE: /* 0x4c */
+L_OP_APUT_WIDE: /* 0x4c */
 /* File: x86/OP_APUT_WIDE.S */
     /*
      * Array put, 64 bits.  vBB[vCC]<-vAA.
@@ -1852,7 +1852,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_OBJECT: /* 0x4d */
+L_OP_APUT_OBJECT: /* 0x4d */
 /* File: x86/OP_APUT_OBJECT.S */
     /*
      * Array put, 32 bits or less.  vBB[vCC] <- vAA
@@ -1874,7 +1874,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_BOOLEAN: /* 0x4e */
+L_OP_APUT_BOOLEAN: /* 0x4e */
 /* File: x86/OP_APUT_BOOLEAN.S */
 /* File: x86/OP_APUT.S */
     /*
@@ -1903,7 +1903,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_BYTE: /* 0x4f */
+L_OP_APUT_BYTE: /* 0x4f */
 /* File: x86/OP_APUT_BYTE.S */
 /* File: x86/OP_APUT.S */
     /*
@@ -1932,7 +1932,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_CHAR: /* 0x50 */
+L_OP_APUT_CHAR: /* 0x50 */
 /* File: x86/OP_APUT_CHAR.S */
 /* File: x86/OP_APUT.S */
     /*
@@ -1961,7 +1961,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_SHORT: /* 0x51 */
+L_OP_APUT_SHORT: /* 0x51 */
 /* File: x86/OP_APUT_SHORT.S */
 /* File: x86/OP_APUT.S */
     /*
@@ -1990,7 +1990,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET: /* 0x52 */
+L_OP_IGET: /* 0x52 */
 /* File: x86/OP_IGET.S */
     /*
      * General 32-bit instance field get.
@@ -2017,7 +2017,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_WIDE: /* 0x53 */
+L_OP_IGET_WIDE: /* 0x53 */
 /* File: x86/OP_IGET_WIDE.S */
     /*
      * 64-bit instance field get.
@@ -2043,7 +2043,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_OBJECT: /* 0x54 */
+L_OP_IGET_OBJECT: /* 0x54 */
 /* File: x86/OP_IGET_OBJECT.S */
 /* File: x86/OP_IGET.S */
     /*
@@ -2072,7 +2072,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_BOOLEAN: /* 0x55 */
+L_OP_IGET_BOOLEAN: /* 0x55 */
 /* File: x86/OP_IGET_BOOLEAN.S */
 /* File: x86/OP_IGET.S */
     /*
@@ -2101,7 +2101,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_BYTE: /* 0x56 */
+L_OP_IGET_BYTE: /* 0x56 */
 /* File: x86/OP_IGET_BYTE.S */
 /* File: x86/OP_IGET.S */
     /*
@@ -2130,7 +2130,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_CHAR: /* 0x57 */
+L_OP_IGET_CHAR: /* 0x57 */
 /* File: x86/OP_IGET_CHAR.S */
 /* File: x86/OP_IGET.S */
     /*
@@ -2159,7 +2159,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_SHORT: /* 0x58 */
+L_OP_IGET_SHORT: /* 0x58 */
 /* File: x86/OP_IGET_SHORT.S */
 /* File: x86/OP_IGET.S */
     /*
@@ -2188,7 +2188,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT: /* 0x59 */
+L_OP_IPUT: /* 0x59 */
 /* File: x86/OP_IPUT.S */
 
     /*
@@ -2216,7 +2216,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_WIDE: /* 0x5a */
+L_OP_IPUT_WIDE: /* 0x5a */
 /* File: x86/OP_IPUT_WIDE.S */
     /*
      * 64-bit instance field put.
@@ -2242,7 +2242,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_OBJECT: /* 0x5b */
+L_OP_IPUT_OBJECT: /* 0x5b */
 /* File: x86/OP_IPUT_OBJECT.S */
 /* File: x86/OP_IPUT.S */
 
@@ -2272,7 +2272,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_BOOLEAN: /* 0x5c */
+L_OP_IPUT_BOOLEAN: /* 0x5c */
 /* File: x86/OP_IPUT_BOOLEAN.S */
 /* File: x86/OP_IPUT.S */
 
@@ -2302,7 +2302,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_BYTE: /* 0x5d */
+L_OP_IPUT_BYTE: /* 0x5d */
 /* File: x86/OP_IPUT_BYTE.S */
 /* File: x86/OP_IPUT.S */
 
@@ -2332,7 +2332,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_CHAR: /* 0x5e */
+L_OP_IPUT_CHAR: /* 0x5e */
 /* File: x86/OP_IPUT_CHAR.S */
 /* File: x86/OP_IPUT.S */
 
@@ -2362,7 +2362,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_SHORT: /* 0x5f */
+L_OP_IPUT_SHORT: /* 0x5f */
 /* File: x86/OP_IPUT_SHORT.S */
 /* File: x86/OP_IPUT.S */
 
@@ -2392,7 +2392,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET: /* 0x60 */
+L_OP_SGET: /* 0x60 */
 /* File: x86/OP_SGET.S */
     /*
      * General 32-bit SGET handler.
@@ -2417,7 +2417,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_WIDE: /* 0x61 */
+L_OP_SGET_WIDE: /* 0x61 */
 /* File: x86/OP_SGET_WIDE.S */
     /*
      * 64-bit SGET handler.
@@ -2443,7 +2443,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_OBJECT: /* 0x62 */
+L_OP_SGET_OBJECT: /* 0x62 */
 /* File: x86/OP_SGET_OBJECT.S */
 /* File: x86/OP_SGET.S */
     /*
@@ -2470,7 +2470,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_BOOLEAN: /* 0x63 */
+L_OP_SGET_BOOLEAN: /* 0x63 */
 /* File: x86/OP_SGET_BOOLEAN.S */
 /* File: x86/OP_SGET.S */
     /*
@@ -2497,7 +2497,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_BYTE: /* 0x64 */
+L_OP_SGET_BYTE: /* 0x64 */
 /* File: x86/OP_SGET_BYTE.S */
 /* File: x86/OP_SGET.S */
     /*
@@ -2524,7 +2524,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_CHAR: /* 0x65 */
+L_OP_SGET_CHAR: /* 0x65 */
 /* File: x86/OP_SGET_CHAR.S */
 /* File: x86/OP_SGET.S */
     /*
@@ -2551,7 +2551,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_SHORT: /* 0x66 */
+L_OP_SGET_SHORT: /* 0x66 */
 /* File: x86/OP_SGET_SHORT.S */
 /* File: x86/OP_SGET.S */
     /*
@@ -2578,7 +2578,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT: /* 0x67 */
+L_OP_SPUT: /* 0x67 */
 /* File: x86/OP_SPUT.S */
     /*
      * General 32-bit SPUT handler.
@@ -2603,7 +2603,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_WIDE: /* 0x68 */
+L_OP_SPUT_WIDE: /* 0x68 */
 /* File: x86/OP_SPUT_WIDE.S */
     /*
      * General 32-bit SPUT handler.
@@ -2630,7 +2630,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_OBJECT: /* 0x69 */
+L_OP_SPUT_OBJECT: /* 0x69 */
 /* File: x86/OP_SPUT_OBJECT.S */
 /* File: x86/OP_SPUT.S */
     /*
@@ -2657,7 +2657,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_BOOLEAN: /* 0x6a */
+L_OP_SPUT_BOOLEAN: /* 0x6a */
 /* File: x86/OP_SPUT_BOOLEAN.S */
 /* File: x86/OP_SPUT.S */
     /*
@@ -2684,7 +2684,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_BYTE: /* 0x6b */
+L_OP_SPUT_BYTE: /* 0x6b */
 /* File: x86/OP_SPUT_BYTE.S */
 /* File: x86/OP_SPUT.S */
     /*
@@ -2711,7 +2711,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_CHAR: /* 0x6c */
+L_OP_SPUT_CHAR: /* 0x6c */
 /* File: x86/OP_SPUT_CHAR.S */
 /* File: x86/OP_SPUT.S */
     /*
@@ -2738,7 +2738,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_SHORT: /* 0x6d */
+L_OP_SPUT_SHORT: /* 0x6d */
 /* File: x86/OP_SPUT_SHORT.S */
 /* File: x86/OP_SPUT.S */
     /*
@@ -2765,7 +2765,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_VIRTUAL: /* 0x6e */
+L_OP_INVOKE_VIRTUAL: /* 0x6e */
 /* File: x86/OP_INVOKE_VIRTUAL.S */
 
     /*
@@ -2791,7 +2791,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_SUPER: /* 0x6f */
+L_OP_INVOKE_SUPER: /* 0x6f */
 /* File: x86/OP_INVOKE_SUPER.S */
     /*
      * Handle a "super" method call.
@@ -2821,7 +2821,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_DIRECT: /* 0x70 */
+L_OP_INVOKE_DIRECT: /* 0x70 */
 /* File: x86/OP_INVOKE_DIRECT.S */
     /*
      * Handle a direct method call.
@@ -2857,7 +2857,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_STATIC: /* 0x71 */
+L_OP_INVOKE_STATIC: /* 0x71 */
 /* File: x86/OP_INVOKE_STATIC.S */
     /*
      * Handle a static method call.
@@ -2884,7 +2884,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_INTERFACE: /* 0x72 */
+L_OP_INVOKE_INTERFACE: /* 0x72 */
 /* File: x86/OP_INVOKE_INTERFACE.S */
     /*
      * Handle an interface method call.
@@ -2915,7 +2915,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_73: /* 0x73 */
+L_OP_UNUSED_73: /* 0x73 */
 /* File: x86/OP_UNUSED_73.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -2923,7 +2923,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_VIRTUAL_RANGE: /* 0x74 */
+L_OP_INVOKE_VIRTUAL_RANGE: /* 0x74 */
 /* File: x86/OP_INVOKE_VIRTUAL_RANGE.S */
 /* File: x86/OP_INVOKE_VIRTUAL.S */
 
@@ -2951,7 +2951,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_SUPER_RANGE: /* 0x75 */
+L_OP_INVOKE_SUPER_RANGE: /* 0x75 */
 /* File: x86/OP_INVOKE_SUPER_RANGE.S */
 /* File: x86/OP_INVOKE_SUPER.S */
     /*
@@ -2983,7 +2983,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_DIRECT_RANGE: /* 0x76 */
+L_OP_INVOKE_DIRECT_RANGE: /* 0x76 */
 /* File: x86/OP_INVOKE_DIRECT_RANGE.S */
 /* File: x86/OP_INVOKE_DIRECT.S */
     /*
@@ -3021,7 +3021,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_STATIC_RANGE: /* 0x77 */
+L_OP_INVOKE_STATIC_RANGE: /* 0x77 */
 /* File: x86/OP_INVOKE_STATIC_RANGE.S */
 /* File: x86/OP_INVOKE_STATIC.S */
     /*
@@ -3050,7 +3050,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_INTERFACE_RANGE: /* 0x78 */
+L_OP_INVOKE_INTERFACE_RANGE: /* 0x78 */
 /* File: x86/OP_INVOKE_INTERFACE_RANGE.S */
 /* File: x86/OP_INVOKE_INTERFACE.S */
     /*
@@ -3083,7 +3083,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_79: /* 0x79 */
+L_OP_UNUSED_79: /* 0x79 */
 /* File: x86/OP_UNUSED_79.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -3091,7 +3091,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_7A: /* 0x7a */
+L_OP_UNUSED_7A: /* 0x7a */
 /* File: x86/OP_UNUSED_7A.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -3099,7 +3099,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEG_INT: /* 0x7b */
+L_OP_NEG_INT: /* 0x7b */
 /* File: x86/OP_NEG_INT.S */
 /* File: x86/unop.S */
     /*
@@ -3122,7 +3122,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NOT_INT: /* 0x7c */
+L_OP_NOT_INT: /* 0x7c */
 /* File: x86/OP_NOT_INT.S */
 /* File: x86/unop.S */
     /*
@@ -3145,7 +3145,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEG_LONG: /* 0x7d */
+L_OP_NEG_LONG: /* 0x7d */
 /* File: x86/OP_NEG_LONG.S */
     /* unop vA, vB */
     movzbl    rINST_HI,%ecx            # ecx<- BA
@@ -3165,7 +3165,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NOT_LONG: /* 0x7e */
+L_OP_NOT_LONG: /* 0x7e */
 /* File: x86/OP_NOT_LONG.S */
     /* unop vA, vB */
     movzbl    rINST_HI,%ecx            # ecx<- BA
@@ -3184,7 +3184,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEG_FLOAT: /* 0x7f */
+L_OP_NEG_FLOAT: /* 0x7f */
 /* File: x86/OP_NEG_FLOAT.S */
 /* File: x86/fpcvt.S */
     /*
@@ -3204,7 +3204,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEG_DOUBLE: /* 0x80 */
+L_OP_NEG_DOUBLE: /* 0x80 */
 /* File: x86/OP_NEG_DOUBLE.S */
 /* File: x86/fpcvt.S */
     /*
@@ -3224,7 +3224,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_LONG: /* 0x81 */
+L_OP_INT_TO_LONG: /* 0x81 */
 /* File: x86/OP_INT_TO_LONG.S */
     /* int to long vA, vB */
     movzbl  rINST_HI,%ecx               # ecx<- +A
@@ -3242,7 +3242,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_FLOAT: /* 0x82 */
+L_OP_INT_TO_FLOAT: /* 0x82 */
 /* File: x86/OP_INT_TO_FLOAT.S */
 /* File: x86/fpcvt.S */
     /*
@@ -3262,7 +3262,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_DOUBLE: /* 0x83 */
+L_OP_INT_TO_DOUBLE: /* 0x83 */
 /* File: x86/OP_INT_TO_DOUBLE.S */
 /* File: x86/fpcvt.S */
     /*
@@ -3282,7 +3282,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_LONG_TO_INT: /* 0x84 */
+L_OP_LONG_TO_INT: /* 0x84 */
 /* File: x86/OP_LONG_TO_INT.S */
 /* we ignore the high word, making this equivalent to a 32-bit reg move */
 /* File: x86/OP_MOVE.S */
@@ -3300,7 +3300,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_LONG_TO_FLOAT: /* 0x85 */
+L_OP_LONG_TO_FLOAT: /* 0x85 */
 /* File: x86/OP_LONG_TO_FLOAT.S */
 /* File: x86/fpcvt.S */
     /*
@@ -3320,7 +3320,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_LONG_TO_DOUBLE: /* 0x86 */
+L_OP_LONG_TO_DOUBLE: /* 0x86 */
 /* File: x86/OP_LONG_TO_DOUBLE.S */
 /* File: x86/fpcvt.S */
     /*
@@ -3340,7 +3340,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FLOAT_TO_INT: /* 0x87 */
+L_OP_FLOAT_TO_INT: /* 0x87 */
 /* File: x86/OP_FLOAT_TO_INT.S */
 /* File: x86/cvtfp_int.S */
 /* On fp to int conversions, Java requires that
@@ -3377,7 +3377,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FLOAT_TO_LONG: /* 0x88 */
+L_OP_FLOAT_TO_LONG: /* 0x88 */
 /* File: x86/OP_FLOAT_TO_LONG.S */
 /* File: x86/cvtfp_int.S */
 /* On fp to int conversions, Java requires that
@@ -3414,7 +3414,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FLOAT_TO_DOUBLE: /* 0x89 */
+L_OP_FLOAT_TO_DOUBLE: /* 0x89 */
 /* File: x86/OP_FLOAT_TO_DOUBLE.S */
 /* File: x86/fpcvt.S */
     /*
@@ -3434,7 +3434,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DOUBLE_TO_INT: /* 0x8a */
+L_OP_DOUBLE_TO_INT: /* 0x8a */
 /* File: x86/OP_DOUBLE_TO_INT.S */
 /* File: x86/cvtfp_int.S */
 /* On fp to int conversions, Java requires that
@@ -3471,7 +3471,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DOUBLE_TO_LONG: /* 0x8b */
+L_OP_DOUBLE_TO_LONG: /* 0x8b */
 /* File: x86/OP_DOUBLE_TO_LONG.S */
 /* File: x86/cvtfp_int.S */
 /* On fp to int conversions, Java requires that
@@ -3508,7 +3508,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DOUBLE_TO_FLOAT: /* 0x8c */
+L_OP_DOUBLE_TO_FLOAT: /* 0x8c */
 /* File: x86/OP_DOUBLE_TO_FLOAT.S */
 /* File: x86/fpcvt.S */
     /*
@@ -3528,7 +3528,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_BYTE: /* 0x8d */
+L_OP_INT_TO_BYTE: /* 0x8d */
 /* File: x86/OP_INT_TO_BYTE.S */
 /* File: x86/unop.S */
     /*
@@ -3551,7 +3551,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_CHAR: /* 0x8e */
+L_OP_INT_TO_CHAR: /* 0x8e */
 /* File: x86/OP_INT_TO_CHAR.S */
 /* File: x86/unop.S */
     /*
@@ -3574,7 +3574,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_SHORT: /* 0x8f */
+L_OP_INT_TO_SHORT: /* 0x8f */
 /* File: x86/OP_INT_TO_SHORT.S */
 /* File: x86/unop.S */
     /*
@@ -3597,7 +3597,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_INT: /* 0x90 */
+L_OP_ADD_INT: /* 0x90 */
 /* File: x86/OP_ADD_INT.S */
 /* File: x86/binop.S */
     /*
@@ -3624,7 +3624,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_INT: /* 0x91 */
+L_OP_SUB_INT: /* 0x91 */
 /* File: x86/OP_SUB_INT.S */
 /* File: x86/binop.S */
     /*
@@ -3651,7 +3651,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_INT: /* 0x92 */
+L_OP_MUL_INT: /* 0x92 */
 /* File: x86/OP_MUL_INT.S */
     /*
      * 32-bit binary multiplication.
@@ -3671,7 +3671,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_INT: /* 0x93 */
+L_OP_DIV_INT: /* 0x93 */
 /* File: x86/OP_DIV_INT.S */
 /* File: x86/bindiv.S */
 
@@ -3698,7 +3698,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_INT: /* 0x94 */
+L_OP_REM_INT: /* 0x94 */
 /* File: x86/OP_REM_INT.S */
 /* File: x86/bindiv.S */
 
@@ -3725,7 +3725,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_INT: /* 0x95 */
+L_OP_AND_INT: /* 0x95 */
 /* File: x86/OP_AND_INT.S */
 /* File: x86/binop.S */
     /*
@@ -3752,7 +3752,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_INT: /* 0x96 */
+L_OP_OR_INT: /* 0x96 */
 /* File: x86/OP_OR_INT.S */
 /* File: x86/binop.S */
     /*
@@ -3779,7 +3779,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_INT: /* 0x97 */
+L_OP_XOR_INT: /* 0x97 */
 /* File: x86/OP_XOR_INT.S */
 /* File: x86/binop.S */
     /*
@@ -3806,7 +3806,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_INT: /* 0x98 */
+L_OP_SHL_INT: /* 0x98 */
 /* File: x86/OP_SHL_INT.S */
 /* File: x86/binop1.S */
     /*
@@ -3828,7 +3828,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_INT: /* 0x99 */
+L_OP_SHR_INT: /* 0x99 */
 /* File: x86/OP_SHR_INT.S */
 /* File: x86/binop1.S */
     /*
@@ -3850,7 +3850,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_INT: /* 0x9a */
+L_OP_USHR_INT: /* 0x9a */
 /* File: x86/OP_USHR_INT.S */
 /* File: x86/binop1.S */
     /*
@@ -3872,7 +3872,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_LONG: /* 0x9b */
+L_OP_ADD_LONG: /* 0x9b */
 /* File: x86/OP_ADD_LONG.S */
 /* File: x86/binopWide.S */
     /*
@@ -3898,7 +3898,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_LONG: /* 0x9c */
+L_OP_SUB_LONG: /* 0x9c */
 /* File: x86/OP_SUB_LONG.S */
 /* File: x86/binopWide.S */
     /*
@@ -3924,7 +3924,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_LONG: /* 0x9d */
+L_OP_MUL_LONG: /* 0x9d */
 /* File: x86/OP_MUL_LONG.S */
     /*
      * Signed 64-bit integer multiply.
@@ -3959,7 +3959,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_LONG: /* 0x9e */
+L_OP_DIV_LONG: /* 0x9e */
 /* File: x86/OP_DIV_LONG.S */
     /* div vAA, vBB, vCC */
     movzbl    3(rPC),%eax              # eax<- CC
@@ -3983,7 +3983,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_LONG: /* 0x9f */
+L_OP_REM_LONG: /* 0x9f */
 /* File: x86/OP_REM_LONG.S */
 /* File: x86/OP_DIV_LONG.S */
     /* div vAA, vBB, vCC */
@@ -4009,7 +4009,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_LONG: /* 0xa0 */
+L_OP_AND_LONG: /* 0xa0 */
 /* File: x86/OP_AND_LONG.S */
 /* File: x86/binopWide.S */
     /*
@@ -4035,7 +4035,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_LONG: /* 0xa1 */
+L_OP_OR_LONG: /* 0xa1 */
 /* File: x86/OP_OR_LONG.S */
 /* File: x86/binopWide.S */
     /*
@@ -4061,7 +4061,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_LONG: /* 0xa2 */
+L_OP_XOR_LONG: /* 0xa2 */
 /* File: x86/OP_XOR_LONG.S */
 /* File: x86/binopWide.S */
     /*
@@ -4087,7 +4087,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_LONG: /* 0xa3 */
+L_OP_SHL_LONG: /* 0xa3 */
 /* File: x86/OP_SHL_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -4122,7 +4122,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_LONG: /* 0xa4 */
+L_OP_SHR_LONG: /* 0xa4 */
 /* File: x86/OP_SHR_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -4157,7 +4157,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_LONG: /* 0xa5 */
+L_OP_USHR_LONG: /* 0xa5 */
 /* File: x86/OP_USHR_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -4191,7 +4191,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_FLOAT: /* 0xa6 */
+L_OP_ADD_FLOAT: /* 0xa6 */
 /* File: x86/OP_ADD_FLOAT.S */
 /* File: x86/binflop.S */
     /*
@@ -4214,7 +4214,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_FLOAT: /* 0xa7 */
+L_OP_SUB_FLOAT: /* 0xa7 */
 /* File: x86/OP_SUB_FLOAT.S */
 /* File: x86/binflop.S */
     /*
@@ -4237,7 +4237,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_FLOAT: /* 0xa8 */
+L_OP_MUL_FLOAT: /* 0xa8 */
 /* File: x86/OP_MUL_FLOAT.S */
 /* File: x86/binflop.S */
     /*
@@ -4260,7 +4260,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_FLOAT: /* 0xa9 */
+L_OP_DIV_FLOAT: /* 0xa9 */
 /* File: x86/OP_DIV_FLOAT.S */
 /* File: x86/binflop.S */
     /*
@@ -4283,7 +4283,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_FLOAT: /* 0xaa */
+L_OP_REM_FLOAT: /* 0xaa */
 /* File: x86/OP_REM_FLOAT.S */
     /* rem_float vAA, vBB, vCC */
     movzbl   3(rPC),%ecx            # ecx<- BB
@@ -4304,7 +4304,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_DOUBLE: /* 0xab */
+L_OP_ADD_DOUBLE: /* 0xab */
 /* File: x86/OP_ADD_DOUBLE.S */
 /* File: x86/binflop.S */
     /*
@@ -4327,7 +4327,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_DOUBLE: /* 0xac */
+L_OP_SUB_DOUBLE: /* 0xac */
 /* File: x86/OP_SUB_DOUBLE.S */
 /* File: x86/binflop.S */
     /*
@@ -4350,7 +4350,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_DOUBLE: /* 0xad */
+L_OP_MUL_DOUBLE: /* 0xad */
 /* File: x86/OP_MUL_DOUBLE.S */
 /* File: x86/binflop.S */
     /*
@@ -4373,7 +4373,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_DOUBLE: /* 0xae */
+L_OP_DIV_DOUBLE: /* 0xae */
 /* File: x86/OP_DIV_DOUBLE.S */
 /* File: x86/binflop.S */
     /*
@@ -4396,7 +4396,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_DOUBLE: /* 0xaf */
+L_OP_REM_DOUBLE: /* 0xaf */
 /* File: x86/OP_REM_DOUBLE.S */
     /* rem_float vAA, vBB, vCC */
     movzbl   3(rPC),%ecx            # ecx<- BB
@@ -4417,7 +4417,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_INT_2ADDR: /* 0xb0 */
+L_OP_ADD_INT_2ADDR: /* 0xb0 */
 /* File: x86/OP_ADD_INT_2ADDR.S */
 /* File: x86/binop2addr.S */
     /*
@@ -4447,7 +4447,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_INT_2ADDR: /* 0xb1 */
+L_OP_SUB_INT_2ADDR: /* 0xb1 */
 /* File: x86/OP_SUB_INT_2ADDR.S */
 /* File: x86/binop2addr.S */
     /*
@@ -4477,7 +4477,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_INT_2ADDR: /* 0xb2 */
+L_OP_MUL_INT_2ADDR: /* 0xb2 */
 /* File: x86/OP_MUL_INT_2ADDR.S */
     /* mul vA, vB */
     movzx   rINST_HI,%ecx               # ecx<- A+
@@ -4494,7 +4494,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_INT_2ADDR: /* 0xb3 */
+L_OP_DIV_INT_2ADDR: /* 0xb3 */
 /* File: x86/OP_DIV_INT_2ADDR.S */
 /* File: x86/bindiv2addr.S */
     /*
@@ -4522,7 +4522,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_INT_2ADDR: /* 0xb4 */
+L_OP_REM_INT_2ADDR: /* 0xb4 */
 /* File: x86/OP_REM_INT_2ADDR.S */
 /* File: x86/bindiv2addr.S */
     /*
@@ -4550,7 +4550,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_INT_2ADDR: /* 0xb5 */
+L_OP_AND_INT_2ADDR: /* 0xb5 */
 /* File: x86/OP_AND_INT_2ADDR.S */
 /* File: x86/binop2addr.S */
     /*
@@ -4580,7 +4580,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_INT_2ADDR: /* 0xb6 */
+L_OP_OR_INT_2ADDR: /* 0xb6 */
 /* File: x86/OP_OR_INT_2ADDR.S */
 /* File: x86/binop2addr.S */
     /*
@@ -4610,7 +4610,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_INT_2ADDR: /* 0xb7 */
+L_OP_XOR_INT_2ADDR: /* 0xb7 */
 /* File: x86/OP_XOR_INT_2ADDR.S */
 /* File: x86/binop2addr.S */
     /*
@@ -4640,7 +4640,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_INT_2ADDR: /* 0xb8 */
+L_OP_SHL_INT_2ADDR: /* 0xb8 */
 /* File: x86/OP_SHL_INT_2ADDR.S */
 /* File: x86/shop2addr.S */
     /*
@@ -4663,7 +4663,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_INT_2ADDR: /* 0xb9 */
+L_OP_SHR_INT_2ADDR: /* 0xb9 */
 /* File: x86/OP_SHR_INT_2ADDR.S */
 /* File: x86/shop2addr.S */
     /*
@@ -4686,7 +4686,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_INT_2ADDR: /* 0xba */
+L_OP_USHR_INT_2ADDR: /* 0xba */
 /* File: x86/OP_USHR_INT_2ADDR.S */
 /* File: x86/shop2addr.S */
     /*
@@ -4709,7 +4709,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_LONG_2ADDR: /* 0xbb */
+L_OP_ADD_LONG_2ADDR: /* 0xbb */
 /* File: x86/OP_ADD_LONG_2ADDR.S */
 /* File: x86/binopWide2addr.S */
     /*
@@ -4731,7 +4731,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_LONG_2ADDR: /* 0xbc */
+L_OP_SUB_LONG_2ADDR: /* 0xbc */
 /* File: x86/OP_SUB_LONG_2ADDR.S */
 /* File: x86/binopWide2addr.S */
     /*
@@ -4753,7 +4753,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_LONG_2ADDR: /* 0xbd */
+L_OP_MUL_LONG_2ADDR: /* 0xbd */
 /* File: x86/OP_MUL_LONG_2ADDR.S */
     /*
      * Signed 64-bit integer multiply, 2-addr version
@@ -4786,7 +4786,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_LONG_2ADDR: /* 0xbe */
+L_OP_DIV_LONG_2ADDR: /* 0xbe */
 /* File: x86/OP_DIV_LONG_2ADDR.S */
     /* div/2addr vA, vB */
     movzbl    rINST_HI,%eax
@@ -4809,7 +4809,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_LONG_2ADDR: /* 0xbf */
+L_OP_REM_LONG_2ADDR: /* 0xbf */
 /* File: x86/OP_REM_LONG_2ADDR.S */
 /* File: x86/OP_DIV_LONG_2ADDR.S */
     /* div/2addr vA, vB */
@@ -4834,7 +4834,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_LONG_2ADDR: /* 0xc0 */
+L_OP_AND_LONG_2ADDR: /* 0xc0 */
 /* File: x86/OP_AND_LONG_2ADDR.S */
 /* File: x86/binopWide2addr.S */
     /*
@@ -4856,7 +4856,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_LONG_2ADDR: /* 0xc1 */
+L_OP_OR_LONG_2ADDR: /* 0xc1 */
 /* File: x86/OP_OR_LONG_2ADDR.S */
 /* File: x86/binopWide2addr.S */
     /*
@@ -4878,7 +4878,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_LONG_2ADDR: /* 0xc2 */
+L_OP_XOR_LONG_2ADDR: /* 0xc2 */
 /* File: x86/OP_XOR_LONG_2ADDR.S */
 /* File: x86/binopWide2addr.S */
     /*
@@ -4900,7 +4900,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_LONG_2ADDR: /* 0xc3 */
+L_OP_SHL_LONG_2ADDR: /* 0xc3 */
 /* File: x86/OP_SHL_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -4931,7 +4931,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_LONG_2ADDR: /* 0xc4 */
+L_OP_SHR_LONG_2ADDR: /* 0xc4 */
 /* File: x86/OP_SHR_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -4962,7 +4962,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_LONG_2ADDR: /* 0xc5 */
+L_OP_USHR_LONG_2ADDR: /* 0xc5 */
 /* File: x86/OP_USHR_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -4993,7 +4993,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_FLOAT_2ADDR: /* 0xc6 */
+L_OP_ADD_FLOAT_2ADDR: /* 0xc6 */
 /* File: x86/OP_ADD_FLOAT_2ADDR.S */
 /* File: x86/binflop2addr.S */
     /*
@@ -5016,7 +5016,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_FLOAT_2ADDR: /* 0xc7 */
+L_OP_SUB_FLOAT_2ADDR: /* 0xc7 */
 /* File: x86/OP_SUB_FLOAT_2ADDR.S */
 /* File: x86/binflop2addr.S */
     /*
@@ -5039,7 +5039,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_FLOAT_2ADDR: /* 0xc8 */
+L_OP_MUL_FLOAT_2ADDR: /* 0xc8 */
 /* File: x86/OP_MUL_FLOAT_2ADDR.S */
 /* File: x86/binflop2addr.S */
     /*
@@ -5062,7 +5062,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_FLOAT_2ADDR: /* 0xc9 */
+L_OP_DIV_FLOAT_2ADDR: /* 0xc9 */
 /* File: x86/OP_DIV_FLOAT_2ADDR.S */
 /* File: x86/binflop2addr.S */
     /*
@@ -5085,7 +5085,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_FLOAT_2ADDR: /* 0xca */
+L_OP_REM_FLOAT_2ADDR: /* 0xca */
 /* File: x86/OP_REM_FLOAT_2ADDR.S */
     /* rem_float/2addr vA, vB */
     movzx   rINST_HI,%ecx               # ecx<- A+
@@ -5106,7 +5106,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_DOUBLE_2ADDR: /* 0xcb */
+L_OP_ADD_DOUBLE_2ADDR: /* 0xcb */
 /* File: x86/OP_ADD_DOUBLE_2ADDR.S */
 /* File: x86/binflop2addr.S */
     /*
@@ -5129,7 +5129,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_DOUBLE_2ADDR: /* 0xcc */
+L_OP_SUB_DOUBLE_2ADDR: /* 0xcc */
 /* File: x86/OP_SUB_DOUBLE_2ADDR.S */
 /* File: x86/binflop2addr.S */
     /*
@@ -5152,7 +5152,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_DOUBLE_2ADDR: /* 0xcd */
+L_OP_MUL_DOUBLE_2ADDR: /* 0xcd */
 /* File: x86/OP_MUL_DOUBLE_2ADDR.S */
 /* File: x86/binflop2addr.S */
     /*
@@ -5175,7 +5175,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_DOUBLE_2ADDR: /* 0xce */
+L_OP_DIV_DOUBLE_2ADDR: /* 0xce */
 /* File: x86/OP_DIV_DOUBLE_2ADDR.S */
 /* File: x86/binflop2addr.S */
     /*
@@ -5198,7 +5198,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_DOUBLE_2ADDR: /* 0xcf */
+L_OP_REM_DOUBLE_2ADDR: /* 0xcf */
 /* File: x86/OP_REM_DOUBLE_2ADDR.S */
     /* rem_float/2addr vA, vB */
     movzx   rINST_HI,%ecx               # ecx<- A+
@@ -5219,7 +5219,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_INT_LIT16: /* 0xd0 */
+L_OP_ADD_INT_LIT16: /* 0xd0 */
 /* File: x86/OP_ADD_INT_LIT16.S */
 /* File: x86/binopLit16.S */
     /*
@@ -5247,7 +5247,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RSUB_INT: /* 0xd1 */
+L_OP_RSUB_INT: /* 0xd1 */
 /* File: x86/OP_RSUB_INT.S */
 /* File: x86/binopLit16.S */
     /*
@@ -5275,7 +5275,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_INT_LIT16: /* 0xd2 */
+L_OP_MUL_INT_LIT16: /* 0xd2 */
 /* File: x86/OP_MUL_INT_LIT16.S */
     /* mul/lit16 vA, vB, #+CCCC */
     /* Need A in rINST_FULL, ssssCCCC in ecx, vB in eax */
@@ -5295,7 +5295,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_INT_LIT16: /* 0xd3 */
+L_OP_DIV_INT_LIT16: /* 0xd3 */
 /* File: x86/OP_DIV_INT_LIT16.S */
 /* File: x86/bindivLit16.S */
     /*
@@ -5324,7 +5324,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_INT_LIT16: /* 0xd4 */
+L_OP_REM_INT_LIT16: /* 0xd4 */
 /* File: x86/OP_REM_INT_LIT16.S */
 /* File: x86/bindivLit16.S */
     /*
@@ -5353,7 +5353,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_INT_LIT16: /* 0xd5 */
+L_OP_AND_INT_LIT16: /* 0xd5 */
 /* File: x86/OP_AND_INT_LIT16.S */
 /* File: x86/binopLit16.S */
     /*
@@ -5381,7 +5381,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_INT_LIT16: /* 0xd6 */
+L_OP_OR_INT_LIT16: /* 0xd6 */
 /* File: x86/OP_OR_INT_LIT16.S */
 /* File: x86/binopLit16.S */
     /*
@@ -5410,7 +5410,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_INT_LIT16: /* 0xd7 */
+L_OP_XOR_INT_LIT16: /* 0xd7 */
 /* File: x86/OP_XOR_INT_LIT16.S */
 /* File: x86/binopLit16.S */
     /*
@@ -5438,7 +5438,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_INT_LIT8: /* 0xd8 */
+L_OP_ADD_INT_LIT8: /* 0xd8 */
 /* File: x86/OP_ADD_INT_LIT8.S */
 /* File: x86/binopLit8.S */
     /*
@@ -5465,7 +5465,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RSUB_INT_LIT8: /* 0xd9 */
+L_OP_RSUB_INT_LIT8: /* 0xd9 */
 /* File: x86/OP_RSUB_INT_LIT8.S */
 /* File: x86/binopLit8.S */
     /*
@@ -5492,7 +5492,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_INT_LIT8: /* 0xda */
+L_OP_MUL_INT_LIT8: /* 0xda */
 /* File: x86/OP_MUL_INT_LIT8.S */
     /* mul/lit8 vAA, vBB, #+CC */
     movzbl    2(rPC),%eax              # eax<- BB
@@ -5510,7 +5510,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_INT_LIT8: /* 0xdb */
+L_OP_DIV_INT_LIT8: /* 0xdb */
 /* File: x86/OP_DIV_INT_LIT8.S */
 /* File: x86/bindivLit8.S */
     /*
@@ -5536,7 +5536,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_INT_LIT8: /* 0xdc */
+L_OP_REM_INT_LIT8: /* 0xdc */
 /* File: x86/OP_REM_INT_LIT8.S */
 /* File: x86/bindivLit8.S */
     /*
@@ -5562,7 +5562,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_INT_LIT8: /* 0xdd */
+L_OP_AND_INT_LIT8: /* 0xdd */
 /* File: x86/OP_AND_INT_LIT8.S */
 /* File: x86/binopLit8.S */
     /*
@@ -5589,7 +5589,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_INT_LIT8: /* 0xde */
+L_OP_OR_INT_LIT8: /* 0xde */
 /* File: x86/OP_OR_INT_LIT8.S */
 /* File: x86/binopLit8.S */
     /*
@@ -5617,7 +5617,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_INT_LIT8: /* 0xdf */
+L_OP_XOR_INT_LIT8: /* 0xdf */
 /* File: x86/OP_XOR_INT_LIT8.S */
 /* File: x86/binopLit8.S */
     /*
@@ -5644,7 +5644,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_INT_LIT8: /* 0xe0 */
+L_OP_SHL_INT_LIT8: /* 0xe0 */
 /* File: x86/OP_SHL_INT_LIT8.S */
 /* File: x86/binopLit8.S */
     /*
@@ -5671,7 +5671,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_INT_LIT8: /* 0xe1 */
+L_OP_SHR_INT_LIT8: /* 0xe1 */
 /* File: x86/OP_SHR_INT_LIT8.S */
 /* File: x86/binopLit8.S */
     /*
@@ -5698,7 +5698,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_INT_LIT8: /* 0xe2 */
+L_OP_USHR_INT_LIT8: /* 0xe2 */
 /* File: x86/OP_USHR_INT_LIT8.S */
 /* File: x86/binopLit8.S */
     /*
@@ -5725,7 +5725,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E3: /* 0xe3 */
+L_OP_UNUSED_E3: /* 0xe3 */
 /* File: x86/OP_UNUSED_E3.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5733,7 +5733,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E4: /* 0xe4 */
+L_OP_UNUSED_E4: /* 0xe4 */
 /* File: x86/OP_UNUSED_E4.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5741,7 +5741,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E5: /* 0xe5 */
+L_OP_UNUSED_E5: /* 0xe5 */
 /* File: x86/OP_UNUSED_E5.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5749,7 +5749,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E6: /* 0xe6 */
+L_OP_UNUSED_E6: /* 0xe6 */
 /* File: x86/OP_UNUSED_E6.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5757,7 +5757,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E7: /* 0xe7 */
+L_OP_UNUSED_E7: /* 0xe7 */
 /* File: x86/OP_UNUSED_E7.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5765,7 +5765,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E8: /* 0xe8 */
+L_OP_UNUSED_E8: /* 0xe8 */
 /* File: x86/OP_UNUSED_E8.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5773,7 +5773,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E9: /* 0xe9 */
+L_OP_UNUSED_E9: /* 0xe9 */
 /* File: x86/OP_UNUSED_E9.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5781,7 +5781,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_EA: /* 0xea */
+L_OP_UNUSED_EA: /* 0xea */
 /* File: x86/OP_UNUSED_EA.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5789,7 +5789,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_EB: /* 0xeb */
+L_OP_UNUSED_EB: /* 0xeb */
 /* File: x86/OP_UNUSED_EB.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5797,7 +5797,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_EC: /* 0xec */
+L_OP_UNUSED_EC: /* 0xec */
 /* File: x86/OP_UNUSED_EC.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5805,7 +5805,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_THROW_VERIFICATION_ERROR: /* 0xed */
+L_OP_THROW_VERIFICATION_ERROR: /* 0xed */
 /* File: x86/OP_THROW_VERIFICATION_ERROR.S */
     /*
      * Handle a throw-verification-error instruction.  This throws an
@@ -5829,7 +5829,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_EXECUTE_INLINE: /* 0xee */
+L_OP_EXECUTE_INLINE: /* 0xee */
 /* File: x86/OP_EXECUTE_INLINE.S */
     /*
      * Execute a "native inline" instruction.
@@ -5857,7 +5857,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_EF: /* 0xef */
+L_OP_UNUSED_EF: /* 0xef */
 /* File: x86/OP_UNUSED_EF.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5865,7 +5865,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_DIRECT_EMPTY: /* 0xf0 */
+L_OP_INVOKE_DIRECT_EMPTY: /* 0xf0 */
 /* File: x86/OP_INVOKE_DIRECT_EMPTY.S */
     /*
      * invoke-direct-empty is a no-op in a "standard" interpreter.
@@ -5876,7 +5876,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_F1: /* 0xf1 */
+L_OP_UNUSED_F1: /* 0xf1 */
 /* File: x86/OP_UNUSED_F1.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -5884,7 +5884,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_QUICK: /* 0xf2 */
+L_OP_IGET_QUICK: /* 0xf2 */
 /* File: x86/OP_IGET_QUICK.S */
     /* For: iget-quick, iget-object-quick */
     /* op vA, vB, offset@CCCC */
@@ -5904,7 +5904,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_WIDE_QUICK: /* 0xf3 */
+L_OP_IGET_WIDE_QUICK: /* 0xf3 */
 /* File: x86/OP_IGET_WIDE_QUICK.S */
     /* For: iget-wide-quick */
     /* op vA, vB, offset@CCCC */
@@ -5927,7 +5927,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_OBJECT_QUICK: /* 0xf4 */
+L_OP_IGET_OBJECT_QUICK: /* 0xf4 */
 /* File: x86/OP_IGET_OBJECT_QUICK.S */
 /* File: x86/OP_IGET_QUICK.S */
     /* For: iget-quick, iget-object-quick */
@@ -5949,7 +5949,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_QUICK: /* 0xf5 */
+L_OP_IPUT_QUICK: /* 0xf5 */
 /* File: x86/OP_IPUT_QUICK.S */
     /* For: iput-quick, iput-object-quick */
     /* op vA, vB, offset@CCCC */
@@ -5969,7 +5969,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_WIDE_QUICK: /* 0xf6 */
+L_OP_IPUT_WIDE_QUICK: /* 0xf6 */
 /* File: x86/OP_IPUT_WIDE_QUICK.S */
     /* For: iput-wide-quick */
     /* op vA, vB, offset@CCCC */
@@ -5992,7 +5992,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_OBJECT_QUICK: /* 0xf7 */
+L_OP_IPUT_OBJECT_QUICK: /* 0xf7 */
 /* File: x86/OP_IPUT_OBJECT_QUICK.S */
 /* File: x86/OP_IPUT_QUICK.S */
     /* For: iput-quick, iput-object-quick */
@@ -6014,7 +6014,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */
+L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */
 /* File: x86/OP_INVOKE_VIRTUAL_QUICK.S */
     /*
      * Handle an optimized virtual method call.
@@ -6041,7 +6041,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_VIRTUAL_QUICK_RANGE: /* 0xf9 */
+L_OP_INVOKE_VIRTUAL_QUICK_RANGE: /* 0xf9 */
 /* File: x86/OP_INVOKE_VIRTUAL_QUICK_RANGE.S */
 /* File: x86/OP_INVOKE_VIRTUAL_QUICK.S */
     /*
@@ -6070,7 +6070,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_SUPER_QUICK: /* 0xfa */
+L_OP_INVOKE_SUPER_QUICK: /* 0xfa */
 /* File: x86/OP_INVOKE_SUPER_QUICK.S */
     /*
      * Handle an optimized "super" method call.
@@ -6099,7 +6099,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_SUPER_QUICK_RANGE: /* 0xfb */
+L_OP_INVOKE_SUPER_QUICK_RANGE: /* 0xfb */
 /* File: x86/OP_INVOKE_SUPER_QUICK_RANGE.S */
 /* File: x86/OP_INVOKE_SUPER_QUICK.S */
     /*
@@ -6130,7 +6130,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_FC: /* 0xfc */
+L_OP_UNUSED_FC: /* 0xfc */
 /* File: x86/OP_UNUSED_FC.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -6138,7 +6138,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_FD: /* 0xfd */
+L_OP_UNUSED_FD: /* 0xfd */
 /* File: x86/OP_UNUSED_FD.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -6146,7 +6146,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_FE: /* 0xfe */
+L_OP_UNUSED_FE: /* 0xfe */
 /* File: x86/OP_UNUSED_FE.S */
 /* File: x86/unused.S */
     jmp     common_abort
@@ -6154,7 +6154,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_FF: /* 0xff */
+L_OP_UNUSED_FF: /* 0xff */
 /* File: x86/OP_UNUSED_FF.S */
 /* File: x86/unused.S */
     jmp     common_abort

@@ -390,12 +390,12 @@ strBadEntryPoint:
 
     .global dvmAsmInstructionStart
     .type   dvmAsmInstructionStart, %function
-dvmAsmInstructionStart = .L_OP_NOP
+dvmAsmInstructionStart = L_OP_NOP
     .text
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NOP: /* 0x00 */
+L_OP_NOP: /* 0x00 */
 /* File: armv5te/OP_NOP.S */
     FETCH_ADVANCE_INST(1)               @ advance to next instr, load rINST
     GET_INST_OPCODE(ip)                 @ ip<- opcode from rINST
@@ -414,7 +414,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE: /* 0x01 */
+L_OP_MOVE: /* 0x01 */
 /* File: armv6t2/OP_MOVE.S */
     /* for move, move-object, long-to-int */
     /* op vA, vB */
@@ -429,7 +429,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_FROM16: /* 0x02 */
+L_OP_MOVE_FROM16: /* 0x02 */
 /* File: armv5te/OP_MOVE_FROM16.S */
     /* for: move/from16, move-object/from16 */
     /* op vAA, vBBBB */
@@ -444,7 +444,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_16: /* 0x03 */
+L_OP_MOVE_16: /* 0x03 */
 /* File: armv5te/OP_MOVE_16.S */
     /* for: move/16, move-object/16 */
     /* op vAAAA, vBBBB */
@@ -459,7 +459,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_WIDE: /* 0x04 */
+L_OP_MOVE_WIDE: /* 0x04 */
 /* File: armv6t2/OP_MOVE_WIDE.S */
     /* move-wide vA, vB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -476,7 +476,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_WIDE_FROM16: /* 0x05 */
+L_OP_MOVE_WIDE_FROM16: /* 0x05 */
 /* File: armv5te/OP_MOVE_WIDE_FROM16.S */
     /* move-wide/from16 vAA, vBBBB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -493,7 +493,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_WIDE_16: /* 0x06 */
+L_OP_MOVE_WIDE_16: /* 0x06 */
 /* File: armv5te/OP_MOVE_WIDE_16.S */
     /* move-wide/16 vAAAA, vBBBB */
     /* NOTE: regs can overlap, e.g. "move v6,v7" or "move v7,v6" */
@@ -510,7 +510,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_OBJECT: /* 0x07 */
+L_OP_MOVE_OBJECT: /* 0x07 */
 /* File: armv5te/OP_MOVE_OBJECT.S */
 /* File: armv5te/OP_MOVE.S */
     /* for move, move-object, long-to-int */
@@ -528,7 +528,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_OBJECT_FROM16: /* 0x08 */
+L_OP_MOVE_OBJECT_FROM16: /* 0x08 */
 /* File: armv5te/OP_MOVE_OBJECT_FROM16.S */
 /* File: armv5te/OP_MOVE_FROM16.S */
     /* for: move/from16, move-object/from16 */
@@ -545,7 +545,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_OBJECT_16: /* 0x09 */
+L_OP_MOVE_OBJECT_16: /* 0x09 */
 /* File: armv5te/OP_MOVE_OBJECT_16.S */
 /* File: armv5te/OP_MOVE_16.S */
     /* for: move/16, move-object/16 */
@@ -562,7 +562,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_RESULT: /* 0x0a */
+L_OP_MOVE_RESULT: /* 0x0a */
 /* File: armv5te/OP_MOVE_RESULT.S */
     /* for: move-result, move-result-object */
     /* op vAA */
@@ -576,7 +576,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_RESULT_WIDE: /* 0x0b */
+L_OP_MOVE_RESULT_WIDE: /* 0x0b */
 /* File: armv5te/OP_MOVE_RESULT_WIDE.S */
     /* move-result-wide vAA */
     mov     r2, rINST, lsr #8           @ r2<- AA
@@ -591,7 +591,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_RESULT_OBJECT: /* 0x0c */
+L_OP_MOVE_RESULT_OBJECT: /* 0x0c */
 /* File: armv5te/OP_MOVE_RESULT_OBJECT.S */
 /* File: armv5te/OP_MOVE_RESULT.S */
     /* for: move-result, move-result-object */
@@ -607,7 +607,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MOVE_EXCEPTION: /* 0x0d */
+L_OP_MOVE_EXCEPTION: /* 0x0d */
 /* File: armv5te/OP_MOVE_EXCEPTION.S */
     /* move-exception vAA */
     ldr     r0, [rGLUE, #offGlue_self]  @ r0<- glue->self
@@ -623,14 +623,14 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RETURN_VOID: /* 0x0e */
+L_OP_RETURN_VOID: /* 0x0e */
 /* File: armv5te/OP_RETURN_VOID.S */
     b       common_returnFromMethod
 
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RETURN: /* 0x0f */
+L_OP_RETURN: /* 0x0f */
 /* File: armv5te/OP_RETURN.S */
     /*
      * Return a 32-bit value.  Copies the return value into the "glue"
@@ -647,7 +647,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RETURN_WIDE: /* 0x10 */
+L_OP_RETURN_WIDE: /* 0x10 */
 /* File: armv5te/OP_RETURN_WIDE.S */
     /*
      * Return a 64-bit value.  Copies the return value into the "glue"
@@ -664,7 +664,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RETURN_OBJECT: /* 0x11 */
+L_OP_RETURN_OBJECT: /* 0x11 */
 /* File: armv5te/OP_RETURN_OBJECT.S */
 /* File: armv5te/OP_RETURN.S */
     /*
@@ -683,7 +683,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_4: /* 0x12 */
+L_OP_CONST_4: /* 0x12 */
 /* File: armv6t2/OP_CONST_4.S */
     /* const/4 vA, #+B */
     mov     r1, rINST, lsl #16          @ r1<- Bxxx0000
@@ -697,7 +697,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_16: /* 0x13 */
+L_OP_CONST_16: /* 0x13 */
 /* File: armv5te/OP_CONST_16.S */
     /* const/16 vAA, #+BBBB */
     FETCH_S(r0, 1)                      @ r0<- ssssBBBB (sign-extended)
@@ -710,7 +710,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST: /* 0x14 */
+L_OP_CONST: /* 0x14 */
 /* File: armv5te/OP_CONST.S */
     /* const vAA, #+BBBBbbbb */
     mov     r3, rINST, lsr #8           @ r3<- AA
@@ -725,7 +725,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_HIGH16: /* 0x15 */
+L_OP_CONST_HIGH16: /* 0x15 */
 /* File: armv5te/OP_CONST_HIGH16.S */
     /* const/high16 vAA, #+BBBB0000 */
     FETCH(r0, 1)                        @ r0<- 0000BBBB (zero-extended)
@@ -739,7 +739,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_WIDE_16: /* 0x16 */
+L_OP_CONST_WIDE_16: /* 0x16 */
 /* File: armv5te/OP_CONST_WIDE_16.S */
     /* const-wide/16 vAA, #+BBBB */
     FETCH_S(r0, 1)                      @ r0<- ssssBBBB (sign-extended)
@@ -754,7 +754,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_WIDE_32: /* 0x17 */
+L_OP_CONST_WIDE_32: /* 0x17 */
 /* File: armv5te/OP_CONST_WIDE_32.S */
     /* const-wide/32 vAA, #+BBBBbbbb */
     FETCH(r0, 1)                        @ r0<- 0000bbbb (low)
@@ -771,7 +771,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_WIDE: /* 0x18 */
+L_OP_CONST_WIDE: /* 0x18 */
 /* File: armv5te/OP_CONST_WIDE.S */
     /* const-wide vAA, #+HHHHhhhhBBBBbbbb */
     FETCH(r0, 1)                        @ r0<- bbbb (low)
@@ -790,7 +790,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_WIDE_HIGH16: /* 0x19 */
+L_OP_CONST_WIDE_HIGH16: /* 0x19 */
 /* File: armv5te/OP_CONST_WIDE_HIGH16.S */
     /* const-wide/high16 vAA, #+BBBB000000000000 */
     FETCH(r1, 1)                        @ r1<- 0000BBBB (zero-extended)
@@ -806,7 +806,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_STRING: /* 0x1a */
+L_OP_CONST_STRING: /* 0x1a */
 /* File: armv5te/OP_CONST_STRING.S */
     /* const/string vAA, String@BBBB */
     FETCH(r1, 1)                        @ r1<- BBBB
@@ -823,7 +823,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_STRING_JUMBO: /* 0x1b */
+L_OP_CONST_STRING_JUMBO: /* 0x1b */
 /* File: armv5te/OP_CONST_STRING_JUMBO.S */
     /* const/string vAA, String@BBBBBBBB */
     FETCH(r0, 1)                        @ r0<- bbbb (low)
@@ -842,7 +842,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CONST_CLASS: /* 0x1c */
+L_OP_CONST_CLASS: /* 0x1c */
 /* File: armv5te/OP_CONST_CLASS.S */
     /* const/class vAA, Class@BBBB */
     FETCH(r1, 1)                        @ r1<- BBBB
@@ -859,7 +859,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MONITOR_ENTER: /* 0x1d */
+L_OP_MONITOR_ENTER: /* 0x1d */
 /* File: armv5te/OP_MONITOR_ENTER.S */
     /*
      * Synchronize on an object.
@@ -885,7 +885,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MONITOR_EXIT: /* 0x1e */
+L_OP_MONITOR_EXIT: /* 0x1e */
 /* File: armv5te/OP_MONITOR_EXIT.S */
     /*
      * Unlock an object.
@@ -911,7 +911,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CHECK_CAST: /* 0x1f */
+L_OP_CHECK_CAST: /* 0x1f */
 /* File: armv5te/OP_CHECK_CAST.S */
     /*
      * Check to see if a cast from one class to another is allowed.
@@ -938,7 +938,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INSTANCE_OF: /* 0x20 */
+L_OP_INSTANCE_OF: /* 0x20 */
 /* File: armv5te/OP_INSTANCE_OF.S */
     /*
      * Check to see if an object reference is an instance of a class.
@@ -967,7 +967,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ARRAY_LENGTH: /* 0x21 */
+L_OP_ARRAY_LENGTH: /* 0x21 */
 /* File: armv6t2/OP_ARRAY_LENGTH.S */
     /*
      * Return the length of an array.
@@ -986,7 +986,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEW_INSTANCE: /* 0x22 */
+L_OP_NEW_INSTANCE: /* 0x22 */
 /* File: armv5te/OP_NEW_INSTANCE.S */
     /*
      * Create a new instance of a class.
@@ -1010,7 +1010,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEW_ARRAY: /* 0x23 */
+L_OP_NEW_ARRAY: /* 0x23 */
 /* File: armv5te/OP_NEW_ARRAY.S */
     /*
      * Allocate an array of objects, specified with the array class
@@ -1035,7 +1035,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FILLED_NEW_ARRAY: /* 0x24 */
+L_OP_FILLED_NEW_ARRAY: /* 0x24 */
 /* File: armv5te/OP_FILLED_NEW_ARRAY.S */
     /*
      * Create a new array with elements filled from registers.
@@ -1062,7 +1062,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FILLED_NEW_ARRAY_RANGE: /* 0x25 */
+L_OP_FILLED_NEW_ARRAY_RANGE: /* 0x25 */
 /* File: armv5te/OP_FILLED_NEW_ARRAY_RANGE.S */
 /* File: armv5te/OP_FILLED_NEW_ARRAY.S */
     /*
@@ -1091,7 +1091,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FILL_ARRAY_DATA: /* 0x26 */
+L_OP_FILL_ARRAY_DATA: /* 0x26 */
 /* File: armv5te/OP_FILL_ARRAY_DATA.S */
     /* fill-array-data vAA, +BBBBBBBB */
     FETCH(r0, 1)                        @ r0<- bbbb (lo)
@@ -1110,7 +1110,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_THROW: /* 0x27 */
+L_OP_THROW: /* 0x27 */
 /* File: armv5te/OP_THROW.S */
     /*
      * Throw an exception object in the current thread.
@@ -1128,7 +1128,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_GOTO: /* 0x28 */
+L_OP_GOTO: /* 0x28 */
 /* File: armv5te/OP_GOTO.S */
     /*
      * Unconditional branch, 8-bit offset.
@@ -1156,7 +1156,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_GOTO_16: /* 0x29 */
+L_OP_GOTO_16: /* 0x29 */
 /* File: armv5te/OP_GOTO_16.S */
     /*
      * Unconditional branch, 16-bit offset.
@@ -1184,7 +1184,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_GOTO_32: /* 0x2a */
+L_OP_GOTO_32: /* 0x2a */
 /* File: armv5te/OP_GOTO_32.S */
     /*
      * Unconditional branch, 32-bit offset.
@@ -1219,7 +1219,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_PACKED_SWITCH: /* 0x2b */
+L_OP_PACKED_SWITCH: /* 0x2b */
 /* File: armv5te/OP_PACKED_SWITCH.S */
     /*
      * Handle a packed-switch or sparse-switch instruction.  In both cases
@@ -1257,7 +1257,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPARSE_SWITCH: /* 0x2c */
+L_OP_SPARSE_SWITCH: /* 0x2c */
 /* File: armv5te/OP_SPARSE_SWITCH.S */
 /* File: armv5te/OP_PACKED_SWITCH.S */
     /*
@@ -1297,7 +1297,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMPL_FLOAT: /* 0x2d */
+L_OP_CMPL_FLOAT: /* 0x2d */
 /* File: arm-vfp/OP_CMPL_FLOAT.S */
     /*
      * Compare two floating-point values.  Puts 0, 1, or -1 into the
@@ -1336,7 +1336,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMPG_FLOAT: /* 0x2e */
+L_OP_CMPG_FLOAT: /* 0x2e */
 /* File: arm-vfp/OP_CMPG_FLOAT.S */
     /*
      * Compare two floating-point values.  Puts 0, 1, or -1 into the
@@ -1375,7 +1375,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMPL_DOUBLE: /* 0x2f */
+L_OP_CMPL_DOUBLE: /* 0x2f */
 /* File: arm-vfp/OP_CMPL_DOUBLE.S */
     /*
      * Compare two floating-point values.  Puts 0, 1, or -1 into the
@@ -1414,7 +1414,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMPG_DOUBLE: /* 0x30 */
+L_OP_CMPG_DOUBLE: /* 0x30 */
 /* File: arm-vfp/OP_CMPG_DOUBLE.S */
     /*
      * Compare two floating-point values.  Puts 0, 1, or -1 into the
@@ -1453,7 +1453,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_CMP_LONG: /* 0x31 */
+L_OP_CMP_LONG: /* 0x31 */
 /* File: armv5te/OP_CMP_LONG.S */
     /*
      * Compare two 64-bit values.  Puts 0, 1, or -1 into the destination
@@ -1494,7 +1494,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_EQ: /* 0x32 */
+L_OP_IF_EQ: /* 0x32 */
 /* File: armv6t2/OP_IF_EQ.S */
 /* File: armv6t2/bincmp.S */
     /*
@@ -1530,7 +1530,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_NE: /* 0x33 */
+L_OP_IF_NE: /* 0x33 */
 /* File: armv6t2/OP_IF_NE.S */
 /* File: armv6t2/bincmp.S */
     /*
@@ -1566,7 +1566,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_LT: /* 0x34 */
+L_OP_IF_LT: /* 0x34 */
 /* File: armv6t2/OP_IF_LT.S */
 /* File: armv6t2/bincmp.S */
     /*
@@ -1602,7 +1602,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_GE: /* 0x35 */
+L_OP_IF_GE: /* 0x35 */
 /* File: armv6t2/OP_IF_GE.S */
 /* File: armv6t2/bincmp.S */
     /*
@@ -1638,7 +1638,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_GT: /* 0x36 */
+L_OP_IF_GT: /* 0x36 */
 /* File: armv6t2/OP_IF_GT.S */
 /* File: armv6t2/bincmp.S */
     /*
@@ -1674,7 +1674,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_LE: /* 0x37 */
+L_OP_IF_LE: /* 0x37 */
 /* File: armv6t2/OP_IF_LE.S */
 /* File: armv6t2/bincmp.S */
     /*
@@ -1710,7 +1710,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_EQZ: /* 0x38 */
+L_OP_IF_EQZ: /* 0x38 */
 /* File: armv5te/OP_IF_EQZ.S */
 /* File: armv5te/zcmp.S */
     /*
@@ -1747,7 +1747,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_NEZ: /* 0x39 */
+L_OP_IF_NEZ: /* 0x39 */
 /* File: armv5te/OP_IF_NEZ.S */
 /* File: armv5te/zcmp.S */
     /*
@@ -1784,7 +1784,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_LTZ: /* 0x3a */
+L_OP_IF_LTZ: /* 0x3a */
 /* File: armv5te/OP_IF_LTZ.S */
 /* File: armv5te/zcmp.S */
     /*
@@ -1821,7 +1821,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_GEZ: /* 0x3b */
+L_OP_IF_GEZ: /* 0x3b */
 /* File: armv5te/OP_IF_GEZ.S */
 /* File: armv5te/zcmp.S */
     /*
@@ -1858,7 +1858,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_GTZ: /* 0x3c */
+L_OP_IF_GTZ: /* 0x3c */
 /* File: armv5te/OP_IF_GTZ.S */
 /* File: armv5te/zcmp.S */
     /*
@@ -1895,7 +1895,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IF_LEZ: /* 0x3d */
+L_OP_IF_LEZ: /* 0x3d */
 /* File: armv5te/OP_IF_LEZ.S */
 /* File: armv5te/zcmp.S */
     /*
@@ -1932,7 +1932,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_3E: /* 0x3e */
+L_OP_UNUSED_3E: /* 0x3e */
 /* File: armv5te/OP_UNUSED_3E.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -1941,7 +1941,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_3F: /* 0x3f */
+L_OP_UNUSED_3F: /* 0x3f */
 /* File: armv5te/OP_UNUSED_3F.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -1950,7 +1950,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_40: /* 0x40 */
+L_OP_UNUSED_40: /* 0x40 */
 /* File: armv5te/OP_UNUSED_40.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -1959,7 +1959,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_41: /* 0x41 */
+L_OP_UNUSED_41: /* 0x41 */
 /* File: armv5te/OP_UNUSED_41.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -1968,7 +1968,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_42: /* 0x42 */
+L_OP_UNUSED_42: /* 0x42 */
 /* File: armv5te/OP_UNUSED_42.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -1977,7 +1977,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_43: /* 0x43 */
+L_OP_UNUSED_43: /* 0x43 */
 /* File: armv5te/OP_UNUSED_43.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -1986,7 +1986,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET: /* 0x44 */
+L_OP_AGET: /* 0x44 */
 /* File: armv5te/OP_AGET.S */
     /*
      * Array get, 32 bits or less.  vAA <- vBB[vCC].
@@ -2017,7 +2017,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_WIDE: /* 0x45 */
+L_OP_AGET_WIDE: /* 0x45 */
 /* File: armv5te/OP_AGET_WIDE.S */
     /*
      * Array get, 64 bits.  vAA <- vBB[vCC].
@@ -2044,7 +2044,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_OBJECT: /* 0x46 */
+L_OP_AGET_OBJECT: /* 0x46 */
 /* File: armv5te/OP_AGET_OBJECT.S */
 /* File: armv5te/OP_AGET.S */
     /*
@@ -2077,7 +2077,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_BOOLEAN: /* 0x47 */
+L_OP_AGET_BOOLEAN: /* 0x47 */
 /* File: armv5te/OP_AGET_BOOLEAN.S */
 /* File: armv5te/OP_AGET.S */
     /*
@@ -2110,7 +2110,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_BYTE: /* 0x48 */
+L_OP_AGET_BYTE: /* 0x48 */
 /* File: armv5te/OP_AGET_BYTE.S */
 /* File: armv5te/OP_AGET.S */
     /*
@@ -2143,7 +2143,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_CHAR: /* 0x49 */
+L_OP_AGET_CHAR: /* 0x49 */
 /* File: armv5te/OP_AGET_CHAR.S */
 /* File: armv5te/OP_AGET.S */
     /*
@@ -2176,7 +2176,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AGET_SHORT: /* 0x4a */
+L_OP_AGET_SHORT: /* 0x4a */
 /* File: armv5te/OP_AGET_SHORT.S */
 /* File: armv5te/OP_AGET.S */
     /*
@@ -2209,7 +2209,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT: /* 0x4b */
+L_OP_APUT: /* 0x4b */
 /* File: armv5te/OP_APUT.S */
     /*
      * Array put, 32 bits or less.  vBB[vCC] <- vAA.
@@ -2240,7 +2240,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_WIDE: /* 0x4c */
+L_OP_APUT_WIDE: /* 0x4c */
 /* File: armv5te/OP_APUT_WIDE.S */
     /*
      * Array put, 64 bits.  vBB[vCC] <- vAA.
@@ -2268,7 +2268,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_OBJECT: /* 0x4d */
+L_OP_APUT_OBJECT: /* 0x4d */
 /* File: armv5te/OP_APUT_OBJECT.S */
     /*
      * Store an object into an array.  vBB[vCC] <- vAA.
@@ -2295,7 +2295,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_BOOLEAN: /* 0x4e */
+L_OP_APUT_BOOLEAN: /* 0x4e */
 /* File: armv5te/OP_APUT_BOOLEAN.S */
 /* File: armv5te/OP_APUT.S */
     /*
@@ -2328,7 +2328,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_BYTE: /* 0x4f */
+L_OP_APUT_BYTE: /* 0x4f */
 /* File: armv5te/OP_APUT_BYTE.S */
 /* File: armv5te/OP_APUT.S */
     /*
@@ -2361,7 +2361,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_CHAR: /* 0x50 */
+L_OP_APUT_CHAR: /* 0x50 */
 /* File: armv5te/OP_APUT_CHAR.S */
 /* File: armv5te/OP_APUT.S */
     /*
@@ -2394,7 +2394,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_APUT_SHORT: /* 0x51 */
+L_OP_APUT_SHORT: /* 0x51 */
 /* File: armv5te/OP_APUT_SHORT.S */
 /* File: armv5te/OP_APUT.S */
     /*
@@ -2427,7 +2427,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET: /* 0x52 */
+L_OP_IGET: /* 0x52 */
 /* File: armv6t2/OP_IGET.S */
     /*
      * General 32-bit instance field get.
@@ -2453,7 +2453,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_WIDE: /* 0x53 */
+L_OP_IGET_WIDE: /* 0x53 */
 /* File: armv6t2/OP_IGET_WIDE.S */
     /*
      * Wide 32-bit instance field get.
@@ -2477,7 +2477,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_OBJECT: /* 0x54 */
+L_OP_IGET_OBJECT: /* 0x54 */
 /* File: armv5te/OP_IGET_OBJECT.S */
 /* File: armv5te/OP_IGET.S */
     /*
@@ -2505,7 +2505,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_BOOLEAN: /* 0x55 */
+L_OP_IGET_BOOLEAN: /* 0x55 */
 /* File: armv5te/OP_IGET_BOOLEAN.S */
 @include "armv5te/OP_IGET.S" { "load":"ldrb", "sqnum":"1" }
 /* File: armv5te/OP_IGET.S */
@@ -2534,7 +2534,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_BYTE: /* 0x56 */
+L_OP_IGET_BYTE: /* 0x56 */
 /* File: armv5te/OP_IGET_BYTE.S */
 @include "armv5te/OP_IGET.S" { "load":"ldrsb", "sqnum":"2" }
 /* File: armv5te/OP_IGET.S */
@@ -2563,7 +2563,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_CHAR: /* 0x57 */
+L_OP_IGET_CHAR: /* 0x57 */
 /* File: armv5te/OP_IGET_CHAR.S */
 @include "armv5te/OP_IGET.S" { "load":"ldrh", "sqnum":"3" }
 /* File: armv5te/OP_IGET.S */
@@ -2592,7 +2592,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_SHORT: /* 0x58 */
+L_OP_IGET_SHORT: /* 0x58 */
 /* File: armv5te/OP_IGET_SHORT.S */
 @include "armv5te/OP_IGET.S" { "load":"ldrsh", "sqnum":"4" }
 /* File: armv5te/OP_IGET.S */
@@ -2621,7 +2621,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT: /* 0x59 */
+L_OP_IPUT: /* 0x59 */
 /* File: armv6t2/OP_IPUT.S */
     /*
      * General 32-bit instance field put.
@@ -2647,7 +2647,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_WIDE: /* 0x5a */
+L_OP_IPUT_WIDE: /* 0x5a */
 /* File: armv6t2/OP_IPUT_WIDE.S */
     /* iput-wide vA, vB, field@CCCC */
     mov     r0, rINST, lsr #12          @ r0<- B
@@ -2668,7 +2668,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_OBJECT: /* 0x5b */
+L_OP_IPUT_OBJECT: /* 0x5b */
 /* File: armv5te/OP_IPUT_OBJECT.S */
 /* File: armv5te/OP_IPUT.S */
     /*
@@ -2696,7 +2696,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_BOOLEAN: /* 0x5c */
+L_OP_IPUT_BOOLEAN: /* 0x5c */
 /* File: armv5te/OP_IPUT_BOOLEAN.S */
 @include "armv5te/OP_IPUT.S" { "store":"strb", "sqnum":"1" }
 /* File: armv5te/OP_IPUT.S */
@@ -2725,7 +2725,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_BYTE: /* 0x5d */
+L_OP_IPUT_BYTE: /* 0x5d */
 /* File: armv5te/OP_IPUT_BYTE.S */
 @include "armv5te/OP_IPUT.S" { "store":"strb", "sqnum":"2" }
 /* File: armv5te/OP_IPUT.S */
@@ -2754,7 +2754,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_CHAR: /* 0x5e */
+L_OP_IPUT_CHAR: /* 0x5e */
 /* File: armv5te/OP_IPUT_CHAR.S */
 @include "armv5te/OP_IPUT.S" { "store":"strh", "sqnum":"3" }
 /* File: armv5te/OP_IPUT.S */
@@ -2783,7 +2783,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_SHORT: /* 0x5f */
+L_OP_IPUT_SHORT: /* 0x5f */
 /* File: armv5te/OP_IPUT_SHORT.S */
 @include "armv5te/OP_IPUT.S" { "store":"strh", "sqnum":"4" }
 /* File: armv5te/OP_IPUT.S */
@@ -2812,7 +2812,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET: /* 0x60 */
+L_OP_SGET: /* 0x60 */
 /* File: armv5te/OP_SGET.S */
     /*
      * General 32-bit SGET handler.
@@ -2836,7 +2836,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_WIDE: /* 0x61 */
+L_OP_SGET_WIDE: /* 0x61 */
 /* File: armv5te/OP_SGET_WIDE.S */
     /*
      * 64-bit SGET handler.
@@ -2859,7 +2859,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_OBJECT: /* 0x62 */
+L_OP_SGET_OBJECT: /* 0x62 */
 /* File: armv5te/OP_SGET_OBJECT.S */
 /* File: armv5te/OP_SGET.S */
     /*
@@ -2885,7 +2885,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_BOOLEAN: /* 0x63 */
+L_OP_SGET_BOOLEAN: /* 0x63 */
 /* File: armv5te/OP_SGET_BOOLEAN.S */
 /* File: armv5te/OP_SGET.S */
     /*
@@ -2911,7 +2911,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_BYTE: /* 0x64 */
+L_OP_SGET_BYTE: /* 0x64 */
 /* File: armv5te/OP_SGET_BYTE.S */
 /* File: armv5te/OP_SGET.S */
     /*
@@ -2937,7 +2937,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_CHAR: /* 0x65 */
+L_OP_SGET_CHAR: /* 0x65 */
 /* File: armv5te/OP_SGET_CHAR.S */
 /* File: armv5te/OP_SGET.S */
     /*
@@ -2963,7 +2963,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SGET_SHORT: /* 0x66 */
+L_OP_SGET_SHORT: /* 0x66 */
 /* File: armv5te/OP_SGET_SHORT.S */
 /* File: armv5te/OP_SGET.S */
     /*
@@ -2989,7 +2989,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT: /* 0x67 */
+L_OP_SPUT: /* 0x67 */
 /* File: armv5te/OP_SPUT.S */
     /*
      * General 32-bit SPUT handler.
@@ -3013,7 +3013,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_WIDE: /* 0x68 */
+L_OP_SPUT_WIDE: /* 0x68 */
 /* File: armv5te/OP_SPUT_WIDE.S */
     /*
      * 64-bit SPUT handler.
@@ -3036,7 +3036,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_OBJECT: /* 0x69 */
+L_OP_SPUT_OBJECT: /* 0x69 */
 /* File: armv5te/OP_SPUT_OBJECT.S */
 /* File: armv5te/OP_SPUT.S */
     /*
@@ -3062,7 +3062,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_BOOLEAN: /* 0x6a */
+L_OP_SPUT_BOOLEAN: /* 0x6a */
 /* File: armv5te/OP_SPUT_BOOLEAN.S */
 /* File: armv5te/OP_SPUT.S */
     /*
@@ -3088,7 +3088,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_BYTE: /* 0x6b */
+L_OP_SPUT_BYTE: /* 0x6b */
 /* File: armv5te/OP_SPUT_BYTE.S */
 /* File: armv5te/OP_SPUT.S */
     /*
@@ -3114,7 +3114,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_CHAR: /* 0x6c */
+L_OP_SPUT_CHAR: /* 0x6c */
 /* File: armv5te/OP_SPUT_CHAR.S */
 /* File: armv5te/OP_SPUT.S */
     /*
@@ -3140,7 +3140,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SPUT_SHORT: /* 0x6d */
+L_OP_SPUT_SHORT: /* 0x6d */
 /* File: armv5te/OP_SPUT_SHORT.S */
 /* File: armv5te/OP_SPUT.S */
     /*
@@ -3166,7 +3166,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_VIRTUAL: /* 0x6e */
+L_OP_INVOKE_VIRTUAL: /* 0x6e */
 /* File: armv5te/OP_INVOKE_VIRTUAL.S */
     /*
      * Handle a virtual method call.
@@ -3196,7 +3196,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_SUPER: /* 0x6f */
+L_OP_INVOKE_SUPER: /* 0x6f */
 /* File: armv5te/OP_INVOKE_SUPER.S */
     /*
      * Handle a "super" method call.
@@ -3225,7 +3225,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_DIRECT: /* 0x70 */
+L_OP_INVOKE_DIRECT: /* 0x70 */
 /* File: armv5te/OP_INVOKE_DIRECT.S */
     /*
      * Handle a direct method call.
@@ -3258,7 +3258,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_STATIC: /* 0x71 */
+L_OP_INVOKE_STATIC: /* 0x71 */
 /* File: armv5te/OP_INVOKE_STATIC.S */
     /*
      * Handle a static method call.
@@ -3285,7 +3285,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_INTERFACE: /* 0x72 */
+L_OP_INVOKE_INTERFACE: /* 0x72 */
 /* File: armv5te/OP_INVOKE_INTERFACE.S */
     /*
      * Handle an interface method call.
@@ -3314,7 +3314,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_73: /* 0x73 */
+L_OP_UNUSED_73: /* 0x73 */
 /* File: armv5te/OP_UNUSED_73.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -3323,7 +3323,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_VIRTUAL_RANGE: /* 0x74 */
+L_OP_INVOKE_VIRTUAL_RANGE: /* 0x74 */
 /* File: armv5te/OP_INVOKE_VIRTUAL_RANGE.S */
 /* File: armv5te/OP_INVOKE_VIRTUAL.S */
     /*
@@ -3355,7 +3355,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_SUPER_RANGE: /* 0x75 */
+L_OP_INVOKE_SUPER_RANGE: /* 0x75 */
 /* File: armv5te/OP_INVOKE_SUPER_RANGE.S */
 /* File: armv5te/OP_INVOKE_SUPER.S */
     /*
@@ -3386,7 +3386,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_DIRECT_RANGE: /* 0x76 */
+L_OP_INVOKE_DIRECT_RANGE: /* 0x76 */
 /* File: armv5te/OP_INVOKE_DIRECT_RANGE.S */
 /* File: armv5te/OP_INVOKE_DIRECT.S */
     /*
@@ -3421,7 +3421,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_STATIC_RANGE: /* 0x77 */
+L_OP_INVOKE_STATIC_RANGE: /* 0x77 */
 /* File: armv5te/OP_INVOKE_STATIC_RANGE.S */
 /* File: armv5te/OP_INVOKE_STATIC.S */
     /*
@@ -3450,7 +3450,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_INTERFACE_RANGE: /* 0x78 */
+L_OP_INVOKE_INTERFACE_RANGE: /* 0x78 */
 /* File: armv5te/OP_INVOKE_INTERFACE_RANGE.S */
 /* File: armv5te/OP_INVOKE_INTERFACE.S */
     /*
@@ -3481,7 +3481,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_79: /* 0x79 */
+L_OP_UNUSED_79: /* 0x79 */
 /* File: armv5te/OP_UNUSED_79.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -3490,7 +3490,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_7A: /* 0x7a */
+L_OP_UNUSED_7A: /* 0x7a */
 /* File: armv5te/OP_UNUSED_7A.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -3499,7 +3499,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEG_INT: /* 0x7b */
+L_OP_NEG_INT: /* 0x7b */
 /* File: armv6t2/OP_NEG_INT.S */
 /* File: armv6t2/unop.S */
     /*
@@ -3525,7 +3525,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NOT_INT: /* 0x7c */
+L_OP_NOT_INT: /* 0x7c */
 /* File: armv6t2/OP_NOT_INT.S */
 /* File: armv6t2/unop.S */
     /*
@@ -3551,7 +3551,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEG_LONG: /* 0x7d */
+L_OP_NEG_LONG: /* 0x7d */
 /* File: armv6t2/OP_NEG_LONG.S */
 /* File: armv6t2/unopWide.S */
     /*
@@ -3579,7 +3579,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NOT_LONG: /* 0x7e */
+L_OP_NOT_LONG: /* 0x7e */
 /* File: armv6t2/OP_NOT_LONG.S */
 /* File: armv6t2/unopWide.S */
     /*
@@ -3607,7 +3607,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEG_FLOAT: /* 0x7f */
+L_OP_NEG_FLOAT: /* 0x7f */
 /* File: armv6t2/OP_NEG_FLOAT.S */
 /* File: armv6t2/unop.S */
     /*
@@ -3633,7 +3633,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_NEG_DOUBLE: /* 0x80 */
+L_OP_NEG_DOUBLE: /* 0x80 */
 /* File: armv6t2/OP_NEG_DOUBLE.S */
 /* File: armv6t2/unopWide.S */
     /*
@@ -3661,7 +3661,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_LONG: /* 0x81 */
+L_OP_INT_TO_LONG: /* 0x81 */
 /* File: armv6t2/OP_INT_TO_LONG.S */
 /* File: armv6t2/unopWider.S */
     /*
@@ -3687,7 +3687,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_FLOAT: /* 0x82 */
+L_OP_INT_TO_FLOAT: /* 0x82 */
 /* File: arm-vfp/OP_INT_TO_FLOAT.S */
 /* File: arm-vfp/funop.S */
     /*
@@ -3712,7 +3712,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_DOUBLE: /* 0x83 */
+L_OP_INT_TO_DOUBLE: /* 0x83 */
 /* File: arm-vfp/OP_INT_TO_DOUBLE.S */
 /* File: arm-vfp/funopWider.S */
     /*
@@ -3737,7 +3737,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_LONG_TO_INT: /* 0x84 */
+L_OP_LONG_TO_INT: /* 0x84 */
 /* File: armv5te/OP_LONG_TO_INT.S */
 /* we ignore the high word, making this equivalent to a 32-bit reg move */
 /* File: armv5te/OP_MOVE.S */
@@ -3756,7 +3756,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_LONG_TO_FLOAT: /* 0x85 */
+L_OP_LONG_TO_FLOAT: /* 0x85 */
 /* File: armv6t2/OP_LONG_TO_FLOAT.S */
 /* File: armv6t2/unopNarrower.S */
     /*
@@ -3785,7 +3785,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_LONG_TO_DOUBLE: /* 0x86 */
+L_OP_LONG_TO_DOUBLE: /* 0x86 */
 /* File: armv6t2/OP_LONG_TO_DOUBLE.S */
 /* File: armv6t2/unopWide.S */
     /*
@@ -3813,7 +3813,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FLOAT_TO_INT: /* 0x87 */
+L_OP_FLOAT_TO_INT: /* 0x87 */
 /* File: arm-vfp/OP_FLOAT_TO_INT.S */
 /* File: arm-vfp/funop.S */
     /*
@@ -3838,7 +3838,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FLOAT_TO_LONG: /* 0x88 */
+L_OP_FLOAT_TO_LONG: /* 0x88 */
 /* File: armv6t2/OP_FLOAT_TO_LONG.S */
 @include "armv6t2/unopWider.S" {"instr":"bl      __aeabi_f2lz"}
 /* File: armv6t2/unopWider.S */
@@ -3866,7 +3866,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_FLOAT_TO_DOUBLE: /* 0x89 */
+L_OP_FLOAT_TO_DOUBLE: /* 0x89 */
 /* File: arm-vfp/OP_FLOAT_TO_DOUBLE.S */
 /* File: arm-vfp/funopWider.S */
     /*
@@ -3891,7 +3891,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DOUBLE_TO_INT: /* 0x8a */
+L_OP_DOUBLE_TO_INT: /* 0x8a */
 /* File: arm-vfp/OP_DOUBLE_TO_INT.S */
 /* File: arm-vfp/funopNarrower.S */
     /*
@@ -3916,7 +3916,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DOUBLE_TO_LONG: /* 0x8b */
+L_OP_DOUBLE_TO_LONG: /* 0x8b */
 /* File: armv6t2/OP_DOUBLE_TO_LONG.S */
 @include "armv6t2/unopWide.S" {"instr":"bl      __aeabi_d2lz"}
 /* File: armv6t2/unopWide.S */
@@ -3946,7 +3946,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DOUBLE_TO_FLOAT: /* 0x8c */
+L_OP_DOUBLE_TO_FLOAT: /* 0x8c */
 /* File: arm-vfp/OP_DOUBLE_TO_FLOAT.S */
 /* File: arm-vfp/funopNarrower.S */
     /*
@@ -3971,7 +3971,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_BYTE: /* 0x8d */
+L_OP_INT_TO_BYTE: /* 0x8d */
 /* File: armv6t2/OP_INT_TO_BYTE.S */
 /* File: armv6t2/unop.S */
     /*
@@ -3997,7 +3997,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_CHAR: /* 0x8e */
+L_OP_INT_TO_CHAR: /* 0x8e */
 /* File: armv6t2/OP_INT_TO_CHAR.S */
 /* File: armv6t2/unop.S */
     /*
@@ -4023,7 +4023,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INT_TO_SHORT: /* 0x8f */
+L_OP_INT_TO_SHORT: /* 0x8f */
 /* File: armv6t2/OP_INT_TO_SHORT.S */
 /* File: armv6t2/unop.S */
     /*
@@ -4049,7 +4049,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_INT: /* 0x90 */
+L_OP_ADD_INT: /* 0x90 */
 /* File: armv5te/OP_ADD_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4091,7 +4091,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_INT: /* 0x91 */
+L_OP_SUB_INT: /* 0x91 */
 /* File: armv5te/OP_SUB_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4133,7 +4133,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_INT: /* 0x92 */
+L_OP_MUL_INT: /* 0x92 */
 /* File: armv5te/OP_MUL_INT.S */
 /* must be "mul r0, r1, r0" -- "r0, r0, r1" is illegal */
 /* File: armv5te/binop.S */
@@ -4176,7 +4176,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_INT: /* 0x93 */
+L_OP_DIV_INT: /* 0x93 */
 /* File: armv5te/OP_DIV_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4218,7 +4218,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_INT: /* 0x94 */
+L_OP_REM_INT: /* 0x94 */
 /* File: armv5te/OP_REM_INT.S */
 /* idivmod returns quotient in r0 and remainder in r1 */
 /* File: armv5te/binop.S */
@@ -4261,7 +4261,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_INT: /* 0x95 */
+L_OP_AND_INT: /* 0x95 */
 /* File: armv5te/OP_AND_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4303,7 +4303,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_INT: /* 0x96 */
+L_OP_OR_INT: /* 0x96 */
 /* File: armv5te/OP_OR_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4345,7 +4345,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_INT: /* 0x97 */
+L_OP_XOR_INT: /* 0x97 */
 /* File: armv5te/OP_XOR_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4387,7 +4387,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_INT: /* 0x98 */
+L_OP_SHL_INT: /* 0x98 */
 /* File: armv5te/OP_SHL_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4429,7 +4429,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_INT: /* 0x99 */
+L_OP_SHR_INT: /* 0x99 */
 /* File: armv5te/OP_SHR_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4471,7 +4471,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_INT: /* 0x9a */
+L_OP_USHR_INT: /* 0x9a */
 /* File: armv5te/OP_USHR_INT.S */
 /* File: armv5te/binop.S */
     /*
@@ -4513,7 +4513,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_LONG: /* 0x9b */
+L_OP_ADD_LONG: /* 0x9b */
 /* File: armv5te/OP_ADD_LONG.S */
 /* File: armv5te/binopWide.S */
     /*
@@ -4558,7 +4558,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_LONG: /* 0x9c */
+L_OP_SUB_LONG: /* 0x9c */
 /* File: armv5te/OP_SUB_LONG.S */
 /* File: armv5te/binopWide.S */
     /*
@@ -4603,7 +4603,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_LONG: /* 0x9d */
+L_OP_MUL_LONG: /* 0x9d */
 /* File: armv5te/OP_MUL_LONG.S */
     /*
      * Signed 64-bit integer multiply.
@@ -4642,7 +4642,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_LONG: /* 0x9e */
+L_OP_DIV_LONG: /* 0x9e */
 /* File: armv5te/OP_DIV_LONG.S */
 /* File: armv5te/binopWide.S */
     /*
@@ -4687,7 +4687,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_LONG: /* 0x9f */
+L_OP_REM_LONG: /* 0x9f */
 /* File: armv5te/OP_REM_LONG.S */
 /* ldivmod returns quotient in r0/r1 and remainder in r2/r3 */
 /* File: armv5te/binopWide.S */
@@ -4733,7 +4733,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_LONG: /* 0xa0 */
+L_OP_AND_LONG: /* 0xa0 */
 /* File: armv5te/OP_AND_LONG.S */
 /* File: armv5te/binopWide.S */
     /*
@@ -4778,7 +4778,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_LONG: /* 0xa1 */
+L_OP_OR_LONG: /* 0xa1 */
 /* File: armv5te/OP_OR_LONG.S */
 /* File: armv5te/binopWide.S */
     /*
@@ -4823,7 +4823,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_LONG: /* 0xa2 */
+L_OP_XOR_LONG: /* 0xa2 */
 /* File: armv5te/OP_XOR_LONG.S */
 /* File: armv5te/binopWide.S */
     /*
@@ -4868,7 +4868,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_LONG: /* 0xa3 */
+L_OP_SHL_LONG: /* 0xa3 */
 /* File: armv5te/OP_SHL_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -4897,7 +4897,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_LONG: /* 0xa4 */
+L_OP_SHR_LONG: /* 0xa4 */
 /* File: armv5te/OP_SHR_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -4926,7 +4926,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_LONG: /* 0xa5 */
+L_OP_USHR_LONG: /* 0xa5 */
 /* File: armv5te/OP_USHR_LONG.S */
     /*
      * Long integer shift.  This is different from the generic 32/64-bit
@@ -4955,7 +4955,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_FLOAT: /* 0xa6 */
+L_OP_ADD_FLOAT: /* 0xa6 */
 /* File: arm-vfp/OP_ADD_FLOAT.S */
 /* File: arm-vfp/fbinop.S */
     /*
@@ -4985,7 +4985,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_FLOAT: /* 0xa7 */
+L_OP_SUB_FLOAT: /* 0xa7 */
 /* File: arm-vfp/OP_SUB_FLOAT.S */
 /* File: arm-vfp/fbinop.S */
     /*
@@ -5015,7 +5015,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_FLOAT: /* 0xa8 */
+L_OP_MUL_FLOAT: /* 0xa8 */
 /* File: arm-vfp/OP_MUL_FLOAT.S */
 /* File: arm-vfp/fbinop.S */
     /*
@@ -5045,7 +5045,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_FLOAT: /* 0xa9 */
+L_OP_DIV_FLOAT: /* 0xa9 */
 /* File: arm-vfp/OP_DIV_FLOAT.S */
 /* File: arm-vfp/fbinop.S */
     /*
@@ -5075,7 +5075,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_FLOAT: /* 0xaa */
+L_OP_REM_FLOAT: /* 0xaa */
 /* File: armv5te/OP_REM_FLOAT.S */
 /* EABI doesn't define a float remainder function, but libm does */
 /* File: armv5te/binop.S */
@@ -5118,7 +5118,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_DOUBLE: /* 0xab */
+L_OP_ADD_DOUBLE: /* 0xab */
 /* File: arm-vfp/OP_ADD_DOUBLE.S */
 /* File: arm-vfp/fbinopWide.S */
     /*
@@ -5148,7 +5148,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_DOUBLE: /* 0xac */
+L_OP_SUB_DOUBLE: /* 0xac */
 /* File: arm-vfp/OP_SUB_DOUBLE.S */
 /* File: arm-vfp/fbinopWide.S */
     /*
@@ -5178,7 +5178,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_DOUBLE: /* 0xad */
+L_OP_MUL_DOUBLE: /* 0xad */
 /* File: arm-vfp/OP_MUL_DOUBLE.S */
 /* File: arm-vfp/fbinopWide.S */
     /*
@@ -5208,7 +5208,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_DOUBLE: /* 0xae */
+L_OP_DIV_DOUBLE: /* 0xae */
 /* File: arm-vfp/OP_DIV_DOUBLE.S */
 /* File: arm-vfp/fbinopWide.S */
     /*
@@ -5238,7 +5238,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_DOUBLE: /* 0xaf */
+L_OP_REM_DOUBLE: /* 0xaf */
 /* File: armv5te/OP_REM_DOUBLE.S */
 /* EABI doesn't define a double remainder function, but libm does */
 /* File: armv5te/binopWide.S */
@@ -5284,7 +5284,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_INT_2ADDR: /* 0xb0 */
+L_OP_ADD_INT_2ADDR: /* 0xb0 */
 /* File: armv6t2/OP_ADD_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5323,7 +5323,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_INT_2ADDR: /* 0xb1 */
+L_OP_SUB_INT_2ADDR: /* 0xb1 */
 /* File: armv6t2/OP_SUB_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5362,7 +5362,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_INT_2ADDR: /* 0xb2 */
+L_OP_MUL_INT_2ADDR: /* 0xb2 */
 /* File: armv6t2/OP_MUL_INT_2ADDR.S */
 /* must be "mul r0, r1, r0" -- "r0, r0, r1" is illegal */
 /* File: armv6t2/binop2addr.S */
@@ -5402,7 +5402,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_INT_2ADDR: /* 0xb3 */
+L_OP_DIV_INT_2ADDR: /* 0xb3 */
 /* File: armv6t2/OP_DIV_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5441,7 +5441,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_INT_2ADDR: /* 0xb4 */
+L_OP_REM_INT_2ADDR: /* 0xb4 */
 /* File: armv6t2/OP_REM_INT_2ADDR.S */
 /* idivmod returns quotient in r0 and remainder in r1 */
 /* File: armv6t2/binop2addr.S */
@@ -5481,7 +5481,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_INT_2ADDR: /* 0xb5 */
+L_OP_AND_INT_2ADDR: /* 0xb5 */
 /* File: armv6t2/OP_AND_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5520,7 +5520,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_INT_2ADDR: /* 0xb6 */
+L_OP_OR_INT_2ADDR: /* 0xb6 */
 /* File: armv6t2/OP_OR_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5559,7 +5559,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_INT_2ADDR: /* 0xb7 */
+L_OP_XOR_INT_2ADDR: /* 0xb7 */
 /* File: armv6t2/OP_XOR_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5598,7 +5598,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_INT_2ADDR: /* 0xb8 */
+L_OP_SHL_INT_2ADDR: /* 0xb8 */
 /* File: armv6t2/OP_SHL_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5637,7 +5637,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_INT_2ADDR: /* 0xb9 */
+L_OP_SHR_INT_2ADDR: /* 0xb9 */
 /* File: armv6t2/OP_SHR_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5676,7 +5676,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_INT_2ADDR: /* 0xba */
+L_OP_USHR_INT_2ADDR: /* 0xba */
 /* File: armv6t2/OP_USHR_INT_2ADDR.S */
 /* File: armv6t2/binop2addr.S */
     /*
@@ -5715,7 +5715,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_LONG_2ADDR: /* 0xbb */
+L_OP_ADD_LONG_2ADDR: /* 0xbb */
 /* File: armv6t2/OP_ADD_LONG_2ADDR.S */
 /* File: armv6t2/binopWide2addr.S */
     /*
@@ -5756,7 +5756,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_LONG_2ADDR: /* 0xbc */
+L_OP_SUB_LONG_2ADDR: /* 0xbc */
 /* File: armv6t2/OP_SUB_LONG_2ADDR.S */
 /* File: armv6t2/binopWide2addr.S */
     /*
@@ -5797,7 +5797,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_LONG_2ADDR: /* 0xbd */
+L_OP_MUL_LONG_2ADDR: /* 0xbd */
 /* File: armv6t2/OP_MUL_LONG_2ADDR.S */
     /*
      * Signed 64-bit integer multiply, "/2addr" version.
@@ -5827,7 +5827,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_LONG_2ADDR: /* 0xbe */
+L_OP_DIV_LONG_2ADDR: /* 0xbe */
 /* File: armv6t2/OP_DIV_LONG_2ADDR.S */
 /* File: armv6t2/binopWide2addr.S */
     /*
@@ -5868,7 +5868,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_LONG_2ADDR: /* 0xbf */
+L_OP_REM_LONG_2ADDR: /* 0xbf */
 /* File: armv6t2/OP_REM_LONG_2ADDR.S */
 /* ldivmod returns quotient in r0/r1 and remainder in r2/r3 */
 /* File: armv6t2/binopWide2addr.S */
@@ -5910,7 +5910,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_LONG_2ADDR: /* 0xc0 */
+L_OP_AND_LONG_2ADDR: /* 0xc0 */
 /* File: armv6t2/OP_AND_LONG_2ADDR.S */
 /* File: armv6t2/binopWide2addr.S */
     /*
@@ -5951,7 +5951,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_LONG_2ADDR: /* 0xc1 */
+L_OP_OR_LONG_2ADDR: /* 0xc1 */
 /* File: armv6t2/OP_OR_LONG_2ADDR.S */
 /* File: armv6t2/binopWide2addr.S */
     /*
@@ -5992,7 +5992,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_LONG_2ADDR: /* 0xc2 */
+L_OP_XOR_LONG_2ADDR: /* 0xc2 */
 /* File: armv6t2/OP_XOR_LONG_2ADDR.S */
 /* File: armv6t2/binopWide2addr.S */
     /*
@@ -6033,7 +6033,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_LONG_2ADDR: /* 0xc3 */
+L_OP_SHL_LONG_2ADDR: /* 0xc3 */
 /* File: armv6t2/OP_SHL_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -6058,7 +6058,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_LONG_2ADDR: /* 0xc4 */
+L_OP_SHR_LONG_2ADDR: /* 0xc4 */
 /* File: armv6t2/OP_SHR_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -6083,7 +6083,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_LONG_2ADDR: /* 0xc5 */
+L_OP_USHR_LONG_2ADDR: /* 0xc5 */
 /* File: armv6t2/OP_USHR_LONG_2ADDR.S */
     /*
      * Long integer shift, 2addr version.  vA is 64-bit value/result, vB is
@@ -6108,7 +6108,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_FLOAT_2ADDR: /* 0xc6 */
+L_OP_ADD_FLOAT_2ADDR: /* 0xc6 */
 /* File: arm-vfp/OP_ADD_FLOAT_2ADDR.S */
 /* File: arm-vfp/fbinop2addr.S */
     /*
@@ -6136,7 +6136,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_FLOAT_2ADDR: /* 0xc7 */
+L_OP_SUB_FLOAT_2ADDR: /* 0xc7 */
 /* File: arm-vfp/OP_SUB_FLOAT_2ADDR.S */
 /* File: arm-vfp/fbinop2addr.S */
     /*
@@ -6164,7 +6164,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_FLOAT_2ADDR: /* 0xc8 */
+L_OP_MUL_FLOAT_2ADDR: /* 0xc8 */
 /* File: arm-vfp/OP_MUL_FLOAT_2ADDR.S */
 /* File: arm-vfp/fbinop2addr.S */
     /*
@@ -6192,7 +6192,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_FLOAT_2ADDR: /* 0xc9 */
+L_OP_DIV_FLOAT_2ADDR: /* 0xc9 */
 /* File: arm-vfp/OP_DIV_FLOAT_2ADDR.S */
 /* File: arm-vfp/fbinop2addr.S */
     /*
@@ -6220,7 +6220,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_FLOAT_2ADDR: /* 0xca */
+L_OP_REM_FLOAT_2ADDR: /* 0xca */
 /* File: armv6t2/OP_REM_FLOAT_2ADDR.S */
 /* EABI doesn't define a float remainder function, but libm does */
 /* File: armv6t2/binop2addr.S */
@@ -6260,7 +6260,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_DOUBLE_2ADDR: /* 0xcb */
+L_OP_ADD_DOUBLE_2ADDR: /* 0xcb */
 /* File: arm-vfp/OP_ADD_DOUBLE_2ADDR.S */
 /* File: arm-vfp/fbinopWide2addr.S */
     /*
@@ -6289,7 +6289,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SUB_DOUBLE_2ADDR: /* 0xcc */
+L_OP_SUB_DOUBLE_2ADDR: /* 0xcc */
 /* File: arm-vfp/OP_SUB_DOUBLE_2ADDR.S */
 /* File: arm-vfp/fbinopWide2addr.S */
     /*
@@ -6318,7 +6318,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_DOUBLE_2ADDR: /* 0xcd */
+L_OP_MUL_DOUBLE_2ADDR: /* 0xcd */
 /* File: arm-vfp/OP_MUL_DOUBLE_2ADDR.S */
 /* File: arm-vfp/fbinopWide2addr.S */
     /*
@@ -6347,7 +6347,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_DOUBLE_2ADDR: /* 0xce */
+L_OP_DIV_DOUBLE_2ADDR: /* 0xce */
 /* File: arm-vfp/OP_DIV_DOUBLE_2ADDR.S */
 /* File: arm-vfp/fbinopWide2addr.S */
     /*
@@ -6376,7 +6376,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_DOUBLE_2ADDR: /* 0xcf */
+L_OP_REM_DOUBLE_2ADDR: /* 0xcf */
 /* File: armv6t2/OP_REM_DOUBLE_2ADDR.S */
 /* EABI doesn't define a double remainder function, but libm does */
 /* File: armv6t2/binopWide2addr.S */
@@ -6418,7 +6418,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_INT_LIT16: /* 0xd0 */
+L_OP_ADD_INT_LIT16: /* 0xd0 */
 /* File: armv6t2/OP_ADD_INT_LIT16.S */
 /* File: armv6t2/binopLit16.S */
     /*
@@ -6454,7 +6454,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RSUB_INT: /* 0xd1 */
+L_OP_RSUB_INT: /* 0xd1 */
 /* File: armv6t2/OP_RSUB_INT.S */
 /* this op is "rsub-int", but can be thought of as "rsub-int/lit16" */
 /* File: armv6t2/binopLit16.S */
@@ -6491,7 +6491,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_INT_LIT16: /* 0xd2 */
+L_OP_MUL_INT_LIT16: /* 0xd2 */
 /* File: armv6t2/OP_MUL_INT_LIT16.S */
 /* must be "mul r0, r1, r0" -- "r0, r0, r1" is illegal */
 /* File: armv6t2/binopLit16.S */
@@ -6528,7 +6528,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_INT_LIT16: /* 0xd3 */
+L_OP_DIV_INT_LIT16: /* 0xd3 */
 /* File: armv6t2/OP_DIV_INT_LIT16.S */
 /* File: armv6t2/binopLit16.S */
     /*
@@ -6564,7 +6564,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_INT_LIT16: /* 0xd4 */
+L_OP_REM_INT_LIT16: /* 0xd4 */
 /* File: armv6t2/OP_REM_INT_LIT16.S */
 /* idivmod returns quotient in r0 and remainder in r1 */
 /* File: armv6t2/binopLit16.S */
@@ -6601,7 +6601,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_INT_LIT16: /* 0xd5 */
+L_OP_AND_INT_LIT16: /* 0xd5 */
 /* File: armv6t2/OP_AND_INT_LIT16.S */
 /* File: armv6t2/binopLit16.S */
     /*
@@ -6637,7 +6637,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_INT_LIT16: /* 0xd6 */
+L_OP_OR_INT_LIT16: /* 0xd6 */
 /* File: armv6t2/OP_OR_INT_LIT16.S */
 /* File: armv6t2/binopLit16.S */
     /*
@@ -6673,7 +6673,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_INT_LIT16: /* 0xd7 */
+L_OP_XOR_INT_LIT16: /* 0xd7 */
 /* File: armv6t2/OP_XOR_INT_LIT16.S */
 /* File: armv6t2/binopLit16.S */
     /*
@@ -6709,7 +6709,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_ADD_INT_LIT8: /* 0xd8 */
+L_OP_ADD_INT_LIT8: /* 0xd8 */
 /* File: armv5te/OP_ADD_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -6748,7 +6748,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_RSUB_INT_LIT8: /* 0xd9 */
+L_OP_RSUB_INT_LIT8: /* 0xd9 */
 /* File: armv5te/OP_RSUB_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -6787,7 +6787,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_MUL_INT_LIT8: /* 0xda */
+L_OP_MUL_INT_LIT8: /* 0xda */
 /* File: armv5te/OP_MUL_INT_LIT8.S */
 /* must be "mul r0, r1, r0" -- "r0, r0, r1" is illegal */
 /* File: armv5te/binopLit8.S */
@@ -6827,7 +6827,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_DIV_INT_LIT8: /* 0xdb */
+L_OP_DIV_INT_LIT8: /* 0xdb */
 /* File: armv5te/OP_DIV_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -6866,7 +6866,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_REM_INT_LIT8: /* 0xdc */
+L_OP_REM_INT_LIT8: /* 0xdc */
 /* File: armv5te/OP_REM_INT_LIT8.S */
 /* idivmod returns quotient in r0 and remainder in r1 */
 /* File: armv5te/binopLit8.S */
@@ -6906,7 +6906,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_AND_INT_LIT8: /* 0xdd */
+L_OP_AND_INT_LIT8: /* 0xdd */
 /* File: armv5te/OP_AND_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -6945,7 +6945,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_OR_INT_LIT8: /* 0xde */
+L_OP_OR_INT_LIT8: /* 0xde */
 /* File: armv5te/OP_OR_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -6984,7 +6984,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_XOR_INT_LIT8: /* 0xdf */
+L_OP_XOR_INT_LIT8: /* 0xdf */
 /* File: armv5te/OP_XOR_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -7023,7 +7023,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHL_INT_LIT8: /* 0xe0 */
+L_OP_SHL_INT_LIT8: /* 0xe0 */
 /* File: armv5te/OP_SHL_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -7062,7 +7062,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_SHR_INT_LIT8: /* 0xe1 */
+L_OP_SHR_INT_LIT8: /* 0xe1 */
 /* File: armv5te/OP_SHR_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -7101,7 +7101,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_USHR_INT_LIT8: /* 0xe2 */
+L_OP_USHR_INT_LIT8: /* 0xe2 */
 /* File: armv5te/OP_USHR_INT_LIT8.S */
 /* File: armv5te/binopLit8.S */
     /*
@@ -7140,7 +7140,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E3: /* 0xe3 */
+L_OP_UNUSED_E3: /* 0xe3 */
 /* File: armv5te/OP_UNUSED_E3.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7149,7 +7149,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E4: /* 0xe4 */
+L_OP_UNUSED_E4: /* 0xe4 */
 /* File: armv5te/OP_UNUSED_E4.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7158,7 +7158,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E5: /* 0xe5 */
+L_OP_UNUSED_E5: /* 0xe5 */
 /* File: armv5te/OP_UNUSED_E5.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7167,7 +7167,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E6: /* 0xe6 */
+L_OP_UNUSED_E6: /* 0xe6 */
 /* File: armv5te/OP_UNUSED_E6.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7176,7 +7176,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E7: /* 0xe7 */
+L_OP_UNUSED_E7: /* 0xe7 */
 /* File: armv5te/OP_UNUSED_E7.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7185,7 +7185,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E8: /* 0xe8 */
+L_OP_UNUSED_E8: /* 0xe8 */
 /* File: armv5te/OP_UNUSED_E8.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7194,7 +7194,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_E9: /* 0xe9 */
+L_OP_UNUSED_E9: /* 0xe9 */
 /* File: armv5te/OP_UNUSED_E9.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7203,7 +7203,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_EA: /* 0xea */
+L_OP_UNUSED_EA: /* 0xea */
 /* File: armv5te/OP_UNUSED_EA.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7212,7 +7212,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_EB: /* 0xeb */
+L_OP_UNUSED_EB: /* 0xeb */
 /* File: armv5te/OP_UNUSED_EB.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7221,7 +7221,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_EC: /* 0xec */
+L_OP_UNUSED_EC: /* 0xec */
 /* File: armv5te/OP_UNUSED_EC.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7230,7 +7230,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_THROW_VERIFICATION_ERROR: /* 0xed */
+L_OP_THROW_VERIFICATION_ERROR: /* 0xed */
 /* File: armv5te/OP_THROW_VERIFICATION_ERROR.S */
     /*
      * Handle a throw-verification-error instruction.  This throws an
@@ -7248,7 +7248,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_EXECUTE_INLINE: /* 0xee */
+L_OP_EXECUTE_INLINE: /* 0xee */
 /* File: armv5te/OP_EXECUTE_INLINE.S */
     /*
      * Execute a "native inline" instruction.
@@ -7276,7 +7276,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_EF: /* 0xef */
+L_OP_UNUSED_EF: /* 0xef */
 /* File: armv5te/OP_UNUSED_EF.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7285,7 +7285,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_DIRECT_EMPTY: /* 0xf0 */
+L_OP_INVOKE_DIRECT_EMPTY: /* 0xf0 */
 /* File: armv5te/OP_INVOKE_DIRECT_EMPTY.S */
     /*
      * invoke-direct-empty is a no-op in a "standard" interpreter.
@@ -7296,7 +7296,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_F1: /* 0xf1 */
+L_OP_UNUSED_F1: /* 0xf1 */
 /* File: armv5te/OP_UNUSED_F1.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7305,7 +7305,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_QUICK: /* 0xf2 */
+L_OP_IGET_QUICK: /* 0xf2 */
 /* File: armv6t2/OP_IGET_QUICK.S */
     /* For: iget-quick, iget-object-quick */
     /* op vA, vB, offset@CCCC */
@@ -7324,7 +7324,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_WIDE_QUICK: /* 0xf3 */
+L_OP_IGET_WIDE_QUICK: /* 0xf3 */
 /* File: armv6t2/OP_IGET_WIDE_QUICK.S */
     /* iget-wide-quick vA, vB, offset@CCCC */
     mov     r2, rINST, lsr #12          @ r2<- B
@@ -7343,7 +7343,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IGET_OBJECT_QUICK: /* 0xf4 */
+L_OP_IGET_OBJECT_QUICK: /* 0xf4 */
 /* File: armv5te/OP_IGET_OBJECT_QUICK.S */
 /* File: armv5te/OP_IGET_QUICK.S */
     /* For: iget-quick, iget-object-quick */
@@ -7365,7 +7365,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_QUICK: /* 0xf5 */
+L_OP_IPUT_QUICK: /* 0xf5 */
 /* File: armv6t2/OP_IPUT_QUICK.S */
     /* For: iput-quick, iput-object-quick */
     /* op vA, vB, offset@CCCC */
@@ -7384,7 +7384,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_WIDE_QUICK: /* 0xf6 */
+L_OP_IPUT_WIDE_QUICK: /* 0xf6 */
 /* File: armv6t2/OP_IPUT_WIDE_QUICK.S */
     /* iput-wide-quick vA, vB, offset@CCCC */
     mov     r1, rINST, lsr #12          @ r1<- B
@@ -7403,7 +7403,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_IPUT_OBJECT_QUICK: /* 0xf7 */
+L_OP_IPUT_OBJECT_QUICK: /* 0xf7 */
 /* File: armv5te/OP_IPUT_OBJECT_QUICK.S */
 /* File: armv5te/OP_IPUT_QUICK.S */
     /* For: iput-quick, iput-object-quick */
@@ -7425,7 +7425,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */
+L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */
 /* File: armv5te/OP_INVOKE_VIRTUAL_QUICK.S */
     /*
      * Handle an optimized virtual method call.
@@ -7450,7 +7450,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_VIRTUAL_QUICK_RANGE: /* 0xf9 */
+L_OP_INVOKE_VIRTUAL_QUICK_RANGE: /* 0xf9 */
 /* File: armv5te/OP_INVOKE_VIRTUAL_QUICK_RANGE.S */
 /* File: armv5te/OP_INVOKE_VIRTUAL_QUICK.S */
     /*
@@ -7477,7 +7477,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_SUPER_QUICK: /* 0xfa */
+L_OP_INVOKE_SUPER_QUICK: /* 0xfa */
 /* File: armv5te/OP_INVOKE_SUPER_QUICK.S */
     /*
      * Handle an optimized "super" method call.
@@ -7505,7 +7505,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_INVOKE_SUPER_QUICK_RANGE: /* 0xfb */
+L_OP_INVOKE_SUPER_QUICK_RANGE: /* 0xfb */
 /* File: armv5te/OP_INVOKE_SUPER_QUICK_RANGE.S */
 /* File: armv5te/OP_INVOKE_SUPER_QUICK.S */
     /*
@@ -7535,7 +7535,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_FC: /* 0xfc */
+L_OP_UNUSED_FC: /* 0xfc */
 /* File: armv5te/OP_UNUSED_FC.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7544,7 +7544,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_FD: /* 0xfd */
+L_OP_UNUSED_FD: /* 0xfd */
 /* File: armv5te/OP_UNUSED_FD.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7553,7 +7553,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_FE: /* 0xfe */
+L_OP_UNUSED_FE: /* 0xfe */
 /* File: armv5te/OP_UNUSED_FE.S */
 /* File: armv5te/unused.S */
     bl      common_abort
@@ -7562,7 +7562,7 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 64
-.L_OP_UNUSED_FF: /* 0xff */
+L_OP_UNUSED_FF: /* 0xff */
 /* File: armv5te/OP_UNUSED_FF.S */
 /* File: armv5te/unused.S */
     bl      common_abort

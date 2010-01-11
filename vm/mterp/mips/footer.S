@@ -222,9 +222,9 @@ common_invokeMethodNoRange:
     # Prep for the native call
     # a0=methodToCall, a1=newFp, t1=newSaveArea
 	lw	a3, offGlue_self(rGLUE)
-	lw	t3, offThread_jniLocal_nextEntry(a3)
+	lw	t3, offThread_jniLocal_topCookie(a3) # t3 <- thread->localRef->...
 	sw	a1, offThread_curFrame(a3)
-	sw	t3, offStackSaveArea_localRefTop(t1)
+	sw	t3, offStackSaveArea_localRefCookie(t1) #newFp->localRefCookie=top
         move    rOBJ, t1
 	move	rBIX, a3
 	move	a2, a0
@@ -244,10 +244,10 @@ dalvik_mterp:
 
         # native return; rBIX=self, rOBJ=newSaveArea
         # equivalent to dvmPopJniLocals
-	lw	a0, offStackSaveArea_localRefTop(rOBJ)
+	lw	a0, offStackSaveArea_localRefCookie(rOBJ)
 	lw	a1, offThread_exception(rBIX)
 	sw	rFP, offThread_curFrame	(rBIX)
-	sw	a0, offThread_jniLocal_nextEntry(rBIX)
+	sw	a0, offThread_jniLocal_topCookie(rBIX)
 	bnez	a1, common_exceptionThrown
 	
 	FETCH_ADVANCE_INST(3)
