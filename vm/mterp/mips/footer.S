@@ -241,6 +241,7 @@ dalvik_mterp:
 #endif
 	lw	t9, offMethod_nativeFunc(a2)
 	jalr	t9
+	lw      gp, STACK_OFFSET_GP(sp)
 
         # native return; rBIX=self, rOBJ=newSaveArea
         # equivalent to dvmPopJniLocals

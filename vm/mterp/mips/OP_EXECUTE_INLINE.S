@@ -17,6 +17,7 @@
 				        # Stack should have 16/20 available
     sw      a1, 16(sp)                  # push &glue->retval
     BAL( .L${opcode}_continue )		# make call; will return after
+    lw      gp, STACK_OFFSET_GP(sp)     # restore gp
                                         # test boolean result of inline
     beqz    v0, common_exceptionThrown  # returned false, handle exception
     FETCH_ADVANCE_INST(3)               # advance rPC, load rINST

@@ -7919,6 +7919,7 @@ L_OP_EXECUTE_INLINE: /* 0xee */
 				        # Stack should have 16/20 available
     sw      a1, 16(sp)                  # push &glue->retval
     BAL( .LOP_EXECUTE_INLINE_continue )		# make call; will return after
+    lw      gp, STACK_OFFSET_GP(sp)     # restore gp
                                         # test boolean result of inline
     beqz    v0, common_exceptionThrown  # returned false, handle exception
     FETCH_ADVANCE_INST(3)               # advance rPC, load rINST
@@ -9419,6 +9420,7 @@ dalvik_mterp:
 #endif
 	lw	t9, offMethod_nativeFunc(a2)
 	jalr	t9
+	lw      gp, STACK_OFFSET_GP(sp)
 
         # native return; rBIX=self, rOBJ=newSaveArea
         # equivalent to dvmPopJniLocals
