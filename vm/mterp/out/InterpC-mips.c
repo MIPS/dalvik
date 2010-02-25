@@ -1196,45 +1196,6 @@ GOTO_TARGET_DECL(exceptionThrown);
     FINISH(2);
 
 
-/* File: c/OP_FILLED_NEW_ARRAY.c */
-HANDLE_OPCODE(OP_FILLED_NEW_ARRAY /*vB, {vD, vE, vF, vG, vA}, class@CCCC*/)
-    GOTO_invoke(filledNewArray, false);
-OP_END
-
-/* File: c/OP_FILLED_NEW_ARRAY_RANGE.c */
-HANDLE_OPCODE(OP_FILLED_NEW_ARRAY_RANGE /*{vCCCC..v(CCCC+AA-1)}, class@BBBB*/)
-    GOTO_invoke(filledNewArray, true);
-OP_END
-
-/* File: c/OP_INVOKE_STATIC.c */
-HANDLE_OPCODE(OP_INVOKE_STATIC /*vB, {vD, vE, vF, vG, vA}, meth@CCCC*/)
-    GOTO_invoke(invokeStatic, false);
-OP_END
-
-/* File: c/OP_INVOKE_STATIC_RANGE.c */
-HANDLE_OPCODE(OP_INVOKE_STATIC_RANGE /*{vCCCC..v(CCCC+AA-1)}, meth@BBBB*/)
-    GOTO_invoke(invokeStatic, true);
-OP_END
-
-/* File: c/OP_THROW_VERIFICATION_ERROR.c */
-HANDLE_OPCODE(OP_THROW_VERIFICATION_ERROR)
-    EXPORT_PC();
-    vsrc1 = INST_AA(inst);
-    ref = FETCH(1);             /* class/field/method ref */
-    dvmThrowVerificationError(curMethod, vsrc1, ref);
-    GOTO_exceptionThrown();
-OP_END
-
-/* File: c/OP_INVOKE_VIRTUAL_QUICK.c */
-HANDLE_OPCODE(OP_INVOKE_VIRTUAL_QUICK /*vB, {vD, vE, vF, vG, vA}, meth@CCCC*/)
-    GOTO_invoke(invokeVirtualQuick, false);
-OP_END
-
-/* File: c/OP_INVOKE_VIRTUAL_QUICK_RANGE.c */
-HANDLE_OPCODE(OP_INVOKE_VIRTUAL_QUICK_RANGE/*{vCCCC..v(CCCC+AA-1)}, meth@BBBB*/)
-    GOTO_invoke(invokeVirtualQuick, true);
-OP_END
-
 /* File: c/gotoTargets.c */
 /*
  * C footer.  This has some common code shared by the various targets.

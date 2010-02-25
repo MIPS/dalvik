@@ -1075,29 +1075,61 @@ L_OP_NEW_ARRAY: /* 0x23 */
 /* ------------------------------ */
     .balign 128
 L_OP_FILLED_NEW_ARRAY: /* 0x24 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE 
-	JAL(dvmMterp_OP_FILLED_NEW_ARRAY)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST() 
-	GET_INST_OPCODE(t0)	
-	GOTO_OPCODE(t0)
+/* File: mips/OP_FILLED_NEW_ARRAY.S */
+    /*
+     * Create a new array with elements filled from registers.
+     *
+     * for: filled-new-array, filled-new-array/range
+     */
+    /* op vB, {vD, vE, vF, vG, vA}, class #CCCC */
+    /* op {vCCCC..v(CCCC+AA-1)}, type #BBBB */
+    LOAD_rGLUE_methodClassDex(a3)		# a3<- pDvmDex
+    FETCH(a1, 1)                                # a1<- BBBB
+    LOAD_base_offDvmDex_pResClasses(a3,a3)	# a3<- pDvmDex->pResClasses
+    EXPORT_PC()                                 # need for resolve and alloc
+    LOAD_eas2(a0, a3, a1)		        # a0<- resolved class
+    GET_OPA(rOBJ)	                        # rOBJ<- AA or BA
+                                                # already resolved?
+    bnez    a0, .LOP_FILLED_NEW_ARRAY_continue            # yes, continue on
+    LOAD_rGLUE_method(a3)		        # a3<- glue->method
+    li      a2, 0                               # a2<- false
+    LOAD_base_offMethod_clazz(a0,a3)		# a0<- method->clazz
+    JAL(dvmResolveClass)			# v0<- call(clazz, ref)
+    move    a0, v0
+                                                # got null?
+    beqz    v0, common_exceptionThrown          # yes, handle exception
+    b       .LOP_FILLED_NEW_ARRAY_continue
+
 /* ------------------------------ */
     .balign 128
 L_OP_FILLED_NEW_ARRAY_RANGE: /* 0x25 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE 
-	JAL(dvmMterp_OP_FILLED_NEW_ARRAY_RANGE)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST() 
-	GET_INST_OPCODE(t0)	
-	GOTO_OPCODE(t0)
+/* File: mips/OP_FILLED_NEW_ARRAY_RANGE.S */
+/* File: mips/OP_FILLED_NEW_ARRAY.S */
+    /*
+     * Create a new array with elements filled from registers.
+     *
+     * for: filled-new-array, filled-new-array/range
+     */
+    /* op vB, {vD, vE, vF, vG, vA}, class #CCCC */
+    /* op {vCCCC..v(CCCC+AA-1)}, type #BBBB */
+    LOAD_rGLUE_methodClassDex(a3)		# a3<- pDvmDex
+    FETCH(a1, 1)                                # a1<- BBBB
+    LOAD_base_offDvmDex_pResClasses(a3,a3)	# a3<- pDvmDex->pResClasses
+    EXPORT_PC()                                 # need for resolve and alloc
+    LOAD_eas2(a0, a3, a1)		        # a0<- resolved class
+    GET_OPA(rOBJ)	                        # rOBJ<- AA or BA
+                                                # already resolved?
+    bnez    a0, .LOP_FILLED_NEW_ARRAY_RANGE_continue            # yes, continue on
+    LOAD_rGLUE_method(a3)		        # a3<- glue->method
+    li      a2, 0                               # a2<- false
+    LOAD_base_offMethod_clazz(a0,a3)		# a0<- method->clazz
+    JAL(dvmResolveClass)			# v0<- call(clazz, ref)
+    move    a0, v0
+                                                # got null?
+    beqz    v0, common_exceptionThrown          # yes, handle exception
+    b       .LOP_FILLED_NEW_ARRAY_RANGE_continue
+
+
 /* ------------------------------ */
     .balign 128
 L_OP_FILL_ARRAY_DATA: /* 0x26 */
@@ -3379,16 +3411,31 @@ L_OP_INVOKE_DIRECT: /* 0x70 */
 /* ------------------------------ */
     .balign 128
 L_OP_INVOKE_STATIC: /* 0x71 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE 
-	JAL(dvmMterp_OP_INVOKE_STATIC)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST() 
-	GET_INST_OPCODE(t0)	
-	GOTO_OPCODE(t0)
+/* File: mips/OP_INVOKE_STATIC.S */
+    /*
+     * Handle a static method call.
+     *
+     * for: invoke-static, invoke-static/range
+     */
+    /* op vB, {vD, vE, vF, vG, vA}, class#CCCC */
+    /* op {vCCCC..v(CCCC+AA-1)}, meth#BBBB */
+    LOAD_rGLUE_methodClassDex(a3)		# a3<- pDvmDex
+    FETCH(a1, 1)                        	# a1<- BBBB
+    LOAD_base_offDvmDex_pResMethods(a3,a3)	# a3<- pDvmDex->pResMethods
+    LOAD_eas2(a0, a3, a1)                       # a0<- resolved methodToCall
+    EXPORT_PC()                         	# must export for invoke
+						# already resolved?
+    bnez    a0, common_invokeMethodNoRange   # yes, continue on
+    LOAD_rGLUE_method(a3)		 	# a3<- glue->method
+    LOAD_base_offMethod_clazz(a0,a3)		# a0<- method->clazz
+    li      a2, METHOD_STATIC			# resolver method type
+    JAL(dvmResolveMethod)			# v0<- call(clazz, ref, flags)
+    move    a0, v0
+    						# got null?
+    bnez    v0, common_invokeMethodNoRange   # no, continue
+    b       common_exceptionThrown      	# yes, handle exception
+
+
 /* ------------------------------ */
     .balign 128
 L_OP_INVOKE_INTERFACE: /* 0x72 */
@@ -3550,16 +3597,33 @@ L_OP_INVOKE_DIRECT_RANGE: /* 0x76 */
 /* ------------------------------ */
     .balign 128
 L_OP_INVOKE_STATIC_RANGE: /* 0x77 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE 
-	JAL(dvmMterp_OP_INVOKE_STATIC_RANGE)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST() 
-	GET_INST_OPCODE(t0)	
-	GOTO_OPCODE(t0)
+/* File: mips/OP_INVOKE_STATIC_RANGE.S */
+/* File: mips/OP_INVOKE_STATIC.S */
+    /*
+     * Handle a static method call.
+     *
+     * for: invoke-static, invoke-static/range
+     */
+    /* op vB, {vD, vE, vF, vG, vA}, class#CCCC */
+    /* op {vCCCC..v(CCCC+AA-1)}, meth#BBBB */
+    LOAD_rGLUE_methodClassDex(a3)		# a3<- pDvmDex
+    FETCH(a1, 1)                        	# a1<- BBBB
+    LOAD_base_offDvmDex_pResMethods(a3,a3)	# a3<- pDvmDex->pResMethods
+    LOAD_eas2(a0, a3, a1)                       # a0<- resolved methodToCall
+    EXPORT_PC()                         	# must export for invoke
+						# already resolved?
+    bnez    a0, common_invokeMethodRange   # yes, continue on
+    LOAD_rGLUE_method(a3)		 	# a3<- glue->method
+    LOAD_base_offMethod_clazz(a0,a3)		# a0<- method->clazz
+    li      a2, METHOD_STATIC			# resolver method type
+    JAL(dvmResolveMethod)			# v0<- call(clazz, ref, flags)
+    move    a0, v0
+    						# got null?
+    bnez    v0, common_invokeMethodRange   # no, continue
+    b       common_exceptionThrown      	# yes, handle exception
+
+
+
 /* ------------------------------ */
     .balign 128
 L_OP_INVOKE_INTERFACE_RANGE: /* 0x78 */
@@ -7888,16 +7952,22 @@ L_OP_UNUSED_EC: /* 0xec */
 /* ------------------------------ */
     .balign 128
 L_OP_THROW_VERIFICATION_ERROR: /* 0xed */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE 
-	JAL(dvmMterp_OP_THROW_VERIFICATION_ERROR)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST() 
-	GET_INST_OPCODE(t0)	
-	GOTO_OPCODE(t0)
+/* File: mips/OP_THROW_VERIFICATION_ERROR.S */
+    /*
+     * Handle a throw-verification-error instruction.  This throws an
+     * exception for an error discovered during verification.  The
+     * exception is indicated by AA, with some detail provided by BBBB.
+     */
+    /* op AA, ref@BBBB */
+
+    LOAD_rGLUE_method(a0)		 	# a0<- glue->method
+    FETCH(a2, 1)                    # a2<- BBBB
+    EXPORT_PC()                     # export the PC
+    GET_OPA(a1)                     # a1<- AA
+    JAL(dvmThrowVerificationError)  # always throws
+    b       common_exceptionThrown  # handle exception
+
+
 /* ------------------------------ */
     .balign 128
 L_OP_EXECUTE_INLINE: /* 0xee */
@@ -8080,29 +8150,55 @@ L_OP_IPUT_OBJECT_QUICK: /* 0xf7 */
 /* ------------------------------ */
     .balign 128
 L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE 
-	JAL(dvmMterp_OP_INVOKE_VIRTUAL_QUICK)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST() 
-	GET_INST_OPCODE(t0)	
-	GOTO_OPCODE(t0)
+/* File: mips/OP_INVOKE_VIRTUAL_QUICK.S */
+    /*
+     * Handle an optimized virtual method call.
+     *
+     * for: [opt] invoke-virtual-quick, invoke-virtual-quick/range
+     */
+    /* op vB, {vD, vE, vF, vG, vA}, class#CCCC */
+    /* op vAA, {vCCCC..v(CCCC+AA-1)}, meth#BBBB */
+    FETCH(a3, 2)                        	# a3<- FEDC or CCCC
+    FETCH(a1, 1)                        	# a1<- BBBB
+    .if     (!0)
+    and     a3, a3, 15                 		# a3<- C (or stays CCCC)
+    .endif
+    GET_VREG(a2, a3)                    	# a2<- vC ("this" ptr)
+						# is "this" null?
+    beqz    a2, common_errNullObject		# null "this", throw exception
+    LOAD_base_offObject_clazz(a2, a2)		# a2<- thisPtr->clazz
+    LOAD_base_offClassObject_vtable(a2, a2)	# a2<- thisPtr->clazz->vtable
+    EXPORT_PC()                         	# invoke must export
+    LOAD_eas2(a0, a2, a1)		        # a0<- vtable[BBBB]
+    b      common_invokeMethodNoRange	# continue on
+
 /* ------------------------------ */
     .balign 128
 L_OP_INVOKE_VIRTUAL_QUICK_RANGE: /* 0xf9 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE 
-	JAL(dvmMterp_OP_INVOKE_VIRTUAL_QUICK_RANGE)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST() 
-	GET_INST_OPCODE(t0)	
-	GOTO_OPCODE(t0)
+/* File: mips/OP_INVOKE_VIRTUAL_QUICK_RANGE.S */
+/* File: mips/OP_INVOKE_VIRTUAL_QUICK.S */
+    /*
+     * Handle an optimized virtual method call.
+     *
+     * for: [opt] invoke-virtual-quick, invoke-virtual-quick/range
+     */
+    /* op vB, {vD, vE, vF, vG, vA}, class#CCCC */
+    /* op vAA, {vCCCC..v(CCCC+AA-1)}, meth#BBBB */
+    FETCH(a3, 2)                        	# a3<- FEDC or CCCC
+    FETCH(a1, 1)                        	# a1<- BBBB
+    .if     (!1)
+    and     a3, a3, 15                 		# a3<- C (or stays CCCC)
+    .endif
+    GET_VREG(a2, a3)                    	# a2<- vC ("this" ptr)
+						# is "this" null?
+    beqz    a2, common_errNullObject		# null "this", throw exception
+    LOAD_base_offObject_clazz(a2, a2)		# a2<- thisPtr->clazz
+    LOAD_base_offClassObject_vtable(a2, a2)	# a2<- thisPtr->clazz->vtable
+    EXPORT_PC()                         	# invoke must export
+    LOAD_eas2(a0, a2, a1)		        # a0<- vtable[BBBB]
+    b      common_invokeMethodRange	# continue on
+
+
 /* ------------------------------ */
     .balign 128
 L_OP_INVOKE_SUPER_QUICK: /* 0xfa */
@@ -8359,6 +8455,170 @@ dvmAsmSisterStart:
     move    a0, v0
     b      .LOP_NEW_ARRAY_finish			# fall through to OP_NEW_ARRAY_finish
 
+
+
+/* continuation for OP_FILLED_NEW_ARRAY */
+
+    /*
+     * On entry:
+     *  a0 holds array class
+     *  rOBJ holds AA or BA
+     */
+.LOP_FILLED_NEW_ARRAY_continue:
+    LOAD_base_offClassObject_descriptor(a3, a0) # a3<- arrayClass->descriptor
+    li      a2, ALLOC_DONT_TRACK                # a2<- alloc flags
+    lbu     a0, 1(a3)                           # a0<- descriptor[1]
+    .if     0
+    move    a1, rOBJ                            # a1<- AA (length)
+    .else
+    srl     a1, rOBJ, 4		                # rOBJ<- B (length)
+    .endif
+    li      t0, 'I'                             # array of ints?
+    move    rBIX, a1				# save length in rBIX
+    bne     t0, a0, .LOP_FILLED_NEW_ARRAY_notimpl         # no, not handled yet
+    JAL(dvmAllocPrimitiveArray)		# v0<- call(typeCh, length, flags)
+                                                # null return?
+    beqz    v0, common_exceptionThrown          # alloc failed, handle exception
+
+    FETCH(a1, 2)                                # a1<- FEDC or CCCC
+    sw      v0, offGlue_retval(rGLUE)           # retval.l <- new array
+    addu    a0, v0, offArrayObject_contents     # a0<- newArray->contents
+    subu    rBIX, rBIX, 1                       # length--, check for neg
+    FETCH_ADVANCE_INST(3)                       # advance to next instr, load rINST
+    bltz    rBIX, 2f                            # was zero, bail
+
+    # copy values from registers into the array
+    # a0=array, a1=CCCC/FEDC, t0=length (from AA or B), rOBJ=AA/BA
+    move    t0, rBIX
+    .if     0
+    EAS2(a2, rFP, a1)                           # a2<- &fp[CCCC]
+1:  lw      a3, 0(a2)                           # a3<- *a2++
+    addu    a2, 4
+    subu    t0, t0, 1                           # count--
+    sw      a3, (a0)                            # *contents++ = vX
+    addu    a0, 1
+    bgez    t0, 1b
+
+    # continue at 2
+    .else
+    slt     t1, t0, 4                           # length was initially 5?
+    and     a2, rOBJ, 15                        # a2<- A
+    bnez    t1, 1f                              # <= 4 args, branch
+    GET_VREG(a3, a2)                            # a3<- vA
+    subu    t0, t0, 1                           # count--
+    sw      a3, 16(a0)                          # contents[4] = vA
+1:  and     a2, a1, 15                          # a2<- F/E/D/C
+    GET_VREG(a3, a2)                            # a3<- vF/vE/vD/vC
+    srl     a1, a1, 4		                # a1<- next reg in low 4
+    subu    t0, t0, 1                           # count--
+    sw      a3, 0(a0)                           # *contents++ = vX
+    addu    a0, a0, 4
+    bgez    t0, 1b
+    # continue at 2
+    .endif
+
+2:
+    GET_INST_OPCODE(t0)                         # t0<- opcode from rINST
+    GOTO_OPCODE(t0)                             # execute it
+
+    /*
+     * Throw an exception indicating that we have not implemented this
+     * mode of filled-new-array.
+     */
+.LOP_FILLED_NEW_ARRAY_notimpl:
+    lw      a0, .L_strInternalError
+    lw      a1, .L_strFilledNewArrayNotImpl
+    JAL(dvmThrowException)
+    b       common_exceptionThrown
+
+    .if     (!0)                         # define in one or the other, not both
+.L_strFilledNewArrayNotImpl:
+    .word   .LstrFilledNewArrayNotImpl
+.L_strInternalError:
+    .word   .LstrInternalError
+    .endif
+
+
+/* continuation for OP_FILLED_NEW_ARRAY_RANGE */
+
+    /*
+     * On entry:
+     *  a0 holds array class
+     *  rOBJ holds AA or BA
+     */
+.LOP_FILLED_NEW_ARRAY_RANGE_continue:
+    LOAD_base_offClassObject_descriptor(a3, a0) # a3<- arrayClass->descriptor
+    li      a2, ALLOC_DONT_TRACK                # a2<- alloc flags
+    lbu     a0, 1(a3)                           # a0<- descriptor[1]
+    .if     1
+    move    a1, rOBJ                            # a1<- AA (length)
+    .else
+    srl     a1, rOBJ, 4		                # rOBJ<- B (length)
+    .endif
+    li      t0, 'I'                             # array of ints?
+    move    rBIX, a1				# save length in rBIX
+    bne     t0, a0, .LOP_FILLED_NEW_ARRAY_RANGE_notimpl         # no, not handled yet
+    JAL(dvmAllocPrimitiveArray)		# v0<- call(typeCh, length, flags)
+                                                # null return?
+    beqz    v0, common_exceptionThrown          # alloc failed, handle exception
+
+    FETCH(a1, 2)                                # a1<- FEDC or CCCC
+    sw      v0, offGlue_retval(rGLUE)           # retval.l <- new array
+    addu    a0, v0, offArrayObject_contents     # a0<- newArray->contents
+    subu    rBIX, rBIX, 1                       # length--, check for neg
+    FETCH_ADVANCE_INST(3)                       # advance to next instr, load rINST
+    bltz    rBIX, 2f                            # was zero, bail
+
+    # copy values from registers into the array
+    # a0=array, a1=CCCC/FEDC, t0=length (from AA or B), rOBJ=AA/BA
+    move    t0, rBIX
+    .if     1
+    EAS2(a2, rFP, a1)                           # a2<- &fp[CCCC]
+1:  lw      a3, 0(a2)                           # a3<- *a2++
+    addu    a2, 4
+    subu    t0, t0, 1                           # count--
+    sw      a3, (a0)                            # *contents++ = vX
+    addu    a0, 1
+    bgez    t0, 1b
+
+    # continue at 2
+    .else
+    slt     t1, t0, 4                           # length was initially 5?
+    and     a2, rOBJ, 15                        # a2<- A
+    bnez    t1, 1f                              # <= 4 args, branch
+    GET_VREG(a3, a2)                            # a3<- vA
+    subu    t0, t0, 1                           # count--
+    sw      a3, 16(a0)                          # contents[4] = vA
+1:  and     a2, a1, 15                          # a2<- F/E/D/C
+    GET_VREG(a3, a2)                            # a3<- vF/vE/vD/vC
+    srl     a1, a1, 4		                # a1<- next reg in low 4
+    subu    t0, t0, 1                           # count--
+    sw      a3, 0(a0)                           # *contents++ = vX
+    addu    a0, a0, 4
+    bgez    t0, 1b
+    # continue at 2
+    .endif
+
+2:
+    GET_INST_OPCODE(t0)                         # t0<- opcode from rINST
+    GOTO_OPCODE(t0)                             # execute it
+
+    /*
+     * Throw an exception indicating that we have not implemented this
+     * mode of filled-new-array.
+     */
+.LOP_FILLED_NEW_ARRAY_RANGE_notimpl:
+    lw      a0, .L_strInternalError
+    lw      a1, .L_strFilledNewArrayNotImpl
+    JAL(dvmThrowException)
+    b       common_exceptionThrown
+
+    .if     (!1)                         # define in one or the other, not both
+.L_strFilledNewArrayNotImpl:
+    .word   .LstrFilledNewArrayNotImpl
+.L_strInternalError:
+    .word   .LstrInternalError
+    .endif
 
 
 /* continuation for OP_CMPL_FLOAT */

@@ -38,13 +38,13 @@ import mips/entry.S
 
 # opcode list; argument to op-start is default directory
 op-start mips
-    op OP_INVOKE_STATIC c   
-    op OP_INVOKE_STATIC_RANGE c 
-    op OP_INVOKE_VIRTUAL_QUICK c  
-    op OP_INVOKE_VIRTUAL_QUICK_RANGE c
-    op OP_FILLED_NEW_ARRAY c
-    op OP_FILLED_NEW_ARRAY_RANGE c
-    op OP_THROW_VERIFICATION_ERROR c
+    #op OP_INVOKE_STATIC c   
+    #op OP_INVOKE_STATIC_RANGE c 
+    #op OP_INVOKE_VIRTUAL_QUICK c  
+    #op OP_INVOKE_VIRTUAL_QUICK_RANGE c
+    #op OP_FILLED_NEW_ARRAY c
+    #op OP_FILLED_NEW_ARRAY_RANGE c
+    #op OP_THROW_VERIFICATION_ERROR c
 op-end
 
 # "helper" code
