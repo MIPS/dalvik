@@ -63,7 +63,7 @@
     addu    a2, 4
     subu    t0, t0, 1                           # count--
     sw      a3, (a0)                            # *contents++ = vX
-    addu    a0, 1
+    addu    a0, 4
     bgez    t0, 1b
 
     # continue at 2
