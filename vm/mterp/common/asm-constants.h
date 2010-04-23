@@ -135,7 +135,11 @@ MTERP_OFFSET(offGlue_jitResumePC,       MterpGlue, jitResumePC, 60)
 #endif
 #endif
 /* make sure all JValue union members are stored at the same offset */
+#ifdef HAVE_BIG_ENDIAN
+MTERP_OFFSET(offGlue_retval_z,          MterpGlue, retval.z, 11)
+#else
 MTERP_OFFSET(offGlue_retval_z,          MterpGlue, retval.z, 8)
+#endif
 MTERP_OFFSET(offGlue_retval_i,          MterpGlue, retval.i, 8)
 MTERP_OFFSET(offGlue_retval_j,          MterpGlue, retval.j, 8)
 MTERP_OFFSET(offGlue_retval_l,          MterpGlue, retval.l, 8)
