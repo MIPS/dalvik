@@ -116,7 +116,12 @@ typedef unsigned char  U_8;
     #if defined(HYS390X) || defined(HYS390) || defined(HYPPC64) || defined(HYPPC32)
         #define HY_BIG_ENDIAN
     #else
-        #define HY_LITTLE_ENDIAN
+	#ifdef HAVE_LITTLE_ENDIAN
+		#define HY_LITTLE_ENDIAN
+	#endif
+	#ifdef HAVE_BIG_ENDIAN
+		#define HY_BIG_ENDIAN
+	#endif
     #endif
 
     #if defined(HYPPC32)
