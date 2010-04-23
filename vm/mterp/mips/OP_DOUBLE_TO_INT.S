@@ -14,37 +14,37 @@
 d2i_doconv:
 #ifdef SOFT_FLOAT
     la		t0, .LDOUBLE_TO_INT_max
-    LOAD64(a2, a3, t0)
-    move	rBIX, a0                       # save a0
-    move	rSELF, a1                      #  and a1
+    LOAD64(rARG2, rARG3, t0)
+    move	rBIX, rARG0                       # save a0
+    move	rSELF, rARG1                      #  and a1
     JAL(__gedf2)			       # is arg >= maxint?
 
     move	t0, v0
     li		v0, ~0x80000000                # return maxint (7fffffff)
     bgez	t0, .L${opcode}_set_vreg       # nonzero == yes
 
-    move	a0, rBIX                       # recover arg
-    move	a1, rSELF
+    move	rARG0, rBIX                       # recover arg
+    move	rARG1, rSELF
     la		t0, .LDOUBLE_TO_INT_min
-    LOAD64(a2, a3, t0)
+    LOAD64(rARG2, rARG3, t0)
     JAL(__ledf2) 	            	       # is arg <= minint?
 
     move	t0, v0
     li		v0, 0x80000000                 # return minint (80000000)
     blez	t0, .L${opcode}_set_vreg       # nonzero == yes
 
-    move	a0, rBIX                  # recover arg
-    move	a1, rSELF
-    move	a2, rBIX                  # compare against self
-    move	a3, rSELF
+    move	rARG0, rBIX                  # recover arg
+    move	rARG1, rSELF
+    move	rARG2, rBIX                  # compare against self
+    move	rARG3, rSELF
     JAL(__nedf2)	            	# is arg == self?
 
     move	t0, v0			# zero == no
     li		v0, 0
     bnez	t0, .L${opcode}_set_vreg	# return zero for NaN
 
-    move	a0, rBIX                  # recover arg
-    move	a1, rSELF
+    move	rARG0, rBIX                  # recover arg
+    move	rARG1, rSELF
     JAL(__fixdfsi)			# convert double to int
     b		.L${opcode}_set_vreg
 #else

@@ -9,8 +9,8 @@ f2l_doconv:
     JAL(__gesf2)
       
     move	t0, v0
-    li		v0, ~0
-    li		v1, ~0x80000000
+    li		rRESULT0, ~0
+    li		rRESULT1, ~0x80000000
     bgez	t0, .L${opcode}_set_vreg
     
     move	a0, rBIX
@@ -18,8 +18,8 @@ f2l_doconv:
     JAL(__lesf2)
 
     move	t0, v0
-    li		v1, 0x80000000
-    li		v0, 0
+    li		rRESULT0, 0
+    li		rRESULT1, 0x80000000
     blez	t0, .L${opcode}_set_vreg
 	
     move	a0, rBIX
@@ -27,8 +27,8 @@ f2l_doconv:
     JAL(__nesf2)
 
     move	t0, v0
-    li		v0, 0
-    li		v1, 0
+    li		rRESULT0, 0
+    li		rRESULT1, 0
     bnez	t0, .L${opcode}_set_vreg
 
     move	a0, rBIX
@@ -37,20 +37,20 @@ f2l_doconv:
 #else
     l.s		fa1, .LLONG_TO_max
     c.ole.s	fcc0, fa1, fa0
-    li		v0, ~0
-    li		v1, ~0x80000000
+    li		rRESULT0, ~0
+    li		rRESULT1, ~0x80000000
     bc1t	.L${opcode}_set_vreg
 	
     l.s		fa1, .LLONG_TO_min
     c.ole.s	fcc0, fa0, fa1
-    li		v0, 0
-    li		v1, 0x80000000
+    li		rRESULT0, 0
+    li		rRESULT1, 0x80000000
     bc1t	.L${opcode}_set_vreg
 
     mov.s	fa1, fa0
     c.un.s	fcc0, fa0, fa1
-    li		v0, 0
-    li		v1, 0
+    li		rRESULT0, 0
+    li		rRESULT1, 0
     bc1t	.L${opcode}_set_vreg
 	
     JAL(__fixsfdi)

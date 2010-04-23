@@ -15,10 +15,10 @@
     EAS2(a1, rFP, a1)	                # a1<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)           	# rOBJ<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a2, a3, a1)		# a2/a3<- vBB/vBB+1
-    LOAD64(a0, a1, rOBJ)		# a0/a1<- vAA/vAA+1
+    LOAD64(rARG2, rARG3, a1)		# a2/a3<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)		# a0/a1<- vAA/vAA+1
     .if $chkzero
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3	# second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
@@ -35,7 +35,7 @@
     $preinstr                           # optional op
 #ifdef	SOFT_FLOAT
     $instr                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     $instr_f
     STORE64_F(fv0, fv0f, rOBJ)

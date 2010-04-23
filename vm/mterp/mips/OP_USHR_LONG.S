@@ -27,14 +27,10 @@
     andi    a2, a2, 0x20
     movn    v0, v1, a2
     movn    v1, zero, a2
-
-    /*
-     *  This sequence is 32 instructions , so we need to expose the delay slot 
-     */
+    b       .L${opcode}_finish
+%break
+.L${opcode}_finish:
+    STORE64(v0, v1, rOBJ)               # vAA/vAA+1<- v0/v1
     GET_INST_OPCODE(t0)			# extract opcode from rINST
-    sw      v0, 0(rOBJ)			# vAA/vAA+1<- a0/a1
-    .set noreorder
     GOTO_OPCODE(t0)			# jump to next instruction
-    sw      v1, 4(rOBJ)			# vAA/vAA+1<- a0/a1
-    .set reorder
 

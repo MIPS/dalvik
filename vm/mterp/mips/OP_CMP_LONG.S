@@ -20,8 +20,8 @@
     srl	    a3, a0, 8		        # a3<- CC
     EAS2(a2, rFP, a2)   	        # a2<- &fp[BB]
     EAS2(a3, rFP, a3)   	        # a3<- &fp[CC]
-    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)		# a2/a3<- vCC/vCC+1
+    LOAD64(a0, a1, a2)		        # a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, a3)		        # a2/a3<- vCC/vCC+1
 
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
     slt    t0, a1, a3			# compare hi

@@ -22,10 +22,10 @@
 
 1:
     GET_OPA(a1)					# a1<- AA
-    ld    a2, offStaticField_value(a0)		# a2/a3<- field value (aligned)
+    LOAD64_off(a2, a3, a0, offStaticField_value) # a2/a3<- field value (aligned)
     FETCH_ADVANCE_INST(2)		 	# advance rPC, load rINST
     EAS2(a1, rFP, a1)			   	# a1<- &fp[AA]
-    STORE64(a2, a3, a1)		# vAA/vAA+1<- a2/a3
+    STORE64(a2, a3, a1)		                # vAA/vAA+1<- a2/a3
     GET_INST_OPCODE(t0)			 	# extract opcode from rINST
     GOTO_OPCODE(t0)				# jump to next instruction
 

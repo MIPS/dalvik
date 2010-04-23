@@ -5,40 +5,40 @@
 d2l_doconv:
 #ifdef	SOFT_FLOAT
     la		t0, .LDOUBLE_TO_LONG_max
-    LOAD64(a2, a3, t0)
-    move	rBIX, a0		# save a0	
-    move	rSELF, a1		#  and a1
+    LOAD64(rARG2, rARG3, t0)
+    move	rBIX, rARG0		# save a0
+    move	rSELF, rARG1		#  and a1
     JAL(__gedf2)
 
     move	t1, v0
     la		t0, .LDOUBLE_TO_LONG_ret_max
-    LOAD64(v0, v1, t0)
+    LOAD64(rRESULT0, rRESULT1, t0)
     bgez	t1, .L${opcode}_set_vreg
 
-    move	a0, rBIX
-    move	a1, rSELF
+    move	rARG0, rBIX
+    move	rARG1, rSELF
     la		t0, .LDOUBLE_TO_LONG_min
-    LOAD64(a2, a3, t0)
+    LOAD64(rARG2, rARG3, t0)
     JAL(__ledf2)
 
     move	t1, v0
     la		t0, .LDOUBLE_TO_LONG_ret_min
-    LOAD64(v0, v1, t0)
+    LOAD64(rRESULT0, rRESULT1, t0)
     blez	t1, .L${opcode}_set_vreg
     
-    move	a0, rBIX
-    move	a1, rSELF
-    move	a2, rBIX
-    move	a3, rSELF
+    move	rARG0, rBIX
+    move	rARG1, rSELF
+    move	rARG2, rBIX
+    move	rARG3, rSELF
     JAL(__nedf2)
 
    move		t0, v0
-   li		v0, 0
-   li		v1, 0
-   bnez		v0, .L${opcode}_set_vreg
+   li		rRESULT0, 0
+   li		rRESULT1, 0
+   bnez		t0, .L${opcode}_set_vreg
 
-   move		a0, rBIX
-   move		a1, rSELF
+   move		rARG0, rBIX
+   move		rARG1, rSELF
    JAL(__fixdfdi)
 
 #else
@@ -46,20 +46,20 @@ d2l_doconv:
     LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa1, fa0
     la		t0, .LDOUBLE_TO_LONG_ret_max
-    LOAD64	(v0, v1, t0)
+    LOAD64(rRESULT0, rRESULT1, t0)
     bc1t	.L${opcode}_set_vreg
 	
     la		t0, .LDOUBLE_TO_LONG_min
     LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa0, fa1
     la		t0, .LDOUBLE_TO_LONG_ret_min
-    LOAD64(v0, v1, t0)
+    LOAD64(rRESULT0, rRESULT1, t0)
     bc1t	.L${opcode}_set_vreg
     
     mov.d	fa1, fa0
     c.un.d	fcc0, fa0, fa1
-    li		v0, 0
-    li		v1, 0
+    li		rRESULT0, 0
+    li		rRESULT1, 0
     bc1t	.L${opcode}_set_vreg
     JAL(__fixdfdi)
 #endif

@@ -12,7 +12,7 @@
     EAS2(a3, rFP, a3)                  # a3<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)              # t1<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a3)                 # a0/a1<- vAA
+    LOAD64(rARG0, rARG1, a3)                 # a0/a1<- vAA
 #else
     $ld_arg
 #endif
@@ -22,7 +22,7 @@
 
 .L${opcode}_set_vreg:
 #ifdef	SOFT_FLOAT
-    STORE64(v0, v1, rOBJ)              # vAA<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)              # vAA<- a0/a1
 #else
     $st_result                         # vAA<- a0/a1
 #endif

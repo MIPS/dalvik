@@ -5,9 +5,9 @@
      * for: aput, aput-boolean, aput-byte, aput-char, aput-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?

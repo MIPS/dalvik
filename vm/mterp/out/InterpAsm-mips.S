@@ -28,7 +28,6 @@
 
 
 /* single-purpose registers, given names for clarity */
-
 #define rPC	s0
 #define rFP	s1
 #define rGLUE	s2
@@ -37,6 +36,28 @@
 #define rOBJ	s5
 #define rBIX	s6
 #define rSELF	s7
+
+/* The long arguments sent to function calls in Big-endian mode should be register
+swapped when sent to functions in little endian mode. In other words long variable
+sent as a0(MSW), a1(LSW) for a function call in LE mode should be sent as a1, a0 in
+Big Endian mode */
+
+#ifdef HAVE_LITTLE_ENDIAN
+#define rARG0     a0
+#define rARG1     a1
+#define rARG2     a2
+#define rARG3     a3
+#define rRESULT0  v0
+#define rRESULT1  v1
+#else
+#define rARG0     a1 
+#define rARG1     a0
+#define rARG2     a3
+#define rARG3     a2
+#define rRESULT0  v1
+#define rRESULT1  v0
+#endif
+
 
 /* save/restore the PC and/or FP from the glue struct */
 #define LOAD_PC_FROM_GLUE()	lw	rPC, offGlue_pc(rGLUE)
@@ -61,7 +82,17 @@
 #define FETCH(rd, _count)		lhu	rd, (_count * 2)(rPC)
 #define FETCH_S(rd, _count)		lh	rd, (_count * 2)(rPC)
 
-#define FETCH_B(rd, _count, _byte)	lbu	rd, (_count * 2 + _byte)(rPC)
+#ifdef HAVE_LITTLE_ENDIAN
+
+#define FETCH_B(rd, _count)            lbu     rd, (_count * 2)(rPC)
+#define FETCH_C(rd, _count)            lbu     rd, (_count * 2 + 1)(rPC)
+
+#else
+
+#define FETCH_B(rd, _count)            lbu     rd, (_count * 2 + 1)(rPC)
+#define FETCH_C(rd, _count)            lbu     rd, (_count * 2)(rPC)
+
+#endif
 
 #define GET_INST_OPCODE(rd)		and	rd, rINST, 0xFF
 
@@ -94,7 +125,7 @@
 #ifndef		MIPS32R2
 #define GET_OPA4(rd)			GET_OPA(rd);  and  rd, 0xf
 #else
-#define GET_OPA(rd)			ext	rd, rd, 8, 4	
+#define GET_OPA4(rd)			ext	rd, rd, 8, 4	
 #endif
 #define GET_OPB(rd)			srl     rd, rINST, 12
 
@@ -142,16 +173,28 @@
 #define LOADu2_RB_OFF(rd,rbase,off)	lhu	rd, off(rbase)
 #define STORE_RB_OFF(rd,rbase,off)	sw	rd, off(rbase)
 
-#define STORE64_off(rlo,rhi,rbase,off)	sw	rlo, off(rbase);	\
-					sw	rhi, (off+4)(rbase)
-#define LOAD64_off(rlo,rhi,rbase,off)	lw	rlo, off(rbase);	\
-					lw	rhi, (off+4)(rbase)
+#ifdef HAVE_LITTLE_ENDIAN
 
-/* Tested only on a Little Endian System */
+#define STORE64_off(rlo,rhi,rbase,off)	        sw	rlo, off(rbase);	\
+					        sw	rhi, (off+4)(rbase)
+#define LOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, off(rbase);	\
+					        lw	rhi, (off+4)(rbase)
+
 #define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, off(rbase);	\
 						s.s	rhi, (off+4)(rbase)
 #define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, off(rbase);	\
 						l.s	rhi, (off+4)(rbase)
+#else
+
+#define STORE64_off(rlo,rhi,rbase,off)	        sw	rlo, (off+4)(rbase);	\
+					        sw	rhi, (off)(rbase)
+#define LOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, (off+4)(rbase);	\
+					        lw	rhi, (off)(rbase)
+#define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, (off+4)(rbase);	\
+						s.s	rhi, (off)(rbase)
+#define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, (off+4)(rbase);	\
+						l.s	rhi, (off)(rbase)
+#endif
 
 #define STORE64(rlo,rhi,rbase)		STORE64_off(rlo,rhi,rbase,0)
 #define LOAD64(rlo,rhi,rbase)		LOAD64_off(rlo,rhi,rbase,0)
@@ -1443,18 +1486,18 @@ L_OP_CMPL_DOUBLE: /* 0x2f */
     EAS2(rOBJ, rFP, rOBJ)                   # s0<- &fp[BB]
     EAS2(rBIX, rFP, rBIX)                   # t0<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__eqdf2)	             		# cmp <=: C clear if <, Z set if eq
     li		rSELF, 0
     beqz	v0, OP_CMPL_DOUBLE_finish
 
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__ltdf2)
     li		rSELF, -1
     bltz	v0, OP_CMPL_DOUBLE_finish
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
     b		OP_CMPL_DOUBLE_continue 
 #else
     LOAD64_F(fs0, fs0f, rOBJ)
@@ -1495,18 +1538,18 @@ L_OP_CMPG_DOUBLE: /* 0x30 */
     EAS2(rOBJ, rFP, rOBJ)                   # s0<- &fp[BB]
     EAS2(rBIX, rFP, rBIX)                   # t0<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__eqdf2)	             		# cmp <=: C clear if <, Z set if eq
     li		rSELF, 0
     beqz	v0, OP_CMPG_DOUBLE_finish
 
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__ltdf2)
     li		rSELF, -1
     bltz	v0, OP_CMPG_DOUBLE_finish
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
     b		OP_CMPG_DOUBLE_continue 
 #else
     LOAD64_F(fs0, fs0f, rOBJ)
@@ -1546,8 +1589,8 @@ L_OP_CMP_LONG: /* 0x31 */
     srl	    a3, a0, 8		        # a3<- CC
     EAS2(a2, rFP, a2)   	        # a2<- &fp[BB]
     EAS2(a3, rFP, a3)   	        # a3<- &fp[CC]
-    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)		# a2/a3<- vCC/vCC+1
+    LOAD64(a0, a1, a2)		        # a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, a3)		        # a2/a3<- vCC/vCC+1
 
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
     slt    t0, a1, a3			# compare hi
@@ -1956,9 +1999,9 @@ L_OP_AGET: /* 0x44 */
      * for: aget, aget-object, aget-boolean, aget-byte, aget-char, aget-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2022,9 +2065,9 @@ L_OP_AGET_OBJECT: /* 0x46 */
      * for: aget, aget-object, aget-boolean, aget-byte, aget-char, aget-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2058,9 +2101,9 @@ L_OP_AGET_BOOLEAN: /* 0x47 */
      * for: aget, aget-object, aget-boolean, aget-byte, aget-char, aget-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2094,9 +2137,9 @@ L_OP_AGET_BYTE: /* 0x48 */
      * for: aget, aget-object, aget-boolean, aget-byte, aget-char, aget-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2130,9 +2173,9 @@ L_OP_AGET_CHAR: /* 0x49 */
      * for: aget, aget-object, aget-boolean, aget-byte, aget-char, aget-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2166,9 +2209,9 @@ L_OP_AGET_SHORT: /* 0x4a */
      * for: aget, aget-object, aget-boolean, aget-byte, aget-char, aget-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2197,9 +2240,9 @@ L_OP_APUT: /* 0x4b */
      * for: aput, aput-boolean, aput-byte, aput-char, aput-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2296,9 +2339,9 @@ L_OP_APUT_BOOLEAN: /* 0x4e */
      * for: aput, aput-boolean, aput-byte, aput-char, aput-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2328,9 +2371,9 @@ L_OP_APUT_BYTE: /* 0x4f */
      * for: aput, aput-boolean, aput-byte, aput-char, aput-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2360,9 +2403,9 @@ L_OP_APUT_CHAR: /* 0x50 */
      * for: aput, aput-boolean, aput-byte, aput-char, aput-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2392,9 +2435,9 @@ L_OP_APUT_SHORT: /* 0x51 */
      * for: aput, aput-boolean, aput-byte, aput-char, aput-short
      */
     /* op vAA, vBB, vCC */
-    FETCH_B(a2, 1, 0)                           # a2<- BB
+    FETCH_B(a2, 1)                           # a2<- BB
     GET_OPA(rOBJ)			        # rOBJ<- AA
-    FETCH_B(a3, 1, 1)                           # a3<- CC
+    FETCH_C(a3, 1)                           # a3<- CC
     GET_VREG(a0, a2)                            # a0<- vBB (array object)
     GET_VREG(a1, a3)                            # a1<- vCC (requested index)
                                                 # null array object?
@@ -2864,10 +2907,10 @@ L_OP_SGET_WIDE: /* 0x61 */
 
 1:
     GET_OPA(a1)					# a1<- AA
-    ld    a2, offStaticField_value(a0)		# a2/a3<- field value (aligned)
+    LOAD64_off(a2, a3, a0, offStaticField_value) # a2/a3<- field value (aligned)
     FETCH_ADVANCE_INST(2)		 	# advance rPC, load rINST
     EAS2(a1, rFP, a1)			   	# a1<- &fp[AA]
-    STORE64(a2, a3, a1)		# vAA/vAA+1<- a2/a3
+    STORE64(a2, a3, a1)		                # vAA/vAA+1<- a2/a3
     GET_INST_OPCODE(t0)			 	# extract opcode from rINST
     GOTO_OPCODE(t0)				# jump to next instruction
 
@@ -3925,7 +3968,7 @@ L_OP_INT_TO_DOUBLE: /* 0x83 */
     JAL(__floatsidf)                              # result<- op, a0-a3 changed
 
 .LOP_INT_TO_DOUBLE_set_vreg:
-    STORE64(v0, v1, rOBJ)               # vA/vA+1<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)               # vA/vA+1<- a0/a1
 #else
     cvt.d.w	fv0, fa0
 
@@ -3941,18 +3984,15 @@ L_OP_INT_TO_DOUBLE: /* 0x83 */
     .balign 128
 L_OP_LONG_TO_INT: /* 0x84 */
 /* File: mips/OP_LONG_TO_INT.S */
-/* we ignore the high word, making this equivalent to a 32-bit reg move */
-/* File: mips/OP_MOVE.S */
-    /* for move, move-object, long-to-int */
-    /* op vA, vB */
     GET_OPB(a1)				# a1<- B from 15:12
     GET_OPA4(a0)			# a0<- A from 11:8
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
+#ifdef HAVE_BIG_ENDIAN
+    addu	a1, a1, 1
+#endif
     GET_VREG(a2, a1)                    # a2<- fp[B]
     GET_INST_OPCODE(t0)                 # t0<- opcode from rINST
     SET_VREG_GOTO(a2, a0, t0)           # fp[A]<- a2
-
-
 
 /* ------------------------------ */
     .balign 128
@@ -3976,6 +4016,7 @@ L_OP_LONG_TO_FLOAT: /* 0x85 */
     EAS2(a3, rFP, a3)                   # a3<- &fp[B]
 #ifdef	SOFT_FLOAT
     LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
+    LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
 #else
     LOAD64(a0, a1, a3)
 #endif	   
@@ -4015,9 +4056,9 @@ L_OP_LONG_TO_DOUBLE: /* 0x86 */
     EAS2(a3, rFP, a3)                  # a3<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)              # t1<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a3)                 # a0/a1<- vAA
+    LOAD64(rARG0, rARG1, a3)                 # a0/a1<- vAA
 #else
-    LOAD64(a0, a1, a3)
+    LOAD64(rARG0, rARG1, a3)
 #endif
     FETCH_ADVANCE_INST(1)              # advance rPC, load rINST
                               # optional op
@@ -4025,7 +4066,7 @@ L_OP_LONG_TO_DOUBLE: /* 0x86 */
 
 .LOP_LONG_TO_DOUBLE_set_vreg:
 #ifdef	SOFT_FLOAT
-    STORE64(v0, v1, rOBJ)              # vAA<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)              # vAA<- a0/a1
 #else
     STORE64_F(fv0, fv0f, rOBJ)                         # vAA<- a0/a1
 #endif
@@ -4100,7 +4141,7 @@ L_OP_FLOAT_TO_LONG: /* 0x88 */
     b f2l_doconv                              # result<- op, a0-a3 changed
 
 .LOP_FLOAT_TO_LONG_set_vreg:
-    STORE64(v0, v1, rOBJ)               # vA/vA+1<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)               # vA/vA+1<- a0/a1
 #else
     b f2l_doconv
 
@@ -4139,7 +4180,7 @@ L_OP_FLOAT_TO_DOUBLE: /* 0x89 */
     JAL(__extendsfdf2)                              # result<- op, a0-a3 changed
 
 .LOP_FLOAT_TO_DOUBLE_set_vreg:
-    STORE64(v0, v1, rOBJ)               # vA/vA+1<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)               # vA/vA+1<- a0/a1
 #else
     cvt.d.s fv0, fa0
 
@@ -4173,6 +4214,7 @@ L_OP_DOUBLE_TO_INT: /* 0x8a */
     EAS2(a3, rFP, a3)                   # a3<- &fp[B]
 #ifdef	SOFT_FLOAT
     LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
+    LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
 #else
     LOAD64_F(fa0, fa0f, a3)
 #endif	   
@@ -4220,7 +4262,7 @@ L_OP_DOUBLE_TO_LONG: /* 0x8b */
     EAS2(a3, rFP, a3)                  # a3<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)              # t1<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a3)                 # a0/a1<- vAA
+    LOAD64(rARG0, rARG1, a3)                 # a0/a1<- vAA
 #else
     LOAD64_F(fa0, fa0f, a3)
 #endif
@@ -4230,7 +4272,7 @@ L_OP_DOUBLE_TO_LONG: /* 0x8b */
 
 .LOP_DOUBLE_TO_LONG_set_vreg:
 #ifdef	SOFT_FLOAT
-    STORE64(v0, v1, rOBJ)              # vAA<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)              # vAA<- a0/a1
 #else
     STORE64(v0, v1, rOBJ)                         # vAA<- a0/a1
 #endif
@@ -4262,6 +4304,7 @@ L_OP_DOUBLE_TO_FLOAT: /* 0x8c */
     EAS2(a3, rFP, a3)                   # a3<- &fp[B]
 #ifdef	SOFT_FLOAT
     LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
+    LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
 #else
     LOAD64_F(fa0, fa0f, a3)
 #endif	   
@@ -4832,11 +4875,11 @@ L_OP_ADD_LONG: /* 0x9b */
     srl    a3, a0, 8			# a3<- CC
     EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
     EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)	   		# a3<- &fp[CC]
-    LOAD64(a0, a1, a2)			# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)			# a2/a3<- vCC/vCC+1
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or    t0, a2, a3			# second arg (a2-a3) is zero?
+    or    t0, a2, a3		# second arg (a2-a3) is zero?
     beqz    t0, common_errDivideByZero
     .endif
     FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
@@ -4883,11 +4926,11 @@ L_OP_SUB_LONG: /* 0x9c */
     srl    a3, a0, 8			# a3<- CC
     EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
     EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)	   		# a3<- &fp[CC]
-    LOAD64(a0, a1, a2)			# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)			# a2/a3<- vCC/vCC+1
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or    t0, a2, a3			# second arg (a2-a3) is zero?
+    or    t0, a2, a3		# second arg (a2-a3) is zero?
     beqz    t0, common_errDivideByZero
     .endif
     FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
@@ -4944,6 +4987,7 @@ L_OP_MUL_LONG: /* 0x9d */
     .balign 128
 L_OP_DIV_LONG: /* 0x9e */
 /* File: mips/OP_DIV_LONG.S */
+#ifdef HAVE_LITTLE_ENDIAN
 /* File: mips/binopWide.S */
     /*
      * Generic 64-bit binary operation.  Provide an "instr" line that
@@ -4966,11 +5010,11 @@ L_OP_DIV_LONG: /* 0x9e */
     srl    a3, a0, 8			# a3<- CC
     EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
     EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)	   		# a3<- &fp[CC]
-    LOAD64(a0, a1, a2)			# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)			# a2/a3<- vCC/vCC+1
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, t1)		# a2/a3<- vCC/vCC+1
     .if 1
-    or    t0, a2, a3			# second arg (a2-a3) is zero?
+    or    t0, a2, a3		# second arg (a2-a3) is zero?
     beqz    t0, common_errDivideByZero
     .endif
     FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
@@ -4983,12 +5027,7 @@ L_OP_DIV_LONG: /* 0x9e */
     /* 14-17 instructions */
 
 
-
-/* ------------------------------ */
-    .balign 128
-L_OP_REM_LONG: /* 0x9f */
-/* File: mips/OP_REM_LONG.S */
-/* ldivmod returns quotient in a0/a1 and remainder in a2/a3 */
+#else
 /* File: mips/binopWide.S */
     /*
      * Generic 64-bit binary operation.  Provide an "instr" line that
@@ -5011,11 +5050,58 @@ L_OP_REM_LONG: /* 0x9f */
     srl    a3, a0, 8			# a3<- CC
     EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
     EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)	   		# a3<- &fp[CC]
-    LOAD64(a0, a1, a2)			# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)			# a2/a3<- vCC/vCC+1
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a1, a0, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a3, a2, t1)		# a2/a3<- vCC/vCC+1
     .if 1
-    or    t0, a2, a3			# second arg (a2-a3) is zero?
+    or    t0, a3, a2		# second arg (a2-a3) is zero?
+    beqz    t0, common_errDivideByZero
+    .endif
+    FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
+
+    				# optional op
+    JAL(__divdi3)				# result<- op, a0-a3 changed
+    GET_INST_OPCODE(t0)			# extract opcode from rINST
+    STORE64(v1, v0, rOBJ)	# vAA/vAA+1<- v1/v0
+    GOTO_OPCODE(t0)			# jump to next instruction
+    /* 14-17 instructions */
+
+
+#endif
+
+/* ------------------------------ */
+    .balign 128
+L_OP_REM_LONG: /* 0x9f */
+/* File: mips/OP_REM_LONG.S */
+/* ldivmod returns quotient in a0/a1 and remainder in a2/a3 */
+#ifdef HAVE_LITTLE_ENDIAN
+/* File: mips/binopWide.S */
+    /*
+     * Generic 64-bit binary operation.  Provide an "instr" line that
+     * specifies an instruction that performs "result = a0-a1 op a2-a3".
+     * This could be a MIPS instruction or a function call.  (If the result
+     * comes back in a register other than a0, you can override "result".)
+     *
+     * If "chkzero" is set to 1, we perform a divide-by-zero check on
+     * vCC (a1).  Useful for integer division and modulus.
+     *
+     * for: add-long, sub-long, div-long, rem-long, and-long, or-long,
+     *      xor-long
+     *
+     * IMPORTANT: you may specify "chkzero" or "preinstr" but not both.
+     */
+    /* binop vAA, vBB, vCC */
+    FETCH(a0, 1)			# a0<- CCBB
+    GET_OPA(rOBJ)			# rOBJ<- AA
+    and    a2, a0, 255			# a2<- BB
+    srl    a3, a0, 8			# a3<- CC
+    EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
+    EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, t1)		# a2/a3<- vCC/vCC+1
+    .if 1
+    or    t0, a2, a3		# second arg (a2-a3) is zero?
     beqz    t0, common_errDivideByZero
     .endif
     FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
@@ -5028,6 +5114,47 @@ L_OP_REM_LONG: /* 0x9f */
     /* 14-17 instructions */
 
 
+#else
+/* File: mips/binopWide.S */
+    /*
+     * Generic 64-bit binary operation.  Provide an "instr" line that
+     * specifies an instruction that performs "result = a0-a1 op a2-a3".
+     * This could be a MIPS instruction or a function call.  (If the result
+     * comes back in a register other than a0, you can override "result".)
+     *
+     * If "chkzero" is set to 1, we perform a divide-by-zero check on
+     * vCC (a1).  Useful for integer division and modulus.
+     *
+     * for: add-long, sub-long, div-long, rem-long, and-long, or-long,
+     *      xor-long
+     *
+     * IMPORTANT: you may specify "chkzero" or "preinstr" but not both.
+     */
+    /* binop vAA, vBB, vCC */
+    FETCH(a0, 1)			# a0<- CCBB
+    GET_OPA(rOBJ)			# rOBJ<- AA
+    and    a2, a0, 255			# a2<- BB
+    srl    a3, a0, 8			# a3<- CC
+    EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
+    EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a1, a0, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a3, a2, t1)		# a2/a3<- vCC/vCC+1
+    .if 1
+    or    t0, a3, a2		# second arg (a2-a3) is zero?
+    beqz    t0, common_errDivideByZero
+    .endif
+    FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
+
+    				# optional op
+    JAL(__moddi3)				# result<- op, a0-a3 changed
+    GET_INST_OPCODE(t0)			# extract opcode from rINST
+    STORE64(v1, v0, rOBJ)	# vAA/vAA+1<- v1/v0
+    GOTO_OPCODE(t0)			# jump to next instruction
+    /* 14-17 instructions */
+
+
+#endif
 
 /* ------------------------------ */
     .balign 128
@@ -5055,11 +5182,11 @@ L_OP_AND_LONG: /* 0xa0 */
     srl    a3, a0, 8			# a3<- CC
     EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
     EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)	   		# a3<- &fp[CC]
-    LOAD64(a0, a1, a2)			# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)			# a2/a3<- vCC/vCC+1
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or    t0, a2, a3			# second arg (a2-a3) is zero?
+    or    t0, a2, a3		# second arg (a2-a3) is zero?
     beqz    t0, common_errDivideByZero
     .endif
     FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
@@ -5099,11 +5226,11 @@ L_OP_OR_LONG: /* 0xa1 */
     srl    a3, a0, 8			# a3<- CC
     EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
     EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)	   		# a3<- &fp[CC]
-    LOAD64(a0, a1, a2)			# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)			# a2/a3<- vCC/vCC+1
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or    t0, a2, a3			# second arg (a2-a3) is zero?
+    or    t0, a2, a3		# second arg (a2-a3) is zero?
     beqz    t0, common_errDivideByZero
     .endif
     FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
@@ -5143,11 +5270,11 @@ L_OP_XOR_LONG: /* 0xa2 */
     srl    a3, a0, 8			# a3<- CC
     EAS2(rOBJ, rFP, rOBJ) 		# rOBJ<- &fp[AA]
     EAS2(a2, rFP, a2)	    		# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)	   		# a3<- &fp[CC]
-    LOAD64(a0, a1, a2)			# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)			# a2/a3<- vCC/vCC+1
+    EAS2(t1, rFP, a3)	   		# a3<- &fp[CC]
+    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(a2, a3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or    t0, a2, a3			# second arg (a2-a3) is zero?
+    or    t0, a2, a3		# second arg (a2-a3) is zero?
     beqz    t0, common_errDivideByZero
     .endif
     FETCH_ADVANCE_INST(2)		# advance rPC, load rINST
@@ -5271,17 +5398,7 @@ L_OP_USHR_LONG: /* 0xa5 */
     andi    a2, a2, 0x20
     movn    v0, v1, a2
     movn    v1, zero, a2
-
-    /*
-     *  This sequence is 32 instructions , so we need to expose the delay slot 
-     */
-    GET_INST_OPCODE(t0)			# extract opcode from rINST
-    sw      v0, 0(rOBJ)			# vAA/vAA+1<- a0/a1
-    .set noreorder
-    GOTO_OPCODE(t0)			# jump to next instruction
-    sw      v1, 4(rOBJ)			# vAA/vAA+1<- a0/a1
-    .set reorder
-
+    b       .LOP_USHR_LONG_finish
 
 /* ------------------------------ */
     .balign 128
@@ -5558,17 +5675,17 @@ L_OP_ADD_DOUBLE: /* 0xab */
     srl		a3, a0, 8		# a3<- CC
     EAS2(rOBJ, rFP, rOBJ)		# s5 <- &fp[AA]
     EAS2(a2, rFP, a2)			# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)			# a3<- &fp[CC]
+    EAS2(t1, rFP, a3)			# a3<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)		# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3        # second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
     LOAD64_F(fa0, fa0f, a2)
-    LOAD64_F(fa1, fa1f, a3)
+    LOAD64_F(fa1, fa1f, t1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5580,7 +5697,7 @@ L_OP_ADD_DOUBLE: /* 0xab */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__adddf3)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     add.d fv0, fa0, fa1
      STORE64_F(fv0, fv0f, rOBJ)
@@ -5616,17 +5733,17 @@ L_OP_SUB_DOUBLE: /* 0xac */
     srl		a3, a0, 8		# a3<- CC
     EAS2(rOBJ, rFP, rOBJ)		# s5 <- &fp[AA]
     EAS2(a2, rFP, a2)			# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)			# a3<- &fp[CC]
+    EAS2(t1, rFP, a3)			# a3<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)		# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3        # second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
     LOAD64_F(fa0, fa0f, a2)
-    LOAD64_F(fa1, fa1f, a3)
+    LOAD64_F(fa1, fa1f, t1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5638,7 +5755,7 @@ L_OP_SUB_DOUBLE: /* 0xac */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__subdf3)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     sub.d fv0, fa0, fa1
      STORE64_F(fv0, fv0f, rOBJ)
@@ -5674,17 +5791,17 @@ L_OP_MUL_DOUBLE: /* 0xad */
     srl		a3, a0, 8		# a3<- CC
     EAS2(rOBJ, rFP, rOBJ)		# s5 <- &fp[AA]
     EAS2(a2, rFP, a2)			# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)			# a3<- &fp[CC]
+    EAS2(t1, rFP, a3)			# a3<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)		# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3        # second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
     LOAD64_F(fa0, fa0f, a2)
-    LOAD64_F(fa1, fa1f, a3)
+    LOAD64_F(fa1, fa1f, t1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5696,7 +5813,7 @@ L_OP_MUL_DOUBLE: /* 0xad */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__muldf3)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     mul.d fv0, fa0, fa1
      STORE64_F(fv0, fv0f, rOBJ)
@@ -5732,17 +5849,17 @@ L_OP_DIV_DOUBLE: /* 0xae */
     srl		a3, a0, 8		# a3<- CC
     EAS2(rOBJ, rFP, rOBJ)		# s5 <- &fp[AA]
     EAS2(a2, rFP, a2)			# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)			# a3<- &fp[CC]
+    EAS2(t1, rFP, a3)			# a3<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)		# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3        # second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
     LOAD64_F(fa0, fa0f, a2)
-    LOAD64_F(fa1, fa1f, a3)
+    LOAD64_F(fa1, fa1f, t1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5754,7 +5871,7 @@ L_OP_DIV_DOUBLE: /* 0xae */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__divdf3)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     div.d fv0, fa0, fa1
      STORE64_F(fv0, fv0f, rOBJ)
@@ -5790,17 +5907,17 @@ L_OP_REM_DOUBLE: /* 0xaf */
     srl		a3, a0, 8		# a3<- CC
     EAS2(rOBJ, rFP, rOBJ)		# s5 <- &fp[AA]
     EAS2(a2, rFP, a2)			# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)			# a3<- &fp[CC]
+    EAS2(t1, rFP, a3)			# a3<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)		# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, t1)		# a2/a3<- vCC/vCC+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3        # second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
     LOAD64_F(fa0, fa0f, a2)
-    LOAD64_F(fa1, fa1f, a3)
+    LOAD64_F(fa1, fa1f, t1)
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -5812,7 +5929,7 @@ L_OP_REM_DOUBLE: /* 0xaf */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(fmod)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     JAL(fmod)
      STORE64_F(fv0, fv0f, rOBJ)
@@ -6341,6 +6458,7 @@ L_OP_MUL_LONG_2ADDR: /* 0xbd */
     .balign 128
 L_OP_DIV_LONG_2ADDR: /* 0xbe */
 /* File: mips/OP_DIV_LONG_2ADDR.S */
+#ifdef HAVE_LITTLE_ENDIAN
 /* File: mips/binopWide2addr.S */
     /*
      * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
@@ -6376,11 +6494,49 @@ L_OP_DIV_LONG_2ADDR: /* 0xbe */
     /* 12-15 instructions */
 
 
+#else
+/* File: mips/binopWide2addr.S */
+    /*
+     * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
+     * that specifies an instruction that performs "result = a0-a1 op a2-a3".
+     * This could be a MIPS instruction or a function call.  (If the result
+     * comes back in a register other than a0, you can override "result".)
+     *
+     * If "chkzero" is set to 1, we perform a divide-by-zero check on
+     * vCC (a1).  Useful for integer division and modulus.
+     *
+     * For: add-long/2addr, sub-long/2addr, div-long/2addr, rem-long/2addr,
+     *      and-long/2addr, or-long/2addr, xor-long/2addr
+     *      rem-double/2addr
+     */
+    /* binop/2addr vA, vB */
+    GET_OPA4(rOBJ)				# rOBJ<- A+
+    GET_OPB(a1)					# a1<- B
+    EAS2(a1, rFP, a1)				# a1<- &fp[B]
+    EAS2(rOBJ, rFP, rOBJ)	   		# rOBJ<- &fp[A]
+    LOAD64(a3, a2, a1)				# a2/a3<- vBB/vBB+1
+    LOAD64(a1, a0, rOBJ)			# a0/a1<- vAA/vAA+1
+    .if 1
+    or    t0, a3, a2				# second arg (a2-a3) is zero?
+    beqz    t0, common_errDivideByZero
+    .endif
+    FETCH_ADVANCE_INST(1)			# advance rPC, load rINST
+
+    					# optional op
+    JAL(__divdi3)					# result<- op, a0-a3 changed
+    GET_INST_OPCODE(t0)				# extract opcode from rINST
+    STORE64(v1, v0, rOBJ)		# vAA/vAA+1<- v1/v0
+    GOTO_OPCODE(t0)				# jump to next instruction
+    /* 12-15 instructions */
+
+
+#endif
 
 /* ------------------------------ */
     .balign 128
 L_OP_REM_LONG_2ADDR: /* 0xbf */
 /* File: mips/OP_REM_LONG_2ADDR.S */
+#ifdef HAVE_LITTLE_ENDIAN
 /* File: mips/binopWide2addr.S */
     /*
      * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
@@ -6416,6 +6572,43 @@ L_OP_REM_LONG_2ADDR: /* 0xbf */
     /* 12-15 instructions */
 
 
+#else
+/* File: mips/binopWide2addr.S */
+    /*
+     * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
+     * that specifies an instruction that performs "result = a0-a1 op a2-a3".
+     * This could be a MIPS instruction or a function call.  (If the result
+     * comes back in a register other than a0, you can override "result".)
+     *
+     * If "chkzero" is set to 1, we perform a divide-by-zero check on
+     * vCC (a1).  Useful for integer division and modulus.
+     *
+     * For: add-long/2addr, sub-long/2addr, div-long/2addr, rem-long/2addr,
+     *      and-long/2addr, or-long/2addr, xor-long/2addr
+     *      rem-double/2addr
+     */
+    /* binop/2addr vA, vB */
+    GET_OPA4(rOBJ)				# rOBJ<- A+
+    GET_OPB(a1)					# a1<- B
+    EAS2(a1, rFP, a1)				# a1<- &fp[B]
+    EAS2(rOBJ, rFP, rOBJ)	   		# rOBJ<- &fp[A]
+    LOAD64(a3, a2, a1)				# a2/a3<- vBB/vBB+1
+    LOAD64(a1, a0, rOBJ)			# a0/a1<- vAA/vAA+1
+    .if 1
+    or    t0, a3, a2				# second arg (a2-a3) is zero?
+    beqz    t0, common_errDivideByZero
+    .endif
+    FETCH_ADVANCE_INST(1)			# advance rPC, load rINST
+
+    					# optional op
+    JAL(__divdi3)					# result<- op, a0-a3 changed
+    GET_INST_OPCODE(t0)				# extract opcode from rINST
+    STORE64(v1, v0, rOBJ)		# vAA/vAA+1<- v1/v0
+    GOTO_OPCODE(t0)				# jump to next instruction
+    /* 12-15 instructions */
+
+
+#endif
 
 /* ------------------------------ */
     .balign 128
@@ -6913,10 +7106,10 @@ L_OP_ADD_DOUBLE_2ADDR: /* 0xcb */
     EAS2(a1, rFP, a1)	                # a1<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)           	# rOBJ<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a2, a3, a1)		# a2/a3<- vBB/vBB+1
-    LOAD64(a0, a1, rOBJ)		# a0/a1<- vAA/vAA+1
+    LOAD64(rARG2, rARG3, a1)		# a2/a3<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)		# a0/a1<- vAA/vAA+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3	# second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
@@ -6933,7 +7126,7 @@ L_OP_ADD_DOUBLE_2ADDR: /* 0xcb */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__adddf3)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     add.d fv0, fa0, fa1
     STORE64_F(fv0, fv0f, rOBJ)
@@ -6965,10 +7158,10 @@ L_OP_SUB_DOUBLE_2ADDR: /* 0xcc */
     EAS2(a1, rFP, a1)	                # a1<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)           	# rOBJ<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a2, a3, a1)		# a2/a3<- vBB/vBB+1
-    LOAD64(a0, a1, rOBJ)		# a0/a1<- vAA/vAA+1
+    LOAD64(rARG2, rARG3, a1)		# a2/a3<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)		# a0/a1<- vAA/vAA+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3	# second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
@@ -6985,7 +7178,7 @@ L_OP_SUB_DOUBLE_2ADDR: /* 0xcc */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__subdf3)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     sub.d fv0, fa0, fa1
     STORE64_F(fv0, fv0f, rOBJ)
@@ -7017,10 +7210,10 @@ L_OP_MUL_DOUBLE_2ADDR: /* 0xcd */
     EAS2(a1, rFP, a1)	                # a1<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)           	# rOBJ<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a2, a3, a1)		# a2/a3<- vBB/vBB+1
-    LOAD64(a0, a1, rOBJ)		# a0/a1<- vAA/vAA+1
+    LOAD64(rARG2, rARG3, a1)		# a2/a3<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)		# a0/a1<- vAA/vAA+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3	# second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
@@ -7037,7 +7230,7 @@ L_OP_MUL_DOUBLE_2ADDR: /* 0xcd */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__muldf3)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     mul.d fv0, fa0, fa1
     STORE64_F(fv0, fv0f, rOBJ)
@@ -7069,10 +7262,10 @@ L_OP_DIV_DOUBLE_2ADDR: /* 0xce */
     EAS2(a1, rFP, a1)	                # a1<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)           	# rOBJ<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a2, a3, a1)		# a2/a3<- vBB/vBB+1
-    LOAD64(a0, a1, rOBJ)		# a0/a1<- vAA/vAA+1
+    LOAD64(rARG2, rARG3, a1)		# a2/a3<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)		# a0/a1<- vAA/vAA+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3	# second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
@@ -7089,7 +7282,7 @@ L_OP_DIV_DOUBLE_2ADDR: /* 0xce */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(__divdf3)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     div.d fv0, fa0, fa1
     STORE64_F(fv0, fv0f, rOBJ)
@@ -7121,10 +7314,10 @@ L_OP_REM_DOUBLE_2ADDR: /* 0xcf */
     EAS2(a1, rFP, a1)	                # a1<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)           	# rOBJ<- &fp[A]
 #ifdef	SOFT_FLOAT
-    LOAD64(a2, a3, a1)		# a2/a3<- vBB/vBB+1
-    LOAD64(a0, a1, rOBJ)		# a0/a1<- vAA/vAA+1
+    LOAD64(rARG2, rARG3, a1)		# a2/a3<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)		# a0/a1<- vAA/vAA+1
     .if 0
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3	# second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
@@ -7141,7 +7334,7 @@ L_OP_REM_DOUBLE_2ADDR: /* 0xcf */
                                # optional op
 #ifdef	SOFT_FLOAT
     JAL(fmod)                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     JAL(fmod)
     STORE64_F(fv0, fv0f, rOBJ)
@@ -8671,7 +8864,7 @@ OP_CMPL_DOUBLE_nan:
 
 #ifdef	SOFT_FLOAT
 OP_CMPL_DOUBLE_continue:
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__gtdf2)			    # fallthru
     li      rSELF, 1             	    # rself = 1 if v0 != 0
     blez    v0, OP_CMPL_DOUBLE_nan                   # fall thru for finish
@@ -8691,7 +8884,7 @@ OP_CMPG_DOUBLE_nan:
 
 #ifdef	SOFT_FLOAT
 OP_CMPG_DOUBLE_continue:
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__gtdf2)			    # fallthru
     li      rSELF, 1             	    # rself = 1 if v0 != 0
     blez    v0, OP_CMPG_DOUBLE_nan                   # fall thru for finish
@@ -9166,8 +9359,8 @@ f2l_doconv:
     JAL(__gesf2)
       
     move	t0, v0
-    li		v0, ~0
-    li		v1, ~0x80000000
+    li		rRESULT0, ~0
+    li		rRESULT1, ~0x80000000
     bgez	t0, .LOP_FLOAT_TO_LONG_set_vreg
     
     move	a0, rBIX
@@ -9175,8 +9368,8 @@ f2l_doconv:
     JAL(__lesf2)
 
     move	t0, v0
-    li		v1, 0x80000000
-    li		v0, 0
+    li		rRESULT0, 0
+    li		rRESULT1, 0x80000000
     blez	t0, .LOP_FLOAT_TO_LONG_set_vreg
 	
     move	a0, rBIX
@@ -9184,8 +9377,8 @@ f2l_doconv:
     JAL(__nesf2)
 
     move	t0, v0
-    li		v0, 0
-    li		v1, 0
+    li		rRESULT0, 0
+    li		rRESULT1, 0
     bnez	t0, .LOP_FLOAT_TO_LONG_set_vreg
 
     move	a0, rBIX
@@ -9194,20 +9387,20 @@ f2l_doconv:
 #else
     l.s		fa1, .LLONG_TO_max
     c.ole.s	fcc0, fa1, fa0
-    li		v0, ~0
-    li		v1, ~0x80000000
+    li		rRESULT0, ~0
+    li		rRESULT1, ~0x80000000
     bc1t	.LOP_FLOAT_TO_LONG_set_vreg
 	
     l.s		fa1, .LLONG_TO_min
     c.ole.s	fcc0, fa0, fa1
-    li		v0, 0
-    li		v1, 0x80000000
+    li		rRESULT0, 0
+    li		rRESULT1, 0x80000000
     bc1t	.LOP_FLOAT_TO_LONG_set_vreg
 
     mov.s	fa1, fa0
     c.un.s	fcc0, fa0, fa1
-    li		v0, 0
-    li		v1, 0
+    li		rRESULT0, 0
+    li		rRESULT1, 0
     bc1t	.LOP_FLOAT_TO_LONG_set_vreg
 	
     JAL(__fixsfdi)
@@ -9227,37 +9420,37 @@ f2l_doconv:
 d2i_doconv:
 #ifdef SOFT_FLOAT
     la		t0, .LDOUBLE_TO_INT_max
-    LOAD64(a2, a3, t0)
-    move	rBIX, a0                       # save a0
-    move	rSELF, a1                      #  and a1
+    LOAD64(rARG2, rARG3, t0)
+    move	rBIX, rARG0                       # save a0
+    move	rSELF, rARG1                      #  and a1
     JAL(__gedf2)			       # is arg >= maxint?
 
     move	t0, v0
     li		v0, ~0x80000000                # return maxint (7fffffff)
     bgez	t0, .LOP_DOUBLE_TO_INT_set_vreg       # nonzero == yes
 
-    move	a0, rBIX                       # recover arg
-    move	a1, rSELF
+    move	rARG0, rBIX                       # recover arg
+    move	rARG1, rSELF
     la		t0, .LDOUBLE_TO_INT_min
-    LOAD64(a2, a3, t0)
+    LOAD64(rARG2, rARG3, t0)
     JAL(__ledf2) 	            	       # is arg <= minint?
 
     move	t0, v0
     li		v0, 0x80000000                 # return minint (80000000)
     blez	t0, .LOP_DOUBLE_TO_INT_set_vreg       # nonzero == yes
 
-    move	a0, rBIX                  # recover arg
-    move	a1, rSELF
-    move	a2, rBIX                  # compare against self
-    move	a3, rSELF
+    move	rARG0, rBIX                  # recover arg
+    move	rARG1, rSELF
+    move	rARG2, rBIX                  # compare against self
+    move	rARG3, rSELF
     JAL(__nedf2)	            	# is arg == self?
 
     move	t0, v0			# zero == no
     li		v0, 0
     bnez	t0, .LOP_DOUBLE_TO_INT_set_vreg	# return zero for NaN
 
-    move	a0, rBIX                  # recover arg
-    move	a1, rSELF
+    move	rARG0, rBIX                  # recover arg
+    move	rARG1, rSELF
     JAL(__fixdfsi)			# convert double to int
     b		.LOP_DOUBLE_TO_INT_set_vreg
 #else
@@ -9297,40 +9490,40 @@ d2i_doconv:
 d2l_doconv:
 #ifdef	SOFT_FLOAT
     la		t0, .LDOUBLE_TO_LONG_max
-    LOAD64(a2, a3, t0)
-    move	rBIX, a0		# save a0	
-    move	rSELF, a1		#  and a1
+    LOAD64(rARG2, rARG3, t0)
+    move	rBIX, rARG0		# save a0
+    move	rSELF, rARG1		#  and a1
     JAL(__gedf2)
 
     move	t1, v0
     la		t0, .LDOUBLE_TO_LONG_ret_max
-    LOAD64(v0, v1, t0)
+    LOAD64(rRESULT0, rRESULT1, t0)
     bgez	t1, .LOP_DOUBLE_TO_LONG_set_vreg
 
-    move	a0, rBIX
-    move	a1, rSELF
+    move	rARG0, rBIX
+    move	rARG1, rSELF
     la		t0, .LDOUBLE_TO_LONG_min
-    LOAD64(a2, a3, t0)
+    LOAD64(rARG2, rARG3, t0)
     JAL(__ledf2)
 
     move	t1, v0
     la		t0, .LDOUBLE_TO_LONG_ret_min
-    LOAD64(v0, v1, t0)
+    LOAD64(rRESULT0, rRESULT1, t0)
     blez	t1, .LOP_DOUBLE_TO_LONG_set_vreg
     
-    move	a0, rBIX
-    move	a1, rSELF
-    move	a2, rBIX
-    move	a3, rSELF
+    move	rARG0, rBIX
+    move	rARG1, rSELF
+    move	rARG2, rBIX
+    move	rARG3, rSELF
     JAL(__nedf2)
 
    move		t0, v0
-   li		v0, 0
-   li		v1, 0
-   bnez		v0, .LOP_DOUBLE_TO_LONG_set_vreg
+   li		rRESULT0, 0
+   li		rRESULT1, 0
+   bnez		t0, .LOP_DOUBLE_TO_LONG_set_vreg
 
-   move		a0, rBIX
-   move		a1, rSELF
+   move		rARG0, rBIX
+   move		rARG1, rSELF
    JAL(__fixdfdi)
 
 #else
@@ -9338,20 +9531,20 @@ d2l_doconv:
     LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa1, fa0
     la		t0, .LDOUBLE_TO_LONG_ret_max
-    LOAD64	(v0, v1, t0)
+    LOAD64(rRESULT0, rRESULT1, t0)
     bc1t	.LOP_DOUBLE_TO_LONG_set_vreg
 	
     la		t0, .LDOUBLE_TO_LONG_min
     LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa0, fa1
     la		t0, .LDOUBLE_TO_LONG_ret_min
-    LOAD64(v0, v1, t0)
+    LOAD64(rRESULT0, rRESULT1, t0)
     bc1t	.LOP_DOUBLE_TO_LONG_set_vreg
     
     mov.d	fa1, fa0
     c.un.d	fcc0, fa0, fa1
-    li		v0, 0
-    li		v1, 0
+    li		rRESULT0, 0
+    li		rRESULT1, 0
     bc1t	.LOP_DOUBLE_TO_LONG_set_vreg
     JAL(__fixdfdi)
 #endif
@@ -9385,6 +9578,13 @@ d2l_doconv:
 
 .LOP_SHR_LONG_finish:
     GOTO_OPCODE(t0)                     # jump to next instruction
+
+
+/* continuation for OP_USHR_LONG */
+.LOP_USHR_LONG_finish:
+    STORE64(v0, v1, rOBJ)               # vAA/vAA+1<- v0/v1
+    GET_INST_OPCODE(t0)			# extract opcode from rINST
+    GOTO_OPCODE(t0)			# jump to next instruction
 
 
 /* continuation for OP_EXECUTE_INLINE */

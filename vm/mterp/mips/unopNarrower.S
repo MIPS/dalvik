@@ -16,6 +16,7 @@
     EAS2(a3, rFP, a3)                   # a3<- &fp[B]
 #ifdef	SOFT_FLOAT
     LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
+    LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
 #else
     $load
 #endif	   

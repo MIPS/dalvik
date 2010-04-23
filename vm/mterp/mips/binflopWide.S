@@ -19,17 +19,17 @@
     srl		a3, a0, 8		# a3<- CC
     EAS2(rOBJ, rFP, rOBJ)		# s5 <- &fp[AA]
     EAS2(a2, rFP, a2)			# a2<- &fp[BB]
-    EAS2(a3, rFP, a3)			# a3<- &fp[CC]
+    EAS2(t1, rFP, a3)			# a3<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a2)		# a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, a3)		# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, a2)		# a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, t1)		# a2/a3<- vCC/vCC+1
     .if $chkzero
-    or		t0, a2, a3		# second arg (a2-a3) is zero?
+    or		t0, rARG2, rARG3        # second arg (a2-a3) is zero?
     beqz	t0, common_errDivideByZero
     .endif
 #else
     LOAD64_F(fa0, fa0f, a2)
-    LOAD64_F(fa1, fa1f, a3)
+    LOAD64_F(fa1, fa1f, t1)
     .if $chkzero
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
@@ -41,7 +41,7 @@
     $preinstr                           # optional op
 #ifdef	SOFT_FLOAT
     $instr                              # result<- op, a0-a3 changed
-    STORE64(v0, v1, rOBJ)
+    STORE64(rRESULT0, rRESULT1, rOBJ)
 #else
     $instr_f
      STORE64_F(fv0, fv0f, rOBJ)

@@ -21,7 +21,6 @@
 
 
 /* single-purpose registers, given names for clarity */
-
 #define rPC	s0
 #define rFP	s1
 #define rGLUE	s2
@@ -30,6 +29,28 @@
 #define rOBJ	s5
 #define rBIX	s6
 #define rSELF	s7
+
+/* The long arguments sent to function calls in Big-endian mode should be register
+swapped when sent to functions in little endian mode. In other words long variable
+sent as a0(MSW), a1(LSW) for a function call in LE mode should be sent as a1, a0 in
+Big Endian mode */
+
+#ifdef HAVE_LITTLE_ENDIAN
+#define rARG0     a0
+#define rARG1     a1
+#define rARG2     a2
+#define rARG3     a3
+#define rRESULT0  v0
+#define rRESULT1  v1
+#else
+#define rARG0     a1 
+#define rARG1     a0
+#define rARG2     a3
+#define rARG3     a2
+#define rRESULT0  v1
+#define rRESULT1  v0
+#endif
+
 
 /* save/restore the PC and/or FP from the glue struct */
 #define LOAD_PC_FROM_GLUE()	lw	rPC, offGlue_pc(rGLUE)
@@ -54,7 +75,17 @@
 #define FETCH(rd, _count)		lhu	rd, (_count * 2)(rPC)
 #define FETCH_S(rd, _count)		lh	rd, (_count * 2)(rPC)
 
-#define FETCH_B(rd, _count, _byte)	lbu	rd, (_count * 2 + _byte)(rPC)
+#ifdef HAVE_LITTLE_ENDIAN
+
+#define FETCH_B(rd, _count)            lbu     rd, (_count * 2)(rPC)
+#define FETCH_C(rd, _count)            lbu     rd, (_count * 2 + 1)(rPC)
+
+#else
+
+#define FETCH_B(rd, _count)            lbu     rd, (_count * 2 + 1)(rPC)
+#define FETCH_C(rd, _count)            lbu     rd, (_count * 2)(rPC)
+
+#endif
 
 #define GET_INST_OPCODE(rd)		and	rd, rINST, 0xFF
 
@@ -87,7 +118,7 @@
 #ifndef		MIPS32R2
 #define GET_OPA4(rd)			GET_OPA(rd);  and  rd, 0xf
 #else
-#define GET_OPA(rd)			ext	rd, rd, 8, 4	
+#define GET_OPA4(rd)			ext	rd, rd, 8, 4	
 #endif
 #define GET_OPB(rd)			srl     rd, rINST, 12
 
@@ -135,16 +166,28 @@
 #define LOADu2_RB_OFF(rd,rbase,off)	lhu	rd, off(rbase)
 #define STORE_RB_OFF(rd,rbase,off)	sw	rd, off(rbase)
 
-#define STORE64_off(rlo,rhi,rbase,off)	sw	rlo, off(rbase);	\
-					sw	rhi, (off+4)(rbase)
-#define LOAD64_off(rlo,rhi,rbase,off)	lw	rlo, off(rbase);	\
-					lw	rhi, (off+4)(rbase)
+#ifdef HAVE_LITTLE_ENDIAN
 
-/* Tested only on a Little Endian System */
+#define STORE64_off(rlo,rhi,rbase,off)	        sw	rlo, off(rbase);	\
+					        sw	rhi, (off+4)(rbase)
+#define LOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, off(rbase);	\
+					        lw	rhi, (off+4)(rbase)
+
 #define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, off(rbase);	\
 						s.s	rhi, (off+4)(rbase)
 #define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, off(rbase);	\
 						l.s	rhi, (off+4)(rbase)
+#else
+
+#define STORE64_off(rlo,rhi,rbase,off)	        sw	rlo, (off+4)(rbase);	\
+					        sw	rhi, (off)(rbase)
+#define LOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, (off+4)(rbase);	\
+					        lw	rhi, (off)(rbase)
+#define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, (off+4)(rbase);	\
+						s.s	rhi, (off)(rbase)
+#define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, (off+4)(rbase);	\
+						l.s	rhi, (off)(rbase)
+#endif
 
 #define STORE64(rlo,rhi,rbase)		STORE64_off(rlo,rhi,rbase,0)
 #define LOAD64(rlo,rhi,rbase)		LOAD64_off(rlo,rhi,rbase,0)

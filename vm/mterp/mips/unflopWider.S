@@ -21,7 +21,7 @@
     $instr                              # result<- op, a0-a3 changed
 
 .L${opcode}_set_vreg:
-    STORE64(v0, v1, rOBJ)               # vA/vA+1<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)               # vA/vA+1<- a0/a1
 #else
     $instr_f
 

@@ -22,18 +22,18 @@
     EAS2(rOBJ, rFP, rOBJ)                   # s0<- &fp[BB]
     EAS2(rBIX, rFP, rBIX)                   # t0<- &fp[CC]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__eqdf2)	             		# cmp <=: C clear if <, Z set if eq
     li		rSELF, 0
     beqz	v0, ${opcode}_finish
 
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__ltdf2)
     li		rSELF, -1
     bltz	v0, ${opcode}_finish
-    LOAD64(a0, a1, rOBJ)                    # a0/a1<- vBB/vBB+1
+    LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
     b		${opcode}_continue 
 #else
     LOAD64_F(fs0, fs0f, rOBJ)
@@ -57,7 +57,7 @@ ${opcode}_nan:
 
 #ifdef	SOFT_FLOAT
 ${opcode}_continue:
-    LOAD64(a2, a3, rBIX)			# a2/a3<- vCC/vCC+1
+    LOAD64(rARG2, rARG3, rBIX)			# a2/a3<- vCC/vCC+1
     JAL(__gtdf2)			    # fallthru
     li      rSELF, 1             	    # rself = 1 if v0 != 0
     blez    v0, ${opcode}_nan                   # fall thru for finish

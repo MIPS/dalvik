@@ -1,4 +1,4 @@
-%default {"preinstr":"", "result0":"a0", "result1":"a1", "chkzero":"0"}
+%default {"preinstr":"", "result0":"a0", "result1":"a1", "chkzero":"0", "arg0":"a0", "arg1":"a1", "arg2":"a2", "arg3":"a3"}
     /*
      * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0-a1 op a2-a3".
@@ -17,10 +17,10 @@
     GET_OPB(a1)					# a1<- B
     EAS2(a1, rFP, a1)				# a1<- &fp[B]
     EAS2(rOBJ, rFP, rOBJ)	   		# rOBJ<- &fp[A]
-    LOAD64(a2, a3, a1)				# a2/a3<- vBB/vBB+1
-    LOAD64(a0, a1, rOBJ)			# a0/a1<- vAA/vAA+1
+    LOAD64($arg2, $arg3, a1)				# a2/a3<- vBB/vBB+1
+    LOAD64($arg0, $arg1, rOBJ)			# a0/a1<- vAA/vAA+1
     .if $chkzero
-    or    t0, a2, a3				# second arg (a2-a3) is zero?
+    or    t0, $arg2, $arg3				# second arg (a2-a3) is zero?
     beqz    t0, common_errDivideByZero
     .endif
     FETCH_ADVANCE_INST(1)			# advance rPC, load rINST
