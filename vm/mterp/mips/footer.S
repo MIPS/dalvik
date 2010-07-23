@@ -256,8 +256,9 @@ dalvik_mterp:
 	GOTO_OPCODE(t0)
 
 .LstackOverflow:
+	move	a1, a0
 	lw	a0, offGlue_self(rGLUE)
-	JAL(dvmHandleStackOverflow)
+	JAL(dvmHandleStackOverflow)	# dvmHandleStackOverflow(self, methodToCall)
 	b	common_exceptionThrown
 #ifdef ASSIST_DEBUGGER
 	.end	dalvik_mterp
@@ -339,9 +340,10 @@ common_exceptionThrown:
 	/* fix stack overflow if necessary; must preserve a0 */
 	lbu	a1, offThread_stackOverflowed(rSELF)
 	beqz	a1, 1f
+	move	a1, rBIX
 	move 	rBIX, a0
 	move	a0, rSELF
-	JAL(dvmCleanupStackOverflow)
+	JAL(dvmCleanupStackOverflow)	# dvmCleanupStackOverflow(self, exception)
 	move	a0, rBIX
 	lw	rBIX, offThread_exception(rSELF)	
 
@@ -375,8 +377,9 @@ common_exceptionThrown:
 	/* fix stack overflow if necessary */
 	lbu     a1, offThread_stackOverflowed(rSELF)
 	beqz	a1, 3f
+	move	a1, rBIX
 	move	a0, rSELF
-	JAL(dvmCleanupStackOverflow)
+	JAL(dvmCleanupStackOverflow)	# dvmCleanupStackOverflow(self, exception)
 
 3:	
 	# may want to show "not caught locally" debug messages here
