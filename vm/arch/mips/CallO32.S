@@ -6,9 +6,6 @@
  * This version supports the MIPS O32 ABI.
  */
 
-
-
-
 /*
 Function prototype:
 
@@ -36,7 +33,7 @@ Please notice that argc in dvmPlatformInvoke does NOT include pEnv and clazz/thi
  * On entry:
  *   a0  JNIEnv (can be left alone)
  *   a1  clazz (NULL for virtual method calls, non-NULL for static)
- *   a2  arg info
+ *   a2  argInfo
  *   a3  argc (number of 32-bit values in argv)
  *   MIPS reservers 16 bytes on stack even if the first 4 args are passed by
  *   reg a0-a3. That's different from ARM.
@@ -75,16 +72,16 @@ Please notice that argc in dvmPlatformInvoke does NOT include pEnv and clazz/thi
   *                 |__24______| func
   *                 |__20______| short signature
   *                 |__16______| argv
-  *                 |__12______| reserved
-  *                 |__8_______| reserved
-  *                 |__4_______| reserved
-  *__sp on entry_->_|__0_______|_reserved_____________
+  *                 |__12______| reserved (a3: argc)
+  *                 |__8_______| reserved (a2: arg)
+  *                 |__4_______| reserved (a1: clazz)
+  *__sp on entry_->_|__0_______|_reserved (a0: JNIenv)
   *                 |__________| saved ra
-  *                 |__________| saved s8
+  *                 |__________| saved fp
   *                 |__________| saved s0
-  *                 |__________| saved s1
+  *                 |__________| spare
   *                 |__________| saved s2
-  *                 |__________| pad for 8 bytes aligned
+  *"framepointer"->_|__________| pad for 8 bytes aligned
   *                 |__________| other argv or pad
   *                 |__________| other argv or pad
   *                 |__________| other argv or pad
@@ -101,60 +98,55 @@ Please notice that argc in dvmPlatformInvoke does NOT include pEnv and clazz/thi
  /* Register usage:
   *
   *  s0: pReturn
-  *  s1: stack frame size
   *  s2: Return type
-  * These registers should be saved to and restrored from stack.
+  * These registers should be saved to and restored from stack.
   *
   *  t0: argv
   *  t9: func
   * These registers do not need to be saved.
   *
-  * We put the stack size into register s1 because we can not know the size of stack
-  * at the beginning. This size can be calculated with the help of hints in jniarginfo.
+  * We put the stack size into register s1 because we can not know the size
+  * of stack at the beginning. This size can be calculated with the help
+  * of hints in jniarginfo.
   *
   */
 
 dvmPlatformInvoke:
 
 	/*  Do we have arg padding flags in "argInfo"? Check bit 31 */
-	srl $t1,$a2,31
-	bne $t1,$zero,.Lno_arginfo
+	bltz	$a1,.Lno_arginfo
 
-	/*fast path. We have hints. */
-	/* save s8 and ra to stack */
-	sw $ra,-4($sp)
-	sw $s8,-8($sp)
-	sw $s0,-12($sp)
-	sw $s1,-16($sp)
-	sw $s2,-20($sp)
+	/* Fast path. We have hints. */
+	/* save fp and ra to stack */
+#define FSIZE 24
+	subu	$sp,FSIZE
+	sw	$ra,20($sp)
+	sw	$fp,16($sp)
+	sw	$s0,12($sp)
+	sw	$s2,4($sp)
+	move	$fp,$sp
 
-	/* t0 <- argv */
-	lw $t0,16($sp)
-	/* t9 <- func */
-	lw $t9,24($sp)
-	/* s0<- pReturn */
-	lw $s0,28($sp)
-
+	lw	$t0,FSIZE+16($sp)	/* t0 <- argv */
+	lw	$t9,FSIZE+24($sp)	/* t9 <- func */
+	lw	$s0,FSIZE+28($sp)	/* s0 <- pReturn */
 
 	/* Is the method static? */
-	bne $a1,$zero,1f
-	/* Not static: set a1 to *argv++ ("this"), and set argc--*/
-	lw $a1,($t0)
-	addiu $t0,$t0,4
-	addiu $a3,$a3,-1
+	bnez	$a1,1f
+	/* Not static: a1 <- *argv++ ("this"), argc-- */
+	lw	$a1,($t0)
+	addiu	$t0,4
+	addiu	$a3,-1
 1:
-.Lhave_arginfo:
 	/* expand the stack for args */
-	lui $t1,0x0f00     //t1 = 0x0f00 0000
-	srl $s2,$a2,28     //s2 = return type
-	and $t2,$a2,$t1
-	srl $s1,$t2,21     //s1 = (t2>>24)<<3. bytes required on stack
-	addiu $s1,$s1,40   /*ship saved ra/s8/s0/s1/s2/pad/a0/a1/a2/a3 */
-	addiu $t5,$sp,-24
-	subu $sp,$sp,$s1
-	addiu $t1,$sp,8
+	srl	$s2,$a2,28	/* s2 <- returnType */
+	srl	$t1,$a2,21
+	andi	$t1,0x38	/* t1 <- stackSize in bytes */
 
-	 /*
+	addiu	$t1,16		/* include space for a0/a1/a2/a3 */
+	subu	$sp,$t1
+	addiu	$t1,$sp,8
+
+	/*
 	 * t0 :argv
 	 * t1 :sp+8(first arg position in stack except pEnv and clazz/this)
 	 * a2 :argInfo
@@ -163,41 +155,42 @@ dvmPlatformInvoke:
 	 */
 
 	/* first two args or one args and pad */
-	blez $a3,.Largs_done
-	lw $t2,($t0)
-	srl $a2,$a2,1
-	sw $t2,($t1)
-	addiu $t0,$t0,4
-	addiu $t1,$t1,4
-	addiu $a3,$a3,-1
-	blez $a3,.Largs_done
-	andi $t3,$a2,0x1
-	/* the second position is a pad? */
-	bne $t3,$zero,.Lpad0
-	lw $t2,($t0)
-	sw $t2,($t1)
-	addiu $t0,$t0,4
-	addiu $a3,$a3,-1
+	blez	$a3,.Largs_done
+	lw	$t2,($t0)
+	addiu	$t0,4
+	addiu	$a3,-1
+	sw	$t2,($t1)
+	addiu	$t1,4
+	srl	$a2,1
+	blez	$a3,.Largs_done
+
+	andi	$t3,$a2,0x1	/* the second position is a pad? */
+	bnez	$t3,.Lpad0
+
+	lw	$t2,($t0)
+	addiu	$t0,4
+	addiu	$a3,-1
+	sw	$t2,($t1)
 .Lpad0:
-	addiu $t1,$t1,4
-	srl $a2,$a2,1
-	blez $a3,.Largs_done
+	addiu	$t1,4
+	srl	$a2,1
+	blez	$a3,.Largs_done
 
 .Lloop1:
 	/* copy other args
-	 * t5: sp top for args
-	 * t1: sp for next arg
+	 * $fp: sp top for args
+	 * $t1: sp for next arg
 	 */
-	beq $t1,$t5,.Largs_done
-	andi $t3,$a2,0x1
-	srl $a2,$a2,1
-	bne $t3,$zero,.Lpad
-	lw $t2,($t0)
-	sw $t2,($t1)
-	addiu $t0,$t0,4
+	beq	$t1,$fp,.Largs_done
+	andi	$t3,$a2,0x1
+	srl	$a2,1
+	bnez	$t3,.Lpad
+	lw	$t2,($t0)
+	addiu	$t0,4
+	sw	$t2,($t1)
 .Lpad:
-	addiu $t1,$t1,4
-	b .Lloop1
+	addiu	$t1,4
+	b	.Lloop1
 
 .Largs_done:
 
@@ -212,12 +205,11 @@ dvmPlatformInvoke:
 	/*
 	 * sp: new stack
 	 * s0: pReturn
-	 * s1: stack frame size
 	 * s2: Return type
 	 *
 	 */
-	lw $a2,8($sp)
-	lw $a3,12($sp)
+	lw	$a2,8($sp)
+	lw	$a3,12($sp)
 
 	/* Linux/PIC needs $t9 points to function address.
 	 * call the function
@@ -229,50 +221,37 @@ dvmPlatformInvoke:
 	 * 2. if the return type is not DALVIK_JNI_RETURN_VOID then copy v0/v1
 	 *    to pReturn
 	 */
-	beq $s2,$zero,.Lend
-	sw $v0,($s0)
-	sw $v1,4($s0)
+	sltiu	$t2,$s2,3	/* set t2 if return type is void, float or double */
+	beqz	$s2,.Lend	/* don't set result if return type is void */
 	
+#ifdef __mips_hard_float
+	mfc1	$t0,$f0		/* Get float ($f0) or double ($f1$f0) result */
+	mfc1	$t1,$f1
+	movn	$v0,$t0,$t2	/* If the result type is float or double overwrite $v1/$v0 */
+	movn	$v1,$t1,$t2
+#endif
+
+	/* Store the result */
+	sw	$v0,0($s0)
+	sw	$v1,4($s0)
+
 .Lend:
-	/* restore saved register */
-	addu $sp,$sp,$s1
-	lw $ra,-4($sp)
-	lw $s8,-8($sp)
-	lw $s0,-12($sp)
-	lw $s1,-16($sp)
-	lw $s2,-20($sp)
-	jr $ra
+	/* restore saved registers */
+	move	$sp,$fp
+	lw	$ra,20($sp)
+	lw	$fp,16($sp)
+	lw	$s0,12($sp)
+	lw	$s2,4($sp)
+	addiu	$sp,FSIZE
+	jr	$ra
 
-/* slow path. We call the generic routine here */
+/* Slow path - just tail call the generic routine */
 .Lno_arginfo:
-
-.set noreorder
-.cpload $t9
-.set reorder
-	/* save ra and t9 */
-	sw $ra,-4($sp)
-	sw $t9,-8($sp)
-
-	/* prepare args */
-	lw $t0,16($sp)
-	lw $t1,20($sp)
-	lw $t2,24($sp)
-	lw $t3,28($sp)
-
-	sw $t0,-24($sp)
-	sw $t1,-20($sp)
-	sw $t2,-16($sp)
-	sw $t3,-12($sp)
-
-	addiu $sp,$sp,-40
+	.set noreorder
+	.cpload $t9
+	.set reorder
+	
 	la $t9,dvmPlatformInvokeMIPS
-	jalr $t9
-
-	/* function call return */
-	lw $t9,32($sp)
-	lw $ra,36($sp)
-	addiu $sp,$sp,40
-	jr $ra
+	j $t9
 
 .end dvmPlatformInvoke
-
