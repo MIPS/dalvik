@@ -36,6 +36,13 @@
 # endif
 #endif
 
+#if defined(__mips__)
+# if (__mips==32) && (__mips_isa_rev>=2)
+#  define CLZ(x) __builtin_clz(x)
+#  define HAVE_BUILTIN_CLZ
+# endif
+#endif
+
 #ifndef HAVE_BUILTIN_CLZ
 # define CLZ(x) dvmClzImpl(x)
 int dvmClzImpl(unsigned int x);
