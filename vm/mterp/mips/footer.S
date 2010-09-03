@@ -15,7 +15,7 @@
 
 common_backwardBranch:
     li     a0, kInterpEntryInstr 
-    BAL(common_periodicChecks)
+    JAL(common_periodicChecks)
     FETCH_ADVANCE_INST_RB(rBIX)         # update rPC, load rINST
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -32,8 +32,6 @@ common_backwardBranch:
 	.ent common_periodicChecks
 common_periodicChecks:
 /*Ignore common periodic checks for now. Need to be fixed. */
-    jr 	  ra
-    
     lw    a3, offGlue_pSelfSuspendCount(rGLUE) # t0<- &suspendCount
 
 #if defined(WITH_DEBUGGER)
@@ -73,8 +71,8 @@ common_periodicChecks:
 
 2:  # check suspend
     lw		a0, offGlue_self(rGLUE)       #a0<- glue->self
-    la		t0, dvmCheckSuspendPending
-    jr		t0	# suspend if necessary, then return
+    la		t9, dvmCheckSuspendPending
+    jr		t9	# suspend if necessary, then return
 
     .end	common_periodicChecks
 
@@ -274,7 +272,7 @@ common_returnFromMethod:
 .LreturnNew:
 	li	a0, kInterpEntryReturn
 	li	rBIX, 0
-	BAL(common_periodicChecks)
+	JAL(common_periodicChecks)
 
 	SAVEAREA_FROM_FP(a0, rFP)
 	lw	rFP, offStackSaveArea_prevFrame(a0)
@@ -305,7 +303,7 @@ common_exceptionThrown:
 .LexceptionNew:
 	li	a0, kInterpEntryThrow
 	li	rBIX, 0
-	BAL(common_periodicChecks)
+	JAL(common_periodicChecks)
 	
 	lw	rSELF, offGlue_self(rGLUE)
 	lw	rBIX, offThread_exception(rSELF)
