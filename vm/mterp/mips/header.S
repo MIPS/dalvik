@@ -9,6 +9,10 @@
 #define		SOFT_FLOAT
 #endif
 
+#if (__mips==32) && (__mips_isa_rev>=2)
+#define MIPS32R2
+#endif
+
 /* MIPS definitions and declarations 
  
    reg	nick		purpose
@@ -118,7 +122,7 @@ Big Endian mode */
 #ifndef		MIPS32R2
 #define GET_OPA4(rd)			GET_OPA(rd);  and  rd, 0xf
 #else
-#define GET_OPA4(rd)			ext	rd, rd, 8, 4	
+#define GET_OPA4(rd)			ext	rd, rINST, 8, 4	
 #endif
 #define GET_OPB(rd)			srl     rd, rINST, 12
 
