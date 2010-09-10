@@ -307,18 +307,8 @@ ifeq ($(dvm_arch),sh)
 		mterp/out/InterpAsm-allstubs.S
 endif
 
-#ifeq ($(dvm_arch),mips)
-#  MTERP_ARCH_KNOWN := true
-#  LOCAL_SRC_FILES += \
-#		arch/mips/CallO32.S \
-#		arch/mips/HintsO32.c \
-#		mterp/out/InterpC-mips.c \
-#		mterp/out/InterpAsm-mips.S
-#endif
-
-
-ifeq ($(TARGET_ARCH),mips)
-	MTERP_ARCH_KNOWN := true
+ifeq ($(dvm_arch),mips)
+  MTERP_ARCH_KNOWN := true
   LOCAL_C_INCLUDES += external/libffi/$(TARGET_OS)-$(TARGET_ARCH)
   LOCAL_SHARED_LIBRARIES += libffi
   LOCAL_SRC_FILES += \
