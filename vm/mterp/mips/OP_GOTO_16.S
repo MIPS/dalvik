@@ -10,7 +10,15 @@
     FETCH_S(a0, 1)                      # a0<- ssssAAAA (sign-extended)
     sll    rBIX, a0, 1                  # rBIX<- byte offset, check sign
     bltz   rBIX, common_backwardBranch  # backward branch, do periodic checks
+#if defined(WITH_JIT)
+    GET_JIT_PROF_TABLE(a0)
+    FETCH_ADVANCE_INST_RB(rBIX)         # update rPC, load rINST
+    bnez   a0, common_updateProfile
+    GET_INST_OPCODE(t0)                 # extract opcode from rINST
+    GOTO_OPCODE(t0)                     # jump to next instruction
+#else
     FETCH_ADVANCE_INST_RB(rBIX)         # update rPC, load rINST
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
+#endif
 

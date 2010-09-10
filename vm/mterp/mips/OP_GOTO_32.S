@@ -18,7 +18,15 @@
     or     a0, a0, a1                   # a0<- AAAAaaaa, check sign
     sll	   rBIX, a0, 1                  # rBIX<- byte offset
     bltz   a0, common_backwardBranch    # backward branch, do periodic checks
+#if defined(WITH_JIT)
+    GET_JIT_PROF_TABLE(a0)
+    FETCH_ADVANCE_INST_RB(rBIX)         # update rPC, load rINST
+    bnez   a0, common_updateProfile
+    GET_INST_OPCODE(t0)                 # extract opcode from rINST
+    GOTO_OPCODE(t0)                     # jump to next instruction
+#else
     FETCH_ADVANCE_INST_RB(rBIX)         # update rPC, load rINST
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
+#endif
 

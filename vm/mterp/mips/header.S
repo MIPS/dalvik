@@ -137,6 +137,11 @@ Big Endian mode */
 #define LOAD_rGLUE_bailPtr(rd)		LOAD_rGLUE_OFF(rd, bailPtr)
 #define LOAD_rGLUE_SelfSuspendCount(rd)	LOAD_rGLUE_OFF(rd, SelfSuspendCount)
 
+#if defined(WITH_JIT)
+#define GET_JIT_PROF_TABLE(rd)		LOAD_rGLUE_OFF(rd,pJitProfTable)
+#define GET_JIT_THRESHOLD(rd)		LOAD_rGLUE_OFF(rd,jitThreshold)
+#endif
+
 /*
  * Form an Effective Address rd = rbase + roff<<n;
  * Uses reg AT
@@ -296,6 +301,6 @@ Big Endian mode */
 				STACK_LOAD(ra, 124);	\
 				DELETE_STACK(STACK_SIZE)
 
-
-
-
+#if defined(WITH_JIT)
+#include "../common/jit-config.h"
+#endif
