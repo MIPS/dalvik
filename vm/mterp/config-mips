@@ -45,8 +45,8 @@ op-start mips
     #op OP_FILLED_NEW_ARRAY c
     #op OP_FILLED_NEW_ARRAY_RANGE c
     #op OP_THROW_VERIFICATION_ERROR c
+    # !!! DRP Add mips .S version of OP_EXECUTE_INLINE_RANGE 
      op OP_EXECUTE_INLINE_RANGE c
-     op OP_BREAKPOINT c
 op-end
 
 # "helper" code

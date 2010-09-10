@@ -317,8 +317,20 @@ ifeq ($(dvm_arch),mips)
 		arch/generic/Call.c \
 		mterp/out/InterpC-mips.c \
 		mterp/out/InterpAsm-mips.S
-endif
 
+  ifeq ($(WITH_JIT),true)
+    dvm_arch_variant := mips
+    LOCAL_SRC_FILES += \
+		compiler/codegen/mips/RallocUtil.c \
+		compiler/codegen/mips/$(dvm_arch_variant)/Codegen.c \
+		compiler/codegen/mips/$(dvm_arch_variant)/CallingConvention.S \
+		compiler/codegen/mips/Assemble.c \
+		compiler/codegen/mips/ArchUtility.c \
+		compiler/codegen/mips/LocalOptimizations.c \
+		compiler/codegen/mips/GlobalOptimizations.c \
+		compiler/template/out/CompilerTemplateAsm-$(dvm_arch_variant).S
+  endif
+endif
 
 ifeq ($(MTERP_ARCH_KNOWN),false)
   # unknown architecture, try to use FFI

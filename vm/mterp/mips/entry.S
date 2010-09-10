@@ -21,22 +21,53 @@ dvmMterpStdRun:
 
 	/* set up "named" registers, figure out entry point */
 	move		rGLUE, a0		# set rGLUE
-	lbu		a1, offGlue_entryPoint(a0)	#InterpEntry enum is char
+	lw 		a1, offGlue_entryPoint(a0) # ??? DRP InterpEntry enum is 4 bytes 
 	LOAD_PC_FROM_GLUE()
 	LOAD_FP_FROM_GLUE()
 	la		rIBASE, dvmAsmInstructionStart	#set rIBASE. GOT needed here.
 	li		t0, kInterpEntryInstr
 	bne		a1, t0, .Lnot_instr		# no, handle it
 		
+#if defined(WITH_JIT)
+entryInstr:
+	lw              t0, offGlue_self(rGLUE)
+	/* Entry is always a possible trace start */
+	GET_JIT_PROF_TABLE(a0)
+	FETCH_INST()			# load rINST from rPC
+	sw              zero, offThread_inJitCodeCache(t0)
+	bnez		a0, common_updateProfile
+	GET_INST_OPCODE(t0)		# extract opcode from rINST
+	GOTO_OPCODE(t0)			# jump to next instruction
+#else
 	/* start executing the instruction at rPC */
 	FETCH_INST()			# load rINST from rPC
 	GET_INST_OPCODE(t0)		# extract opcode from rINST
 	GOTO_OPCODE(t0)			# jump to next instruction
-.Lnot_instr:
+#endif
+
+.Lnot_instr:		# were we returning from a method?
 	beq		a1, kInterpEntryReturn, common_returnFromMethod
 	
-.Lnot_return:
+.Lnot_return:		# were we throwing an exception?
 	beq             a1, kInterpEntryThrow, common_exceptionThrown
+
+#if defined(WITH_JIT)
+not_throw:
+	lw		t0, offGlue_jitResumeNPC(rGLUE)
+	lw		a2, offGlue_jitResumeDPC(rGLUE)
+	bne		a1, kInterpEntryResume, .Lbad_arg # resuming after Jit single-step?
+	bne		rPC, a2, entryInstr # must have branched, don't resume
+#if defined(WITH_SELF_VERIFICATION)
+        # glue->entryPoint will be set in dvmSelfVerificationSaveState
+        b               jitSVShadowRunStart # reenter xlation after single-stepped insn
+#endif
+	li		a1, kInterpEntryInstr
+	sw		a1, offGlue_entryPoint(rGLUE)
+	jr		t0  # reenter the translation
+.LdvmCompilerTemplate:
+	.word		dvmCompilerTemplateStart
+#endif
+
 .Lbad_arg:
     	lw		a0, strBadEntryPoint
 	#a1 holds value of entryPoint

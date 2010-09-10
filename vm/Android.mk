@@ -55,8 +55,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 # If WITH_JIT is configured, build multiple versions of libdvm.so to facilitate
 # correctness/performance bugs triage
-ifeq ($(WITH_JIT),true)
-
+#ifeq ($(WITH_JIT),true)
+ifeq (0,1) # remove this line and uncomment the line above when ready to bringup these libs
     # Derivation #1
     # Enable assert and JIT tuning
     include $(LOCAL_PATH)/ReconfigureDvm.mk

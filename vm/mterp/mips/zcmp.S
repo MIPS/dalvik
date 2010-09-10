@@ -15,7 +15,16 @@
     FETCH_S(rBIX, 1)                      	# rBIX<- branch offset, in code units
     sll     rBIX, 1 				# convert to bytes, check sign
     bltz    rBIX, common_backwardBranch   	# backward branch, do periodic checks
-1:  FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
+1:
+#if defined(WITH_JIT)
+    GET_JIT_PROF_TABLE(a0)
+    FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
+    bnez    a0, common_updateProfile # ??? DRP should target be common_testUpdateProfile?
     GET_INST_OPCODE(t0)                 	# extract opcode from rINST
     GOTO_OPCODE(t0)                     	# jump to next instruction
+#else
+    FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
+    GET_INST_OPCODE(t0)                 	# extract opcode from rINST
+    GOTO_OPCODE(t0)                     	# jump to next instruction
+#endif
 

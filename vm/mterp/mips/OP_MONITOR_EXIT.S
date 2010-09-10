@@ -13,12 +13,14 @@
     EXPORT_PC()                         # before fetch: export the PC
     GET_VREG(a1, a2)                    # a1<- vAA (object)
                                         # null object?
-    beqz    a1, common_errNullObject    # yes
+    beqz    a1, 1f
     LOAD_rGLUE_self(a0)                 # a0<- glue->self
     JAL(dvmUnlockObject)		# v0<- success for unlock(self, obj)
                                         # failed?
-    beqz    v0, common_exceptionThrown  # yes, exception is pending
     FETCH_ADVANCE_INST(1)               # before throw: advance rPC, load rINST
+    beqz    v0, common_exceptionThrown  # yes, exception is pending
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
-
+1:
+    FETCH_ADVANCE_INST(1)               # before throw: advance rPC, load rINST
+    b common_errNullObject
