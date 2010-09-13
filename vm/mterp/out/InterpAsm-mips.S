@@ -8841,16 +8841,20 @@ dvmAsmSisterStart:
 .LOP_FILLED_NEW_ARRAY_continue:
     LOAD_base_offClassObject_descriptor(a3, a0) # a3<- arrayClass->descriptor
     li      a2, ALLOC_DONT_TRACK                # a2<- alloc flags
-    lbu     a0, 1(a3)                           # a0<- descriptor[1]
+    lbu     a3, 1(a3)                           # a3<- descriptor[1]
     .if     0
     move    a1, rOBJ                            # a1<- AA (length)
     .else
     srl     a1, rOBJ, 4		                # rOBJ<- B (length)
     .endif
-    li      t0, 'I'                             # array of ints?
+    seq     t0, a3, 'I'                         # array of ints?
+    seq	    t1, a3, 'L'                         # array of objects?
+    or      t0, t1
+    seq	    t1, a3, '['                         # array of arrays?
+    or      t0, t1
     move    rBIX, a1				# save length in rBIX
-    bne     t0, a0, .LOP_FILLED_NEW_ARRAY_notimpl         # no, not handled yet
-    JAL(dvmAllocPrimitiveArray)		# v0<- call(typeCh, length, flags)
+    beqz    t0, .LOP_FILLED_NEW_ARRAY_notimpl             # no, not handled yet
+    JAL(dvmAllocArrayByClass)			# v0<- call(arClass, length, flags)
                                                 # null return?
     beqz    v0, common_exceptionThrown          # alloc failed, handle exception
 
@@ -8923,16 +8927,20 @@ dvmAsmSisterStart:
 .LOP_FILLED_NEW_ARRAY_RANGE_continue:
     LOAD_base_offClassObject_descriptor(a3, a0) # a3<- arrayClass->descriptor
     li      a2, ALLOC_DONT_TRACK                # a2<- alloc flags
-    lbu     a0, 1(a3)                           # a0<- descriptor[1]
+    lbu     a3, 1(a3)                           # a3<- descriptor[1]
     .if     1
     move    a1, rOBJ                            # a1<- AA (length)
     .else
     srl     a1, rOBJ, 4		                # rOBJ<- B (length)
     .endif
-    li      t0, 'I'                             # array of ints?
+    seq     t0, a3, 'I'                         # array of ints?
+    seq	    t1, a3, 'L'                         # array of objects?
+    or      t0, t1
+    seq	    t1, a3, '['                         # array of arrays?
+    or      t0, t1
     move    rBIX, a1				# save length in rBIX
-    bne     t0, a0, .LOP_FILLED_NEW_ARRAY_RANGE_notimpl         # no, not handled yet
-    JAL(dvmAllocPrimitiveArray)		# v0<- call(typeCh, length, flags)
+    beqz    t0, .LOP_FILLED_NEW_ARRAY_RANGE_notimpl             # no, not handled yet
+    JAL(dvmAllocArrayByClass)			# v0<- call(arClass, length, flags)
                                                 # null return?
     beqz    v0, common_exceptionThrown          # alloc failed, handle exception
 
