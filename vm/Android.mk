@@ -55,8 +55,8 @@ include $(BUILD_SHARED_LIBRARY)
 
 # If WITH_JIT is configured, build multiple versions of libdvm.so to facilitate
 # correctness/performance bugs triage
-#ifeq ($(WITH_JIT),true)
-ifeq (0,1) # remove this line and uncomment the line above when ready to bringup these libs
+ifeq ($(WITH_JIT),true)
+ ifneq ($(dvm_arch),mips)	# MIPS support for alternate configurations is not complete 
     # Derivation #1
     # Enable assert and JIT tuning
     include $(LOCAL_PATH)/ReconfigureDvm.mk
@@ -76,6 +76,7 @@ ifeq (0,1) # remove this line and uncomment the line above when ready to bringup
                     -DWITH_SELF_VERIFICATION $(target_smp_flag)
     LOCAL_MODULE := libdvm_sv
     include $(BUILD_SHARED_LIBRARY)
+endif # dvm_arch!=mips
 
     # Devivation #3
     # Compile out the JIT
