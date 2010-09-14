@@ -88,7 +88,7 @@ else  # !dvm_make_debug_vm
   #LOCAL_CFLAGS += -DWITH_EXTRA_OBJECT_VALIDATION
   LOCAL_CFLAGS += -DDVM_SHOW_EXCEPTION=1
   # if you want to try with assertions on the device, add:
-  #LOCAL_CFLAGS += -UNDEBUG -DDEBUG=1 -DLOG_NDEBUG=1 -DWITH_DALVIK_ASSERT
+  LOCAL_CFLAGS += -UNDEBUG -DDEBUG=1 -DLOG_NDEBUG=1 -DWITH_DALVIK_ASSERT
 endif  # !dvm_make_debug_vm
 
 # bug hunting: checksum and verify interpreted stack when making JNI calls
