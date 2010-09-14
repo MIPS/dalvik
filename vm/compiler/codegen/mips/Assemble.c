@@ -20,7 +20,6 @@
 
 #include "../../CompilerInternals.h"
 #include "MipsLIR.h"
-#include <unistd.h>             /* for cacheflush */
 
 /*
  * opcode: ArmOpCode enum
@@ -1601,8 +1600,7 @@ assert(0); /* DRP cleanup/remove obsolete pseudo align */
     installDataContent(cUnit);
 
     /* Flush dcache and invalidate the icache to maintain coherence */
-    cacheflush((long)cUnit->baseAddr,
-               (long)((char *) cUnit->baseAddr + offset), 0);
+    __clear_cache((char *) cUnit->baseAddr, (char *) cUnit->baseAddr + offset);
 
     /* Record code entry point and instruction set */
     info->codeAddress = (char*)cUnit->baseAddr + cUnit->headerSize;
@@ -1660,7 +1658,7 @@ assert(1); /* DRP verify dvmJitChain() */
 
         newInst = assembleChainingBranch((int) tgtAddr & -2, 0);
         *branchAddr = newInst;
-        cacheflush((long)branchAddr, (long)branchAddr + 4, 0);
+        __clear_cache((char *) branchAddr, (char *) branchAddr + 4);
         gDvmJit.hasNewChain = true;
     }
 
@@ -1697,7 +1695,8 @@ assert(1); /* DRP verify inlineCachePatchEnqueue() */
          */
         MEM_BARRIER();
         cellAddr->clazz = newContent->clazz;
-        cacheflush((intptr_t) cellAddr, (intptr_t) (cellAddr+1), 0);
+        __clear_cache((char *) cellAddr, 
+                      (char *) cellAddr + sizeof(PredictedChainingCell));
 #if defined(WITH_JIT_TUNING)
         gDvmJit.icPatchFast++;
 #endif
@@ -1754,13 +1753,13 @@ assert(1); /* DRP in progress dvmJitToPatchPredictedChain() */
 #if defined(WITH_SELF_VERIFICATION)
     /* Disable chaining and prevent this from triggering again for a while */
     cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
-    cacheflush((long) cell, (long) (cell+1), 0);
+    __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
     goto done;
 #else
     /* Don't come back here for a long time if the method is native */
     if (dvmIsNativeMethod(method)) {
         cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
-        cacheflush((long) cell, (long) (cell+1), 0);
+        __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
         COMPILER_TRACE_CHAINING(
             LOGD("Jit Runtime: predicted chain %p to native method %s ignored",
                  cell, method->name));
@@ -1778,7 +1777,7 @@ assert(1); /* DRP in progress dvmJitToPatchPredictedChain() */
          * to setup the chain again.
          */
         cell->counter = PREDICTED_CHAIN_COUNTER_DELAY;
-        cacheflush((long) cell, (long) (cell+1), 0);
+        __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
         COMPILER_TRACE_CHAINING(
             LOGD("Jit Runtime: predicted chain %p to method %s%s delayed",
                  cell, method->clazz->descriptor, method->name));
@@ -1870,7 +1869,7 @@ assert(1); /* DRP retarg dvmCompilerPatchInlineCache() */
     }
 
     /* Then synchronize the I/D cache */
-    cacheflush((long) minAddr, (long) (maxAddr+1), 0);
+    __clear_cache((char *) minAddr, (char *) (maxAddr+1));
 
     gDvmJit.compilerICPatchIndex = 0;
     dvmUnlockMutex(&gDvmJit.compilerICPatchLock);
@@ -1886,7 +1885,7 @@ assert(1); /* DRP retarg dvmCompilerPatchInlineCache() */
 u4* dvmJitUnchain(void* codeAddr)
 {
 assert(1); /* DRP in progress verify dvmJitUnchain() */
-    u4* pChainCellOffset = (u2*)((char*)codeAddr - 4);
+    u4* pChainCellOffset = (u4*)((char*)codeAddr - 4);
     u4 chainCellOffset = *pChainCellOffset;
     ChainCellCounts *pChainCellCounts =
           (ChainCellCounts*)((char*)codeAddr + chainCellOffset - 4);
@@ -2006,7 +2005,9 @@ assert(1); /* DRP verify dvmJitUnchainAll() */
                     highAddress = lastAddress;
             }
         }
-        cacheflush((long)lowAddress, (long)highAddress, 0);
+        if (lowAddress != NULL) {
+            __clear_cache((char *)lowAddress, (char *)(highAddress+1));
+        }
         dvmUnlockMutex(&gDvmJit.tableLock);
         gDvmJit.translationChains = 0;
     }
