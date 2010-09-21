@@ -948,7 +948,7 @@ ArmEncodingMap EncodingMap[kArmLast] = {
                  "jalr", "!0r,!1r", 2),
     ENCODING_MAP(kMipsJr, 0x00000008,
                  kFmtBitBlt, 25, 21, kFmtUnused, -1, -1, kFmtUnused, -1, -1,
-                 kFmtUnused, -1, -1, IS_UNARY_OP | IS_BRANCH | REG_USE0 | REG_DEF_LR,
+                 kFmtUnused, -1, -1, IS_UNARY_OP | IS_BRANCH | REG_USE0,
                  "jr", "!0r", 2),
     ENCODING_MAP(kMipsLahi, 0x3C000000,
                  kFmtBitBlt, 20, 16, kFmtBitBlt, 15, 0, kFmtUnused, -1, -1,
@@ -1645,11 +1645,8 @@ assert(1); /* DRP verify dvmJitChain() */
      * suspend themselves via the interpreter.
      */
     if ((gDvmJit.pProfTable != NULL) && (gDvm.sumThreadSuspendCount == 0) &&
-        (gDvmJit.codeCacheFull == false)) {
-        /* ensure PC-region branch can be used */
-        assert((((intptr_t) tgtAddr) & 0xF0000000) == 
-               (((intptr_t) branchAddr) & 0xF0000000));
-
+        (gDvmJit.codeCacheFull == false) && 
+        ((((int) tgtAddr) & 0xF0000000) == (((int) branchAddr+4) & 0xF0000000))) {
         gDvmJit.translationChains++;
 
         COMPILER_TRACE_CHAINING(
@@ -1766,6 +1763,15 @@ assert(1); /* DRP in progress dvmJitToPatchPredictedChain() */
         goto done;
     }
     int tgtAddr = (int) dvmJitGetCodeAddr(method->insns);
+    int baseAddr = (int) cell + 4;   // PC is cur_addr + 4
+    if ((baseAddr & 0xF0000000) != (tgtAddr & 0xF0000000)) {
+        cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
+        __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
+        COMPILER_TRACE_CHAINING(
+            LOGD("Jit Runtime: predicted chain %p to distant target %s ignored",
+                 cell, method->name));
+        goto done;
+    }
 
     /*
      * Compilation not made yet for the callee. Reset the counter to a small
@@ -1788,10 +1794,6 @@ assert(1); /* DRP in progress dvmJitToPatchPredictedChain() */
 
     /* Avoid back-to-back orders to the same cell */
     cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
-
-    int baseAddr = (int) cell + 4;   // PC is cur_addr + 4
-    /* ensure PC-region branch can be used */
-    assert((baseAddr & 0xF0000000) == (tgtAddr & 0xF0000000));
     newCell.branch = assembleChainingBranch(tgtAddr, 0);
     newCell.delay_slot = getSkeleton(kMipsNop);
     newCell.clazz = clazz;

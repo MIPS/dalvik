@@ -349,22 +349,31 @@ assert(1); /* DRP verify genBoundsCheck() */
 }
 
 /*
- * Jump to the out-of-line handler in ARM mode to finish executing the
+ * Jump to the out-of-line handler to finish executing the
  * remaining of more complex instructions.
  */
 static void genDispatchToHandler(CompilationUnit *cUnit, TemplateOpCode opCode)
 {
-assert(1); /* DRP in progress genDispatchToHandler() */
+assert(1); /* DRP verify genDispatchToHandler() */
     /*
-     * NOTE - In practice BLX only needs one operand, but since the assembler
-     * may abort itself and retry due to other out-of-range conditions we
-     * cannot really use operand[0] to store the absolute target address since
-     * it may get clobbered by the final relative offset. Therefore,
-     * we fake BLX_1 is a two operand instruction and the absolute target
-     * address is stored in operand[1].
+     * We're jumping from a trace to a template. Using jal is preferable to jalr,
+     * but we need to ensure source and target addresses allow the use of jal.  
+     * This should almost always be the case, but if source and target are in 
+     * different 256mb regions then use jalr.  The test below is very conservative
+     * since we don't have a source address yet, but this is ok for now given that 
+     * we expect this case to be very rare. The test can be made less conservative 
+     * as needed in the future in coordination with address assignment during
+     * the assembly process.
      */
     dvmCompilerClobberHandlerRegs(cUnit);
-    newLIR1(cUnit, kMipsJal,
-            (int) gDvmJit.codeCache + templateEntryOffsets[opCode]);
+    int targetAddr = (int) gDvmJit.codeCache + templateEntryOffsets[opCode];
+    int maxSourceAddr = (int) gDvmJit.codeCache + gDvmJit.codeCacheSize;
+
+    if ((targetAddr & 0xF0000000) == (maxSourceAddr & 0xF0000000)) {
+        newLIR1(cUnit, kMipsJal, targetAddr);
+    } else {
+        loadConstant(cUnit, r_T9, targetAddr);
+        newLIR2(cUnit, kMipsJalr, r_RA, r_T9);
+    }
     newLIR0(cUnit, kMipsNop);
 }
