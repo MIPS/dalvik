@@ -2587,9 +2587,10 @@ assert(1); /* DRP verify handleFmt23x() */
  * jalr &findPackedSwitchIndex
  * nop
  * lw gp, 84(sp) |
- * addu          |16 bytes for these 4 instructions
- * jr            | 
- * move          |
+ * addu          | 20 bytes for these 5 instructions
+ * move          | (NOTE: if this sequence is shortened or lengthened, then
+ * jr            |  the 20 byte offset added below in 3 places must be changed 
+ * nop           |  accordingly.)
  * chaining cell for case 0 [16 bytes]
  * chaining cell for case 1 [16 bytes]
  *               :
@@ -2643,7 +2644,7 @@ assert(1); /* DRP verify findPackedSwitchIndex() */
         jumpIndex = index;
     }
 
-    return (((s8) caseDPCOffset) << 32) | (u8) (jumpIndex * 16 + 16);
+    return (((s8) caseDPCOffset) << 32) | (u8) (jumpIndex * 16 + 20);
 }
 
 /* See comments for findPackedSwitchIndex */
@@ -2693,12 +2694,12 @@ assert(1); /* DRP verify findSparseSwitchIndex() */
             /* MAX_CHAINED_SWITCH_CASES + 1 is the start of the overflow case */
             int jumpIndex = (i < MAX_CHAINED_SWITCH_CASES) ?
                            i : MAX_CHAINED_SWITCH_CASES + 1;
-            return (((s8) entries[i]) << 32) | (u8) (jumpIndex * 16 + 16);
+            return (((s8) entries[i]) << 32) | (u8) (jumpIndex * 16 + 20);
         } else if (k > testVal) {
             break;
         }
     }
-    return MIN(size, MAX_CHAINED_SWITCH_CASES) * 16 + 16;
+    return MIN(size, MAX_CHAINED_SWITCH_CASES) * 16 + 20;
 }
 
 static bool handleFmt31t(CompilationUnit *cUnit, MIR *mir)
@@ -2766,8 +2767,9 @@ assert(1); /* DRP verify handleFmt31t() */
             dvmCompilerClobberCallRegs(cUnit);
             /* pc <- computed goto target using value in RA */
             newLIR3(cUnit, kMipsAddu, r_A0, r_RA, r_V0); 
+            newLIR2(cUnit, kMipsMove, r_A1, r_V1);
             newLIR1(cUnit, kMipsJr, r_A0);
-            newLIR2(cUnit, kMipsMove, r_A1, r_V1); /* in delay slot */
+            newLIR0(cUnit, kMipsNop); /* for maintaining 20 byte offset */
             break;
         }
         default:
@@ -3482,7 +3484,6 @@ assert(1); /* DRP verify handleNormalChainingCell() */
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpNormal),
         rGLUE);
     newLIR2(cUnit, kMipsJalr, r_RA, r_A0);
-    newLIR0(cUnit, kMipsNop);
     addWordData(cUnit, (int) (cUnit->method->insns + offset), true);
 #endif
 }
@@ -3510,7 +3511,6 @@ assert(1); /* DRP verify handleHotChainingCell() */
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpTraceSelect),
         rGLUE);
     newLIR2(cUnit, kMipsJalr, r_RA, r_A0);
-    newLIR0(cUnit, kMipsNop);
     addWordData(cUnit, (int) (cUnit->method->insns + offset), true);
 #endif
 }
@@ -3558,7 +3558,6 @@ assert(1); /* DRP verify handleInvokeSingletonChainingCell() */
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpTraceSelect),
         rGLUE);
     newLIR2(cUnit, kMipsJalr, r_RA, r_A0);
-    newLIR0(cUnit, kMipsNop);
     addWordData(cUnit, (int) (callee->insns), true);
 #endif
 }
@@ -4122,10 +4121,8 @@ assert(0); /* DRP port profile support dvmCompilerMIR2LIR() */
         if (blockList[i]->blockType == kEntryBlock) {
             dvmCompilerAppendLIR(cUnit,
                                  (LIR *) cUnit->loopAnalysis->branchToBody);
-            dvmCompilerAppendLIR(cUnit, (LIR *) newLIR0(cUnit, kMipsNop));
             dvmCompilerAppendLIR(cUnit,
                                  (LIR *) cUnit->loopAnalysis->branchToPCR);
-            dvmCompilerAppendLIR(cUnit, (LIR *) newLIR0(cUnit, kMipsNop));
         }
 
         if (headLIR) {

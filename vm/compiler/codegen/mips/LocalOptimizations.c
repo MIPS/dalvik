@@ -502,7 +502,6 @@ static void applyLoadHoisting(CompilationUnit *cUnit,
 void dvmCompilerApplyLocalOptimizations(CompilationUnit *cUnit, LIR *headLIR,
                                         LIR *tailLIR)
 {
-return; /* DRP port dvmCompilerApplyLocalOptimizations() */
     if (!(gDvmJit.disableOpt & (1 << kLoadStoreElimination))) {
         applyLoadStoreElimination(cUnit, (ArmLIR *) headLIR,
                                   (ArmLIR *) tailLIR);

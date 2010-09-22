@@ -93,13 +93,14 @@ static inline void setupRegMask(u8 *mask, int reg)
 assert(1); /* DRP review setupRegMask() */
     u8 seed;
     int shift;
-    int regId = reg & 0x1f;
+    int regId = reg & 0x3f;
+    assert(regId <= r_PC); /* DRP fp not supported currently */
 
     /*
      * Each double register is equal to a pair of single-precision FP registers
      */
-    seed = DOUBLEREG(reg) ? 3 : 1;
-    /* FP register starts at bit position 16 */
+    seed = 1; // DOUBLEREG(reg) ? 3 : 1;
+    /* FP register starts at bit position 35 */
     shift = FPREG(reg) ? kFPReg0 : 0;
     /* Expand the double register id into single offset */
     shift += regId;
