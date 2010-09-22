@@ -62,14 +62,15 @@
  */
 
 /* Offset to distingish FP regs */
-#define FP_REG_OFFSET 32
+#define FP_REG_OFFSET 64
 /* Offset to distinguish DP FP regs */
-#define FP_DOUBLE 64
+#define FP_DOUBLE 128
 /* Reg types */
 #define REGTYPE(x) (x & (FP_REG_OFFSET | FP_DOUBLE))
 #define FPREG(x) ((x & FP_REG_OFFSET) == FP_REG_OFFSET)
 /* DRP cleanup #define LOWREG(x) ((x & 0x7) == x) */
-#define LOWREG(x) ((x & 0x1F) == x)
+/* #define LOWREG(x) ((x & 0x1F) == x) */
+#define LOWREG(x) ((x) <= r_PC)
 #define DOUBLEREG(x) ((x & FP_DOUBLE) == FP_DOUBLE)
 #define SINGLEREG(x) (FPREG(x) && !DOUBLEREG(x))
 /*
@@ -128,11 +129,13 @@ typedef struct RegisterPool {
 
 typedef enum ResourceEncodingPos {
     kGPReg0     = 0,
-    kRegSP      = 13,
-    kRegLR      = 14,
-    kRegPC      = 15,
-    kFPReg0     = 16,
-    kRegEnd     = 48,
+    kRegSP      = 29,
+    kRegLR      = 31,
+    kRegHI      = 32,
+    kRegLO      = 33,
+    kRegPC      = 34,
+    kFPReg0     = 35, /* pretend 16 fp regs -- not used currently */
+    kRegEnd     = 51,
     kCCode      = kRegEnd,
     kFPStatus,
     kDalvikReg,
@@ -312,6 +315,73 @@ typedef enum NativeRegisterPool {
     r_RA = 31,
     r_HI = 32,
     r_LO = 33,
+    r_PC = 34,
+
+    r_F0 = 0 + FP_REG_OFFSET,
+    r_F1,
+    r_F2,
+    r_F3,
+    r_F4,
+    r_F5,
+    r_F6,
+    r_F7,
+    r_F8,
+    r_F9,
+    r_F10,
+    r_F11,
+    r_F12,
+    r_F13,
+    r_F14,
+    r_F15,
+    r_F16,
+    r_F17,
+    r_F18,
+    r_F19,
+    r_F20,
+    r_F21,
+    r_F22,
+    r_F23,
+    r_F24,
+    r_F25,
+    r_F26,
+    r_F27,
+    r_F28,
+    r_F29,
+    r_F30,
+    r_F31,
+
+    r_DF0 = r_F0 + FP_DOUBLE,
+    r_DF1,
+    r_DF2,
+    r_DF3,
+    r_DF4,
+    r_DF5,
+    r_DF6,
+    r_DF7,
+    r_DF8,
+    r_DF9,
+    r_DF10,
+    r_DF11,
+    r_DF12,
+    r_DF13,
+    r_DF14,
+    r_DF15,
+    r_DF16,
+    r_DF17,
+    r_DF18,
+    r_DF19,
+    r_DF20,
+    r_DF21,
+    r_DF22,
+    r_DF23,
+    r_DF24,
+    r_DF25,
+    r_DF26,
+    r_DF27,
+    r_DF28,
+    r_DF29,
+    r_DF30,
+    r_DF31,
 } NativeRegisterPool;
 
 

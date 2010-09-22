@@ -155,7 +155,6 @@ assert(1); /* DRP cleanup opNone() */
             dvmCompilerAbort(cUnit);
     }
     res = newLIR0(cUnit, opCode);
-    newLIR0(cUnit, kMipsNop); /* DRP cleanup nop in branch delay */
     return res;
 }
 
@@ -175,7 +174,6 @@ static ArmLIR *opCondBranchMips(CompilationUnit *cUnit, ArmOpCode opc, int rs, i
       assert(opc == kMipsBeq || opc == kMipsBne);
       res = newLIR2(cUnit, opc, rs, rt);
     }
-    newLIR0(cUnit, kMipsNop);
     return res;
 }
 
@@ -214,8 +212,7 @@ assert(1); /* DRP verify opReg() */
             LOGE("Jit: bad case in opReg");
             dvmCompilerAbort(cUnit);
     }
-    newLIR2(cUnit, opCode, r_RA, rDestSrc);
-    return newLIR0(cUnit, kMipsNop);
+    return newLIR2(cUnit, opCode, r_RA, rDestSrc);
 }
 
 static ArmLIR *opRegRegImm(CompilationUnit *cUnit, OpKind op, int rDest,

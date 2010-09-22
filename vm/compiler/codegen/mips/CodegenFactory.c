@@ -375,5 +375,4 @@ assert(1); /* DRP verify genDispatchToHandler() */
         loadConstant(cUnit, r_T9, targetAddr);
         newLIR2(cUnit, kMipsJalr, r_RA, r_T9);
     }
-    newLIR0(cUnit, kMipsNop);
 }

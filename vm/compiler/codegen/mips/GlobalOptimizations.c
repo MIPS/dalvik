@@ -32,8 +32,7 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
 
         /* Branch to the next instruction */
         if (thisLIR->opCode == kMipsB) {
-            ArmLIR *delaySlotLIR = NEXT_LIR(thisLIR);
-            ArmLIR *nextLIR = delaySlotLIR;
+            ArmLIR *nextLIR = thisLIR;
 
             while (true) {
                 nextLIR = NEXT_LIR(nextLIR);
@@ -43,8 +42,6 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
                  */
                 if (nextLIR == (ArmLIR *) thisLIR->generic.target) {
                     thisLIR->isNop = true;
-                    if (delaySlotLIR->opCode == kMipsNop)
-                        delaySlotLIR->isNop = true;
                     break;
                 }
 
@@ -58,8 +55,44 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
     }
 }
 
+/*
+ * The branch delay slot has been ignored thus far.  This is the point where
+ * a useful instruction is moved into it or a nop is inserted.  Leave existing
+ * NOPs alone -- these came from sparse and packed switch ops and are needed
+ * to maintain the proper offset to the jump table.
+ */
+static void introduceBranchDelaySlot(CompilationUnit *cUnit)
+{
+    ArmLIR *thisLIR;
+
+    for (thisLIR = (ArmLIR *) cUnit->firstLIRInsn;
+         thisLIR != (ArmLIR *) cUnit->lastLIRInsn;
+         thisLIR = NEXT_LIR(thisLIR)) {
+        if (thisLIR->isNop)
+            continue;
+            
+        if (EncodingMap[thisLIR->opCode].flags & IS_BRANCH &&
+            NEXT_LIR(thisLIR)->opCode != kMipsNop) {
+            ArmLIR *nopLIR = dvmCompilerNew(sizeof(ArmLIR), true);
+            nopLIR->opCode = kMipsNop;
+            nopLIR->defMask = 0;
+            nopLIR->useMask = 0;
+            dvmCompilerInsertLIRAfter((LIR *) thisLIR, (LIR *) nopLIR);
+        }
+    }
+
+    if (EncodingMap[thisLIR->opCode].flags & IS_BRANCH) {
+        ArmLIR *nopLIR = dvmCompilerNew(sizeof(ArmLIR), true);
+        nopLIR->opCode = kMipsNop;
+        nopLIR->defMask = 0;
+        nopLIR->useMask = 0;
+        dvmCompilerAppendLIR(cUnit, (LIR *) nopLIR);
+    }
+}
+
 void dvmCompilerApplyGlobalOptimizations(CompilationUnit *cUnit)
 {
 /* DRP verify dvmCompilerApplyGlobalOptimizations() */
     applyRedundantBranchElimination(cUnit);
+    introduceBranchDelaySlot(cUnit);
 }
