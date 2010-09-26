@@ -1013,6 +1013,7 @@ assert(1); /* DRP verify genProcessArgsRange() */
          */
 
         newLIR2(cUnit, kMipsMove, r_T0, r_A0);
+        newLIR2(cUnit, kMipsMove, r_T1, r_S1);
 
         /* No need to generate the loop structure if numArgs <= 11 */
         if (numArgs > 11) {
@@ -1047,6 +1048,7 @@ assert(1); /* DRP verify genProcessArgsRange() */
     }
     if (numArgs >= 8) {
         newLIR2(cUnit, kMipsMove, r_A0, r_T0);
+        newLIR2(cUnit, kMipsMove, r_S1, r_T1);
     }
 
     /* Save the modulo 4 arguments */
@@ -2197,7 +2199,7 @@ assert(1); /* DRP activate OP_NEW_ARRAY case in  handleFmt22c() needs templates 
     }
     switch (dalvikOpCode) {
         case OP_NEW_ARRAY: {
-#if 1 /* 080 triggers assert in Interp.c:1290 for out of memory exception.
+#if 0 /* 080 triggers assert in Interp.c:1290 for out of memory exception.
              i think the assert is in error and should be disabled. With
              asserts disabled, 080 passes. */
 genInterpSingleStep(cUnit, mir);
@@ -2781,7 +2783,7 @@ assert(1); /* DRP verify handleFmt31t() */
 static bool handleFmt35c_3rc(CompilationUnit *cUnit, MIR *mir, BasicBlock *bb,
                              ArmLIR *labelList)
 {
-#if 1
+#if 0
 if (mir->dalvikInsn.opCode != OP_INVOKE_DIRECT_EMPTY) /* DRP nop */
   genInterpSingleStep(cUnit, mir);
 return false;
@@ -3036,6 +3038,7 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
             opReg(cUnit, kOpBlx, r_T9);
             newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
             /* r_V0 = calleeMethod (returned from dvmFindInterfaceMethodInCache */
+            genRegCopy(cUnit, r_A0, r_V0);
 
             dvmCompilerClobberCallRegs(cUnit);
             /* generate a branch over if the interface method is resolved */
@@ -3043,7 +3046,7 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
             opRegImm(cUnit, kOpCmp, r0, 0); /* NULL? */
             ArmLIR *branchOver = opCondBranch(cUnit, kArmCondNe);
 #else
-            ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
+            ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_A0, r_ZERO);
 #endif
             /*
              * calleeMethod == NULL -> throw
@@ -3126,7 +3129,7 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
 static bool handleFmt35ms_3rms(CompilationUnit *cUnit, MIR *mir,
                                BasicBlock *bb, ArmLIR *labelList)
 {
-#if 1
+#if 0
 genInterpSingleStep(cUnit, mir);
 return false;
 #else

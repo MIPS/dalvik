@@ -588,7 +588,7 @@ assert(1); /* DRP verify loadMultiple() */
 
     for (i = 0; i < 8; i++, rMask >>= 1) {
         if (rMask & 0x1) { /* map ARM r0 to MIPS r_A0 */
-            newLIR3(cUnit, kMipsLw, i+r_A0, i*4, rBase);
+            newLIR3(cUnit, kMipsLw, i+r_A0, loadCnt*4, rBase);
             loadCnt++;
         }
     }
@@ -615,7 +615,7 @@ assert(1); /* DRP verify storeMultiple() */
 
     for (i = 0; i < 8; i++, rMask >>= 1) {
         if (rMask & 0x1) { /* map ARM r0 to MIPS r_A0 */
-            newLIR3(cUnit, kMipsSw, i+r_A0, i*4, rBase);
+            newLIR3(cUnit, kMipsSw, i+r_A0, storeCnt*4, rBase);
             storeCnt++;
         }
     }
