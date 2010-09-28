@@ -16,7 +16,7 @@
 
 /*
  * This file contains codegen and support common to all supported
- * ARM variants.  It is included by:
+ * Mips variants.  It is included by:
  *
  *        Codegen-$(TARGET_ARCH_VARIANT).c
  *
@@ -27,7 +27,6 @@
 static bool genConversionCall(CompilationUnit *cUnit, MIR *mir, void *funct,
                                      int srcSize, int tgtSize)
 {
-assert(1); /* DRP verify genConversionCall() */
     /*
      * Don't optimize the register usage since it calls out to template
      * functions
@@ -65,7 +64,6 @@ static bool genArithOpFloatPortable(CompilationUnit *cUnit, MIR *mir,
                                     RegLocation rlDest, RegLocation rlSrc1,
                                     RegLocation rlSrc2)
 {
-assert(1); /* DRP verify genArithOpFloatPortable() */
     RegLocation rlResult;
     void* funct;
 
@@ -114,7 +112,6 @@ static bool genArithOpDoublePortable(CompilationUnit *cUnit, MIR *mir,
                                      RegLocation rlDest, RegLocation rlSrc1,
                                      RegLocation rlSrc2)
 {
-assert(1); /* DRP verify genArithOpDoublePortable() */
     RegLocation rlResult;
     void* funct;
 
@@ -160,7 +157,6 @@ assert(1); /* DRP verify genArithOpDoublePortable() */
 
 static bool genConversionPortable(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genConversionPortable() */
     OpCode opCode = mir->dalvikInsn.opCode;
 
     switch (opCode) {
@@ -191,11 +187,11 @@ assert(1); /* DRP verify genConversionPortable() */
 }
 
 #if defined(WITH_SELF_VERIFICATION)
-static void selfVerificationBranchInsert(LIR *currentLIR, ArmOpCode opCode,
+static void selfVerificationBranchInsert(LIR *currentLIR, MipsOpCode opCode,
                           int dest, int src1)
 {
-assert(0); /* DRP port selfVerificationBranchInsert() */
-     ArmLIR *insn = dvmCompilerNew(sizeof(ArmLIR), true);
+assert(0); /* MIPSTODO port selfVerificationBranchInsert() */
+     MipsLIR *insn = dvmCompilerNew(sizeof(MipsLIR), true);
      insn->opCode = opCode;
      insn->operands[0] = dest;
      insn->operands[1] = src1;
@@ -205,13 +201,13 @@ assert(0); /* DRP port selfVerificationBranchInsert() */
 
 static void selfVerificationBranchInsertPass(CompilationUnit *cUnit)
 {
-assert(0); /* DRP port selfVerificationBranchInsertPass() */
-    ArmLIR *thisLIR;
-    ArmLIR *branchLIR = dvmCompilerNew(sizeof(ArmLIR), true);
+assert(0); /* MIPSTODO port selfVerificationBranchInsertPass() */
+    MipsLIR *thisLIR;
+    MipsLIR *branchLIR = dvmCompilerNew(sizeof(MipsLIR), true);
     TemplateOpCode opCode = TEMPLATE_MEM_OP_DECODE;
 
-    for (thisLIR = (ArmLIR *) cUnit->firstLIRInsn;
-         thisLIR != (ArmLIR *) cUnit->lastLIRInsn;
+    for (thisLIR = (MipsLIR *) cUnit->firstLIRInsn;
+         thisLIR != (MipsLIR *) cUnit->lastLIRInsn;
          thisLIR = NEXT_LIR(thisLIR)) {
         if (thisLIR->branchInsertSV) {
             /* Branch to mem op decode template */
@@ -227,39 +223,26 @@ assert(0); /* DRP port selfVerificationBranchInsertPass() */
 #endif
 
 /* Generate conditional branch instructions */
-static ArmLIR *genConditionalBranch(CompilationUnit *cUnit,
-                                    ArmConditionCode cond,
-                                    ArmLIR *target)
+static MipsLIR *genConditionalBranchMips(CompilationUnit *cUnit,
+                                    MipsOpCode opc, int rs, int rt,
+                                    MipsLIR *target)
 {
-assert(0); /* DRP cleanup/replace genConditionalBranch() with genConditionalBranchMips() */
-    ArmLIR *branch = opCondBranch(cUnit, cond);
-    branch->generic.target = (LIR *) target;
-    return branch;
-}
-
-/* Generate conditional branch instructions */
-static ArmLIR *genConditionalBranchMips(CompilationUnit *cUnit,
-                                    ArmOpCode opc, int rs, int rt,
-                                    ArmLIR *target)
-{
-    ArmLIR *branch = opCondBranchMips(cUnit, opc, rs, rt);
+    MipsLIR *branch = opCondBranchMips(cUnit, opc, rs, rt);
     branch->generic.target = (LIR *) target;
     return branch;
 }
 
 /* Generate a unconditional branch to go to the interpreter */
-static inline ArmLIR *genTrap(CompilationUnit *cUnit, int dOffset,
-                                  ArmLIR *pcrLabel)
+static inline MipsLIR *genTrap(CompilationUnit *cUnit, int dOffset,
+                                  MipsLIR *pcrLabel)
 {
-assert(1); /* DRP verify genTrap() */
-    ArmLIR *branch = opNone(cUnit, kOpUncondBr);
+    MipsLIR *branch = opNone(cUnit, kOpUncondBr);
     return genCheckCommon(cUnit, dOffset, branch, pcrLabel);
 }
 
 /* Load a wide field from an object instance */
 static void genIGetWide(CompilationUnit *cUnit, MIR *mir, int fieldOffset)
 {
-assert(1); /* DRP verify genIGetWide() */
     DecodedInstruction *dInsn = &mir->dalvikInsn;
     RegLocation rlObj = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlDest = dvmCompilerGetDestWide(cUnit, mir, 0, 1);
@@ -285,7 +268,6 @@ assert(1); /* DRP verify genIGetWide() */
 /* Store a wide field to an object instance */
 static void genIPutWide(CompilationUnit *cUnit, MIR *mir, int fieldOffset)
 {
-assert(1); /* DRP verify genIPutWide() */
     DecodedInstruction *dInsn = &mir->dalvikInsn;
     RegLocation rlSrc = dvmCompilerGetSrcWide(cUnit, mir, 0, 1);
     RegLocation rlObj = dvmCompilerGetSrc(cUnit, mir, 2);
@@ -311,7 +293,6 @@ assert(1); /* DRP verify genIPutWide() */
 static void genIGet(CompilationUnit *cUnit, MIR *mir, OpSize size,
                     int fieldOffset)
 {
-assert(1); /* DRP verify genIGet() */
     int regPtr;
     RegLocation rlResult;
     DecodedInstruction *dInsn = &mir->dalvikInsn;
@@ -337,7 +318,6 @@ assert(1); /* DRP verify genIGet() */
 static void genIPut(CompilationUnit *cUnit, MIR *mir, OpSize size,
                     int fieldOffset)
 {
-assert(1); /* DRP verify genIPut() */
     DecodedInstruction *dInsn = &mir->dalvikInsn;
     RegLocation rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlObj = dvmCompilerGetSrc(cUnit, mir, 1);
@@ -360,7 +340,6 @@ static void genArrayGet(CompilationUnit *cUnit, MIR *mir, OpSize size,
                         RegLocation rlArray, RegLocation rlIndex,
                         RegLocation rlDest, int scale)
 {
-assert(1); /* DRP verify genArrayGet() */
     int lenOffset = offsetof(ArrayObject, length);
     int dataOffset = offsetof(ArrayObject, contents);
     RegLocation rlResult;
@@ -369,7 +348,7 @@ assert(1); /* DRP verify genArrayGet() */
     int regPtr;
 
     /* null object? */
-    ArmLIR * pcrLabel = NULL;
+    MipsLIR * pcrLabel = NULL;
 
     if (!(mir->OptimizationFlags & MIR_IGNORE_NULL_CHECK)) {
         pcrLabel = genNullCheck(cUnit, rlArray.sRegLow,
@@ -429,7 +408,6 @@ static void genArrayPut(CompilationUnit *cUnit, MIR *mir, OpSize size,
                         RegLocation rlArray, RegLocation rlIndex,
                         RegLocation rlSrc, int scale)
 {
-assert(1); /* DRP verify genArrayPut() */
     int lenOffset = offsetof(ArrayObject, length);
     int dataOffset = offsetof(ArrayObject, contents);
 
@@ -446,7 +424,7 @@ assert(1); /* DRP verify genArrayPut() */
     }
 
     /* null object? */
-    ArmLIR * pcrLabel = NULL;
+    MipsLIR * pcrLabel = NULL;
 
     if (!(mir->OptimizationFlags & MIR_IGNORE_NULL_CHECK)) {
         pcrLabel = genNullCheck(cUnit, rlArray.sRegLow, rlArray.lowReg,
@@ -504,7 +482,6 @@ static void genArrayObjectPut(CompilationUnit *cUnit, MIR *mir,
                               RegLocation rlArray, RegLocation rlIndex,
                               RegLocation rlSrc, int scale)
 {
-assert(1); /* DRP verify genArrayObjectPut() */
     int lenOffset = offsetof(ArrayObject, length);
     int dataOffset = offsetof(ArrayObject, contents);
 
@@ -523,7 +500,7 @@ assert(1); /* DRP verify genArrayObjectPut() */
     loadValueDirectFixed(cUnit, rlIndex, regIndex);
 
     /* null object? */
-    ArmLIR * pcrLabel = NULL;
+    MipsLIR * pcrLabel = NULL;
 
     if (!(mir->OptimizationFlags & MIR_IGNORE_NULL_CHECK)) {
         pcrLabel = genNullCheck(cUnit, rlArray.sRegLow, regArray,
@@ -547,12 +524,7 @@ assert(1); /* DRP verify genArrayObjectPut() */
     LOAD_FUNC_ADDR(cUnit, r_T9, (int)dvmCanPutArrayElement);
 
     /* Are we storing null?  If so, avoid check */
-#ifdef OLD_ARM
-    opRegImm(cUnit, kOpCmp, r0, 0);
-    ArmLIR *branchOver = opCondBranch(cUnit, kArmCondEq);
-#else
-    ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBeqz, r_A0, -1);
-#endif
+    MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBeqz, r_A0, -1);
 
     /* Make sure the types are compatible */
     loadWordDisp(cUnit, regArray, offsetof(Object, clazz), r_A1);
@@ -569,12 +541,12 @@ assert(1); /* DRP verify genArrayObjectPut() */
     dvmCompilerLockTemp(cUnit, r_A0);
 
     /* Bad? - roll back and re-execute if so */
-    genRegImmCheck(cUnit, kArmCondEq, r_V0, 0, mir->offset, pcrLabel);
+    genRegImmCheck(cUnit, kMipsCondEq, r_V0, 0, mir->offset, pcrLabel);
 
     /* Resume here - must reload element, regPtr & index preserved */
     loadValueDirectFixed(cUnit, rlSrc, r_A0);
 
-    ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+    MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
     target->defMask = ENCODE_ALL;
     branchOver->generic.target = (LIR *) target;
 
@@ -588,12 +560,6 @@ static bool genShiftOpLong(CompilationUnit *cUnit, MIR *mir,
                            RegLocation rlDest, RegLocation rlSrc1,
                            RegLocation rlShift)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else 
-assert(1); /* DRP verify genShiftOpLong() */
-#endif
     /*
      * Don't mess with the regsiters here as there is a particular calling
      * convention to the out-of-line handler.
@@ -627,12 +593,6 @@ static bool genArithOpLong(CompilationUnit *cUnit, MIR *mir,
                            RegLocation rlDest, RegLocation rlSrc1,
                            RegLocation rlSrc2)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify genArithOpLong() */
-#endif
     RegLocation rlResult;
     OpKind firstOp = kOpBkpt;
     OpKind secondOp = kOpBkpt;
@@ -724,7 +684,6 @@ static bool genArithOpInt(CompilationUnit *cUnit, MIR *mir,
                           RegLocation rlDest, RegLocation rlSrc1,
                           RegLocation rlSrc2)
 {
-assert(1); /* DRP verify genArithOpInt() */
     OpKind op = kOpBkpt;
     bool callOut = false;
     bool checkZero = false;
@@ -734,7 +693,7 @@ assert(1); /* DRP verify genArithOpInt() */
     RegLocation rlResult;
     bool shiftOp = false;
     int isDivRem = false;
-    ArmOpCode opc;
+    MipsOpCode opc;
     int divReg;
 
     switch (mir->dalvikInsn.opCode) {
@@ -840,7 +799,6 @@ assert(1); /* DRP verify genArithOpInt() */
 
 static bool genArithOp(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genArithOp() */
     OpCode opCode = mir->dalvikInsn.opCode;
     RegLocation rlDest;
     RegLocation rlSrc1;
@@ -898,10 +856,9 @@ assert(1); /* DRP verify genArithOp() */
 }
 
 /* Generate unconditional branch instructions */
-static ArmLIR *genUnconditionalBranch(CompilationUnit *cUnit, ArmLIR *target)
+static MipsLIR *genUnconditionalBranch(CompilationUnit *cUnit, MipsLIR *target)
 {
-assert(1); /* DRP verified genUnconditionalBranch() */
-    ArmLIR *branch = opNone(cUnit, kOpUncondBr);
+    MipsLIR *branch = opNone(cUnit, kOpUncondBr);
     branch->generic.target = (LIR *) target;
     return branch;
 }
@@ -909,16 +866,15 @@ assert(1); /* DRP verified genUnconditionalBranch() */
 /* Perform the actual operation for OP_RETURN_* */
 void genReturnCommon(CompilationUnit *cUnit, MIR *mir) 
 {
-assert(1); /* DRP verify genReturnCommon() */
     genDispatchToHandler(cUnit, TEMPLATE_RETURN);
 #if defined(JIT_STATS)
     gDvmJit.returnOp++;
 #endif
     int dPC = (int) (cUnit->method->insns + mir->offset);
     /* Insert branch, but defer setting of target */
-    ArmLIR *branch = genUnconditionalBranch(cUnit, NULL);
+    MipsLIR *branch = genUnconditionalBranch(cUnit, NULL);
     /* Set up the place holder to reconstruct this Dalvik PC */
-    ArmLIR *pcrLabel = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *pcrLabel = dvmCompilerNew(sizeof(MipsLIR), true);
     pcrLabel->opCode = kMipsPseudoPCReconstructionCell;
     pcrLabel->operands[0] = dPC;
     pcrLabel->operands[1] = mir->offset;
@@ -930,9 +886,8 @@ assert(1); /* DRP verify genReturnCommon() */
 
 static void genProcessArgsNoRange(CompilationUnit *cUnit, MIR *mir,
                                   DecodedInstruction *dInsn,
-                                  ArmLIR **pcrLabel)
+                                  MipsLIR **pcrLabel)
 {
-assert(1); /* DRP verify genProcessArgsNoRange() */
     unsigned int i;
     unsigned int regMask = 0;
     RegLocation rlArg;
@@ -964,9 +919,8 @@ assert(1); /* DRP verify genProcessArgsNoRange() */
 
 static void genProcessArgsRange(CompilationUnit *cUnit, MIR *mir,
                                 DecodedInstruction *dInsn,
-                                ArmLIR **pcrLabel)
+                                MipsLIR **pcrLabel)
 {
-assert(1); /* DRP verify genProcessArgsRange() */
     int srcOffset = dInsn->vC << 2;
     int numArgs = dInsn->vA;
     int regMask;
@@ -1006,7 +960,7 @@ assert(1); /* DRP verify genProcessArgsRange() */
      * store previously loaded 4 values and load the next 4 values
      */
     if (numArgs >= 8) {
-        ArmLIR *loopLabel = NULL;
+        MipsLIR *loopLabel = NULL;
         /*
          * r_A0 contains "this" and it will be used later, so push it to the stack
          * first. Pushing r_S1 (rFP) is just for stack alignment purposes.
@@ -1062,22 +1016,21 @@ assert(1); /* DRP verify genProcessArgsRange() */
  * is not a native method.
  */
 static void genInvokeSingletonCommon(CompilationUnit *cUnit, MIR *mir,
-                                     BasicBlock *bb, ArmLIR *labelList,
-                                     ArmLIR *pcrLabel,
+                                     BasicBlock *bb, MipsLIR *labelList,
+                                     MipsLIR *pcrLabel,
                                      const Method *calleeMethod)
 {
-assert(1); /* DRP verify genInvokeSingletonCommon() */
     /*
      * Note: all Dalvik register state should be flushed to
      * memory by the point, so register usage restrictions no
      * longer apply.  All temp & preserved registers may be used.
      */
     dvmCompilerLockAllTemps(cUnit);
-    ArmLIR *retChainingCell = &labelList[bb->fallThrough->id];
+    MipsLIR *retChainingCell = &labelList[bb->fallThrough->id];
 
     /* r_A1 = &retChainingCell */
     dvmCompilerLockTemp(cUnit, r_A1);
-    ArmLIR *addrRetChain = newLIR2(cUnit, kMipsLahi, r_A1, 0);
+    MipsLIR *addrRetChain = newLIR2(cUnit, kMipsLahi, r_A1, 0);
     addrRetChain->generic.target = (LIR *) retChainingCell;
     addrRetChain = newLIR3(cUnit, kMipsLalo, r_A1, r_A1, 0);
     addrRetChain->generic.target = (LIR *) retChainingCell;
@@ -1129,11 +1082,10 @@ assert(1); /* DRP verify genInvokeSingletonCommon() */
  */
 static void genInvokeVirtualCommon(CompilationUnit *cUnit, MIR *mir,
                                    int methodIndex,
-                                   ArmLIR *retChainingCell,
-                                   ArmLIR *predChainingCell,
-                                   ArmLIR *pcrLabel)
+                                   MipsLIR *retChainingCell,
+                                   MipsLIR *predChainingCell,
+                                   MipsLIR *pcrLabel)
 {
-assert(1); /* DRP verify genInvokeVirtualCommon() */
     /*
      * Note: all Dalvik register state should be flushed to
      * memory by the point, so register usage restrictions no
@@ -1149,13 +1101,13 @@ assert(1); /* DRP verify genInvokeVirtualCommon() */
                  (int) (cUnit->method->insns + mir->offset));
 
     /* r_A1 = &retChainingCell */
-    ArmLIR *addrRetChain = newLIR2(cUnit, kMipsLahi, r_A1, 0);
+    MipsLIR *addrRetChain = newLIR2(cUnit, kMipsLahi, r_A1, 0);
     addrRetChain->generic.target = (LIR *) retChainingCell;
     addrRetChain = newLIR3(cUnit, kMipsLalo, r_A1, r_A1, 0);
     addrRetChain->generic.target = (LIR *) retChainingCell;
 
     /* r_A2 = &predictedChainingCell */
-    ArmLIR *predictedChainingCell = newLIR2(cUnit, kMipsLahi, r_A2, 0);
+    MipsLIR *predictedChainingCell = newLIR2(cUnit, kMipsLahi, r_A2, 0);
     predictedChainingCell->generic.target = (LIR *) predChainingCell;
     predictedChainingCell = newLIR3(cUnit, kMipsLalo, r_A2, r_A2, 0);
     predictedChainingCell->generic.target = (LIR *) predChainingCell;
@@ -1171,7 +1123,7 @@ assert(1); /* DRP verify genInvokeVirtualCommon() */
      */
     if (pcrLabel == NULL) {
         int dPC = (int) (cUnit->method->insns + mir->offset);
-        pcrLabel = dvmCompilerNew(sizeof(ArmLIR), true);
+        pcrLabel = dvmCompilerNew(sizeof(MipsLIR), true);
         pcrLabel->opCode = kMipsPseudoPCReconstructionCell;
         pcrLabel->operands[0] = dPC;
         pcrLabel->operands[1] = mir->offset;
@@ -1195,12 +1147,7 @@ assert(1); /* DRP verify genInvokeVirtualCommon() */
     loadWordDisp(cUnit, r_S4, methodIndex * 4, r_A0);
 
     /* Check if rechain limit is reached */
-#ifdef OLD_ARM
-    opRegImm(cUnit, kOpCmp, r1, 0);
-    ArmLIR *bypassRechaining = opCondBranch(cUnit, kArmCondGt);
-#else
-    ArmLIR *bypassRechaining = opCondBranchMips(cUnit, kMipsBgtz, r_A1, -1);
-#endif
+    MipsLIR *bypassRechaining = opCondBranchMips(cUnit, kMipsBgtz, r_A1, -1);
 
     loadWordDisp(cUnit, rGLUE, offsetof(InterpState,
                  jitToInterpEntries.dvmJitToPatchPredictedChain), r_T9);
@@ -1247,12 +1194,11 @@ assert(1); /* DRP verify genInvokeVirtualCommon() */
  * The return LIR is a branch based on the comparison result. The actual branch
  * target will be setup in the caller.
  */
-static ArmLIR *genCheckPredictedChain(CompilationUnit *cUnit,
-                                          ArmLIR *predChainingCell,
-                                          ArmLIR *retChainingCell,
+static MipsLIR *genCheckPredictedChain(CompilationUnit *cUnit,
+                                          MipsLIR *predChainingCell,
+                                          MipsLIR *retChainingCell,
                                           MIR *mir)
 {
-assert(1); /* DRP verify genCheckPredictedChain() */
     /*
      * Note: all Dalvik register state should be flushed to
      * memory by the point, so register usage restrictions no
@@ -1267,7 +1213,7 @@ assert(1); /* DRP verify genCheckPredictedChain() */
      * a2 now contains predicted class. The starting offset of the
      * cached value is 8 bytes into the chaining cell.
      */
-    ArmLIR *getPredictedClass = newLIR2(cUnit, kMipsLahi, r_A2, 0);
+    MipsLIR *getPredictedClass = newLIR2(cUnit, kMipsLahi, r_A2, 0);
     getPredictedClass->generic.target = (LIR *) predChainingCell;
     getPredictedClass = newLIR3(cUnit, kMipsLalo, r_A2, r_A2, 0);
     getPredictedClass->generic.target = (LIR *) predChainingCell;
@@ -1277,14 +1223,14 @@ assert(1); /* DRP verify genCheckPredictedChain() */
      * r_A0 now contains predicted method. The starting offset of the
      * cached value is 12 bytes into the chaining cell.
      */
-    ArmLIR *getPredictedMethod = newLIR2(cUnit, kMipsLahi, r_A0, 0);
+    MipsLIR *getPredictedMethod = newLIR2(cUnit, kMipsLahi, r_A0, 0);
     getPredictedMethod->generic.target = (LIR *) predChainingCell;
     getPredictedMethod = newLIR3(cUnit, kMipsLalo, r_A0, r_A0, 0);
     getPredictedMethod->generic.target = (LIR *) predChainingCell;
     newLIR3(cUnit, kMipsAddiu, r_A0, r_A0, offsetof(PredictedChainingCell, method));
 
     /* Load the stats counter to see if it is time to unchain and refresh */
-    ArmLIR *getRechainingRequestCount = newLIR2(cUnit, kMipsLahi, r_S4, 0);
+    MipsLIR *getRechainingRequestCount = newLIR2(cUnit, kMipsLahi, r_S4, 0);
     getRechainingRequestCount->generic.target = (LIR *) predChainingCell;
     getRechainingRequestCount = newLIR3(cUnit, kMipsLalo, r_S4, r_S4, 0);
     getRechainingRequestCount->generic.target = (LIR *) predChainingCell;
@@ -1295,28 +1241,22 @@ assert(1); /* DRP verify genCheckPredictedChain() */
                  (int) (cUnit->method->insns + mir->offset));
 
     /* r_A1 = &retChainingCell */
-    ArmLIR *addrRetChain = newLIR2(cUnit, kMipsLahi, r_A1, 0);
+    MipsLIR *addrRetChain = newLIR2(cUnit, kMipsLahi, r_A1, 0);
     addrRetChain->generic.target = (LIR *) retChainingCell;
     addrRetChain = newLIR3(cUnit, kMipsLalo, r_A1, r_A1, 0);
     addrRetChain->generic.target = (LIR *) retChainingCell;
 
     /* Check if r2 (predicted class) == r3 (actual class) */
-#ifdef OLD_ARM
-    opRegReg(cUnit, kOpCmp, r2, r3);
-    return opCondBranch(cUnit, kArmCondEq);
-#else
     return opCondBranchMips(cUnit, kMipsBeq, r_A2, r_A3);
-#endif
 }
 
 /* Geneate a branch to go back to the interpreter */
 static void genPuntToInterp(CompilationUnit *cUnit, unsigned int offset)
 {
-assert(1); /* DRP verify genPuntToInterp() */
     /* a0 = dalvik pc */
     dvmCompilerFlushAllRegs(cUnit);
     loadConstant(cUnit, r_A0, (int) (cUnit->method->insns + offset));
-#if 0 /* DRP tempoary workaround unaligned access on sigma hardware
+#if 0 /* MIPSTODO tempoary workaround unaligned access on sigma hardware
              this can removed when we're not punting to genInterpSingleStep 
              for opcodes that haven't been activated yet */
     loadWordDisp(cUnit, r_A0, offsetof(Object, clazz), r_A3);
@@ -1325,16 +1265,6 @@ assert(1); /* DRP verify genPuntToInterp() */
                  jitToInterpEntries.dvmJitToInterpPunt), r_A1);
 
     opReg(cUnit, kOpBlx, r_A1);
-
-#ifdef OLD_ARM
-    /* r0 = dalvik pc */
-    dvmCompilerFlushAllRegs(cUnit);
-    loadConstant(cUnit, r0, (int) (cUnit->method->insns + offset));
-    loadWordDisp(cUnit, r0, offsetof(Object, clazz), r3);
-    loadWordDisp(cUnit, rGLUE, offsetof(InterpState,
-                 jitToInterpEntries.dvmJitToInterpPunt), r1);
-    opReg(cUnit, kOpBlx, r1);
-#endif
 }
 
 /*
@@ -1343,7 +1273,6 @@ assert(1); /* DRP verify genPuntToInterp() */
  */
 static void genInterpSingleStep(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genInterpSingleStep() */
     int flags = dexGetInstrFlags(gDvm.instrFlags, mir->dalvikInsn.opCode);
     int flagsToCheck = kInstrCanBranch | kInstrCanSwitch | kInstrCanReturn |
                        kInstrCanThrow;
@@ -1361,21 +1290,12 @@ assert(1); /* DRP verify genInterpSingleStep() */
     }
     int entryAddr = offsetof(InterpState,
                              jitToInterpEntries.dvmJitToInterpSingleStep);
-#ifdef OLD_ARM
-    loadWordDisp(cUnit, rGLUE, entryAddr, r2);
-    /* r0 = dalvik pc */
-    loadConstant(cUnit, r0, (int) (cUnit->method->insns + mir->offset));
-    /* r1 = dalvik pc of following instruction */
-    loadConstant(cUnit, r1, (int) (cUnit->method->insns + mir->next->offset));
-    opReg(cUnit, kOpBlx, r2);
-#else
     loadWordDisp(cUnit, rGLUE, entryAddr, r_A2);
     /* a0 = dalvik pc */
     loadConstant(cUnit, r_A0, (int) (cUnit->method->insns + mir->offset));
     /* a1 = dalvik pc of following instruction */
     loadConstant(cUnit, r_A1, (int) (cUnit->method->insns + mir->next->offset));
     opReg(cUnit, kOpBlx, r_A2);
-#endif
 }
 
 /*
@@ -1391,7 +1311,6 @@ assert(1); /* DRP verify genInterpSingleStep() */
  */
 static void genMonitorPortable(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genMonitorPortable() needs templates */
     bool isEnter = (mir->dalvikInsn.opCode == OP_MONITOR_ENTER);
     genExportPC(cUnit, mir);
     dvmCompilerFlushAllRegs(cUnit);   /* Send everything to home location */
@@ -1414,12 +1333,12 @@ assert(1); /* DRP verify genMonitorPortable() needs templates */
         opReg(cUnit, kOpBlx, r_T9);
         newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
         /* Did we throw? */
-        ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
+        MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
         loadConstant(cUnit, r_A0,
                      (int) (cUnit->method->insns + mir->offset +
                      dexGetInstrWidthAbs(gDvm.instrWidth, OP_MONITOR_EXIT)));
         genDispatchToHandler(cUnit, TEMPLATE_THROW_EXCEPTION_COMMON);
-        ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+        MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
         target->defMask = ENCODE_ALL;
         branchOver->generic.target = (LIR *) target;
         dvmCompilerClobberCallRegs(cUnit);
@@ -1433,9 +1352,8 @@ assert(1); /* DRP verify genMonitorPortable() needs templates */
  */
 
 static bool handleFmt10t_Fmt20t_Fmt30t(CompilationUnit *cUnit, MIR *mir,
-                                       BasicBlock *bb, ArmLIR *labelList)
+                                       BasicBlock *bb, MipsLIR *labelList)
 {
-assert(1); /* DRP verified handleFmt10t_Fmt20t_Fmt30t() */
     /* For OP_GOTO, OP_GOTO_16, and OP_GOTO_32 */
     genUnconditionalBranch(cUnit, &labelList[bb->taken->id]);
     return false;
@@ -1443,7 +1361,6 @@ assert(1); /* DRP verified handleFmt10t_Fmt20t_Fmt30t() */
 
 static bool handleFmt10x(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify handleFmt10x */
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
     if (((dalvikOpCode >= OP_UNUSED_3E) && (dalvikOpCode <= OP_UNUSED_43)) ||
         ((dalvikOpCode >= OP_UNUSED_E3) && (dalvikOpCode <= OP_UNUSED_EB))) {
@@ -1469,7 +1386,6 @@ assert(1); /* DRP verify handleFmt10x */
 
 static bool handleFmt11n_Fmt31i(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify handleFmt11n_Fmt31i() */
     RegLocation rlDest;
     RegLocation rlResult;
     if (mir->ssaRep->numDefs == 2) {
@@ -1504,7 +1420,6 @@ assert(1); /* DRP verify handleFmt11n_Fmt31i() */
 
 static bool handleFmt21h(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify handleFmt21h() */
     RegLocation rlDest;
     RegLocation rlResult;
     if (mir->ssaRep->numDefs == 2) {
@@ -1535,7 +1450,6 @@ assert(1); /* DRP verify handleFmt21h() */
 
 static bool handleFmt20bc(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verified handleFmt20bc() */
     /* For OP_THROW_VERIFICATION_ERROR */
     genInterpSingleStep(cUnit, mir);
     return false;
@@ -1543,7 +1457,6 @@ assert(1); /* DRP verified handleFmt20bc() */
 
 static bool handleFmt21c_Fmt31c(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP activate OP_NEW_INSTANCE case handleFmt21c_Fmt31c() needs templates */
     RegLocation rlResult;
     RegLocation rlDest;
     RegLocation rlSrc;
@@ -1670,7 +1583,7 @@ assert(1); /* DRP activate OP_NEW_INSTANCE case handleFmt21c_Fmt31c() needs temp
             newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
             dvmCompilerClobberCallRegs(cUnit);
             /* generate a branch over if allocation is successful */
-            ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
+            MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
 
             /*
              * OOM exception needs to be thrown here and cannot re-execute
@@ -1680,7 +1593,7 @@ assert(1); /* DRP activate OP_NEW_INSTANCE case handleFmt21c_Fmt31c() needs temp
             genDispatchToHandler(cUnit, TEMPLATE_THROW_EXCEPTION_COMMON);
             /* noreturn */
 
-            ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+            MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
             target->defMask = ENCODE_ALL;
             branchOver->generic.target = (LIR *) target;
             rlDest = dvmCompilerGetDest(cUnit, mir, 0);
@@ -1712,7 +1625,7 @@ assert(1); /* DRP activate OP_NEW_INSTANCE case handleFmt21c_Fmt31c() needs temp
             loadConstant(cUnit, r_A1, (int) classPtr );
             rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
             rlSrc = loadValue(cUnit, rlSrc, kCoreReg);
-            ArmLIR *branch1 = opCondBranchMips(cUnit, kMipsBeqz, rlSrc.lowReg, -1);
+            MipsLIR *branch1 = opCondBranchMips(cUnit, kMipsBeqz, rlSrc.lowReg, -1);
             /*
              *  rlSrc.lowReg now contains object->clazz.  Note that
              *  it could have been allocated r_A0, but we're okay so long
@@ -1722,7 +1635,7 @@ assert(1); /* DRP activate OP_NEW_INSTANCE case handleFmt21c_Fmt31c() needs temp
             /* r_A0 now contains object->clazz */
             loadWordDisp(cUnit, rlSrc.lowReg, offsetof(Object, clazz), r_A0);
             LOAD_FUNC_ADDR(cUnit, r_T9, (int)dvmInstanceofNonTrivial);
-            ArmLIR *branch2 = opCondBranchMips(cUnit, kMipsBeq, r_A0, r_A1);
+            MipsLIR *branch2 = opCondBranchMips(cUnit, kMipsBeq, r_A0, r_A1);
             opReg(cUnit, kOpBlx, r_T9);
             newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
             dvmCompilerClobberCallRegs(cUnit);
@@ -1731,10 +1644,10 @@ assert(1); /* DRP activate OP_NEW_INSTANCE case handleFmt21c_Fmt31c() needs temp
              * interpreter will be the one throwing, we don't need to
              * genExportPC() here.
              */
-            genRegCopy(cUnit, r_A0, r_V0); /* ??? DRP cleanup: remove a0==v0 if possible */
+            genRegCopy(cUnit, r_A0, r_V0);
             genZeroCheck(cUnit, r_V0, mir->offset, NULL);
             /* check cast passed - branch target here */
-            ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+            MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
             target->defMask = ENCODE_ALL;
             branch1->generic.target = (LIR *)target;
             branch2->generic.target = (LIR *)target;
@@ -1748,7 +1661,6 @@ assert(1); /* DRP activate OP_NEW_INSTANCE case handleFmt21c_Fmt31c() needs temp
 
 static bool handleFmt11x(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1);  /* DRP verify handleFmt11x() */
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
     RegLocation rlResult;
     switch (dalvikOpCode) {
@@ -1818,7 +1730,6 @@ assert(1);  /* DRP verify handleFmt11x() */
 
 static bool handleFmt12x(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify handleFmt12x() */
     OpCode opCode = mir->dalvikInsn.opCode;
     RegLocation rlDest;
     RegLocation rlSrc;
@@ -1920,7 +1831,6 @@ assert(1); /* DRP verify handleFmt12x() */
 
 static bool handleFmt21s(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify handleFmt21s() */
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
     RegLocation rlDest;
     RegLocation rlResult;
@@ -1944,11 +1854,10 @@ assert(1); /* DRP verify handleFmt21s() */
 
 /* Compare agaist zero */
 static bool handleFmt21t(CompilationUnit *cUnit, MIR *mir, BasicBlock *bb,
-                         ArmLIR *labelList)
+                         MipsLIR *labelList)
 {
-assert(1); /* DRP verify handleFmt21t() */
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
-    ArmOpCode opc;
+    MipsOpCode opc;
     int rt = -1;
 
     RegLocation rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
@@ -1987,21 +1896,18 @@ assert(1); /* DRP verify handleFmt21t() */
 
 static bool isPowerOfTwo(int x)
 {
-assert(1); /* DRP verified isPowerOfTwo() */
     return (x & (x - 1)) == 0;
 }
 
 // Returns true if no more than two bits are set in 'x'.
 static bool isPopCountLE2(unsigned int x)
 {
-assert(1); /* DRP verified isPopCountLE2() */
     x &= x - 1;
     return (x & (x - 1)) == 0;
 }
 
 // Returns the index of the lowest set bit in 'x'.
 static int lowestSetBit(unsigned int x) {
-assert(1); /* DRP verified lowestSetBit() */
     int bit_posn = 0;
     while ((x & 0xf) == 0) {
         bit_posn += 4;
@@ -2019,7 +1925,6 @@ assert(1); /* DRP verified lowestSetBit() */
 static bool handleEasyMultiply(CompilationUnit *cUnit,
                                RegLocation rlSrc, RegLocation rlDest, int lit)
 {
-assert(1); /* DRP verify handleEasyMultiply() */
     // Can we simplify this multiplication?
     bool powerOfTwo = false;
     bool popCountLE2 = false;
@@ -2062,7 +1967,6 @@ assert(1); /* DRP verify handleEasyMultiply() */
 
 static bool handleFmt22b_Fmt22s(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify handleFmt22b_Fmt22s() */
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
     RegLocation rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlDest = dvmCompilerGetDest(cUnit, mir, 0);
@@ -2138,7 +2042,7 @@ assert(1); /* DRP verify handleFmt22b_Fmt22s() */
                 return false;
             }
 
-            ArmOpCode opc;
+            MipsOpCode opc;
             int divReg;  
 
             if ((dalvikOpCode == OP_DIV_INT_LIT8) ||
@@ -2178,12 +2082,6 @@ assert(1); /* DRP verify handleFmt22b_Fmt22s() */
 
 static bool handleFmt22c(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0 
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP activate OP_NEW_ARRAY case in  handleFmt22c() needs templates */
-#endif
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
     int fieldOffset;
 
@@ -2221,19 +2119,14 @@ return false;
              * "len < 0": bail to the interpreter to re-execute the
              * instruction
              */
-            ArmLIR *pcrLabel =
-                genRegImmCheck(cUnit, kArmCondMi, r_A1, 0, mir->offset, NULL);
+            MipsLIR *pcrLabel =
+                genRegImmCheck(cUnit, kMipsCondMi, r_A1, 0, mir->offset, NULL);
             loadConstant(cUnit, r_A2, ALLOC_DONT_TRACK);
             opReg(cUnit, kOpBlx, r_T9);
             newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
             dvmCompilerClobberCallRegs(cUnit);
             /* generate a branch over if allocation is successful */
-#ifdef OLD_ARM 
-            opRegImm(cUnit, kOpCmp, r0, 0); /* NULL? */
-            ArmLIR *branchOver = opCondBranch(cUnit, kArmCondNe);
-#else
-            ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
-#endif
+            MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
             /*
              * OOM exception needs to be thrown here and cannot re-execute
              */
@@ -2242,7 +2135,7 @@ return false;
             genDispatchToHandler(cUnit, TEMPLATE_THROW_EXCEPTION_COMMON);
             /* noreturn */
 
-            ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+            MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
             target->defMask = ENCODE_ALL;
             branchOver->generic.target = (LIR *) target;
             rlResult = dvmCompilerGetReturn(cUnit);
@@ -2273,32 +2166,21 @@ return false;
             loadValueDirectFixed(cUnit, rlSrc, r_V0);  /* Ref */
             loadConstant(cUnit, r_A2, (int) classPtr );
 //TUNING: compare to 0 primative to allow use of CB[N]Z
-#ifdef OLD_ARM
-            opRegImm(cUnit, kOpCmp, r0, 0); /* NULL? */
-            /* When taken r0 has NULL which can be used for store directly */
-            ArmLIR *branch1 = opCondBranch(cUnit, kArmCondEq);
-#else
             /* When taken r_V0 has NULL which can be used for store directly */
-            ArmLIR *branch1 = opCondBranchMips(cUnit, kMipsBeqz, r_V0, -1);
-#endif
+            MipsLIR *branch1 = opCondBranchMips(cUnit, kMipsBeqz, r_V0, -1);
             /* r_A1 now contains object->clazz */
             loadWordDisp(cUnit, r_V0, offsetof(Object, clazz), r_A1);
             /* r_A1 now contains object->clazz */
             LOAD_FUNC_ADDR(cUnit, r_T9, (int)dvmInstanceofNonTrivial);
             loadConstant(cUnit, r_V0, 1);                /* Assume true */
-#ifdef OLD_ARM
-            opRegReg(cUnit, kOpCmp, r1, r2);
-            ArmLIR *branch2 = opCondBranch(cUnit, kArmCondEq);
-#else
-            ArmLIR *branch2 = opCondBranchMips(cUnit, kMipsBeq, r_A1, r_A2);
-#endif
+            MipsLIR *branch2 = opCondBranchMips(cUnit, kMipsBeq, r_A1, r_A2);
             genRegCopy(cUnit, r_A0, r_A1);
             genRegCopy(cUnit, r_A1, r_A2);
             opReg(cUnit, kOpBlx, r_T9);
             newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
             dvmCompilerClobberCallRegs(cUnit);
             /* branch target here */
-            ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+            MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
             target->defMask = ENCODE_ALL;
             rlResult = dvmCompilerGetReturn(cUnit);
             storeValue(cUnit, rlDest, rlResult);
@@ -2348,12 +2230,6 @@ return false;
 
 static bool handleFmt22cs(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0 
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleFmt22cs() */
-#endif
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
     int fieldOffset =  mir->dalvikInsn.vC;
     switch (dalvikOpCode) {
@@ -2379,18 +2255,12 @@ assert(1); /* DRP verify handleFmt22cs() */
 }
 
 static bool handleFmt22t(CompilationUnit *cUnit, MIR *mir, BasicBlock *bb,
-                         ArmLIR *labelList)
+                         MipsLIR *labelList)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleFmt22t() */
-#endif
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
-    ArmConditionCode cond;
-    ArmOpCode opc;
-    ArmLIR * test = NULL;
+    MipsConditionCode cond;
+    MipsOpCode opc;
+    MipsLIR * test = NULL;
     RegLocation rlSrc1 = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlSrc2 = dvmCompilerGetSrc(cUnit, mir, 1);
     rlSrc1 = loadValue(cUnit, rlSrc1, kCoreReg);
@@ -2448,12 +2318,6 @@ assert(1); /* DRP verify handleFmt22t() */
 
 static bool handleFmt22x_Fmt32x(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleFmt22x_Fmt32x() */
-#endif
     OpCode opCode = mir->dalvikInsn.opCode;
 
     switch (opCode) {
@@ -2479,12 +2343,6 @@ assert(1); /* DRP verify handleFmt22x_Fmt32x() */
 
 static bool handleFmt23x(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleFmt23x() */
-#endif
     OpCode opCode = mir->dalvikInsn.opCode;
     RegLocation rlSrc1;
     RegLocation rlSrc2;
@@ -2602,7 +2460,6 @@ assert(1); /* DRP verify handleFmt23x() */
  */
 static s8 findPackedSwitchIndex(const u2* switchData, int testVal)
 {
-assert(1); /* DRP verify findPackedSwitchIndex() */
     int size;
     int firstKey;
     const int *entries;
@@ -2652,7 +2509,6 @@ assert(1); /* DRP verify findPackedSwitchIndex() */
 /* See comments for findPackedSwitchIndex */
 static s8 findSparseSwitchIndex(const u2* switchData, int testVal)
 {
-assert(1); /* DRP verify findSparseSwitchIndex() */
     int size;
     const int *keys;
     const int *entries;
@@ -2706,12 +2562,6 @@ assert(1); /* DRP verify findSparseSwitchIndex() */
 
 static bool handleFmt31t(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleFmt31t() */
-#endif
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
     switch (dalvikOpCode) {
         case OP_FILL_ARRAY_DATA: {
@@ -2727,16 +2577,11 @@ assert(1); /* DRP verify handleFmt31t() */
             newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
             dvmCompilerClobberCallRegs(cUnit);
             /* generate a branch over if successful */
-#ifdef OLD_ARM
-            opRegImm(cUnit, kOpCmp, r0, 0); /* NULL? */
-            ArmLIR *branchOver = opCondBranch(cUnit, kArmCondNe);
-#else
-            ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
-#endif
+            MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
             loadConstant(cUnit, r_A0,
                          (int) (cUnit->method->insns + mir->offset));
             genDispatchToHandler(cUnit, TEMPLATE_THROW_EXCEPTION_COMMON);
-            ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+            MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
             target->defMask = ENCODE_ALL;
             branchOver->generic.target = (LIR *) target;
             break;
@@ -2781,17 +2626,10 @@ assert(1); /* DRP verify handleFmt31t() */
 }
 
 static bool handleFmt35c_3rc(CompilationUnit *cUnit, MIR *mir, BasicBlock *bb,
-                             ArmLIR *labelList)
+                             MipsLIR *labelList)
 {
-#if 0
-if (mir->dalvikInsn.opCode != OP_INVOKE_DIRECT_EMPTY) /* DRP nop */
-  genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleFmt35c_3rc() */
-#endif
-    ArmLIR *retChainingCell = NULL;
-    ArmLIR *pcrLabel = NULL;
+    MipsLIR *retChainingCell = NULL;
+    MipsLIR *pcrLabel = NULL;
 
     if (bb->fallThrough != NULL)
         retChainingCell = &labelList[bb->fallThrough->id];
@@ -2805,7 +2643,7 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
          */
         case OP_INVOKE_VIRTUAL:
         case OP_INVOKE_VIRTUAL_RANGE: {
-            ArmLIR *predChainingCell = &labelList[bb->taken->id];
+            MipsLIR *predChainingCell = &labelList[bb->taken->id];
             int methodIndex =
                 cUnit->method->clazz->pDvmDex->pResMethods[dInsn->vB]->
                 methodIndex;
@@ -2955,7 +2793,7 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
          */
         case OP_INVOKE_INTERFACE:
         case OP_INVOKE_INTERFACE_RANGE: {
-            ArmLIR *predChainingCell = &labelList[bb->taken->id];
+            MipsLIR *predChainingCell = &labelList[bb->taken->id];
             int methodIndex = dInsn->vB;
 
             /* Ensure that nothing is both live and dirty */
@@ -2973,14 +2811,14 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
                          (int) (cUnit->method->insns + mir->offset));
 
             /* r_A1 = &retChainingCell */
-            ArmLIR *addrRetChain = newLIR2(cUnit, kMipsLahi, r_A1, 0);
+            MipsLIR *addrRetChain = newLIR2(cUnit, kMipsLahi, r_A1, 0);
             addrRetChain->generic.target = (LIR *) retChainingCell;
             addrRetChain = newLIR3(cUnit, kMipsLalo, r_A1, r_A1, 0);
             addrRetChain->generic.target = (LIR *) retChainingCell;
 
 
             /* r_A2 = &predictedChainingCell */
-            ArmLIR *predictedChainingCell = newLIR2(cUnit, kMipsLahi, r_A2, 0);
+            MipsLIR *predictedChainingCell = newLIR2(cUnit, kMipsLahi, r_A2, 0);
             predictedChainingCell->generic.target = (LIR *) predChainingCell;
             predictedChainingCell = newLIR3(cUnit, kMipsLalo, r_A2, r_A2, 0);
             predictedChainingCell->generic.target = (LIR *) predChainingCell;
@@ -2996,8 +2834,8 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
              */
             if (pcrLabel == NULL) {
                 int dPC = (int) (cUnit->method->insns + mir->offset);
-                pcrLabel = dvmCompilerNew(sizeof(ArmLIR), true);
-                pcrLabel->opCode = kArmPseudoPCReconstructionCell;
+                pcrLabel = dvmCompilerNew(sizeof(MipsLIR), true);
+                pcrLabel->opCode = kMipsPseudoPCReconstructionCell;
                 pcrLabel->operands[0] = dPC;
                 pcrLabel->operands[1] = mir->offset;
                 /* Insert the place holder to the growable list */
@@ -3042,12 +2880,7 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
 
             dvmCompilerClobberCallRegs(cUnit);
             /* generate a branch over if the interface method is resolved */
-#ifdef OLD_ARM
-            opRegImm(cUnit, kOpCmp, r0, 0); /* NULL? */
-            ArmLIR *branchOver = opCondBranch(cUnit, kArmCondNe);
-#else
-            ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_A0, r_ZERO);
-#endif
+            MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_A0, r_ZERO);
             /*
              * calleeMethod == NULL -> throw
              */
@@ -3056,19 +2889,14 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
             genDispatchToHandler(cUnit, TEMPLATE_THROW_EXCEPTION_COMMON);
             /* noreturn */
 
-            ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+            MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
             target->defMask = ENCODE_ALL;
             branchOver->generic.target = (LIR *) target;
 
             genRegCopy(cUnit, r_A1, r_S5);
 
             /* Check if rechain limit is reached */
-#ifdef OLD_ARM
-            opRegImm(cUnit, kOpCmp, r1, 0);
-            ArmLIR *bypassRechaining = opCondBranch(cUnit, kArmCondGt);
-#else
-            ArmLIR *bypassRechaining = opCondBranchMips(cUnit, kMipsBgtz, r_A1, -1);
-#endif
+            MipsLIR *bypassRechaining = opCondBranchMips(cUnit, kMipsBgtz, r_A1, -1);
 
             loadWordDisp(cUnit, rGLUE, offsetof(InterpState,
                          jitToInterpEntries.dvmJitToPatchPredictedChain), r_T9);
@@ -3127,17 +2955,11 @@ assert(1); /* DRP verify handleFmt35c_3rc() */
 }
 
 static bool handleFmt35ms_3rms(CompilationUnit *cUnit, MIR *mir,
-                               BasicBlock *bb, ArmLIR *labelList)
+                               BasicBlock *bb, MipsLIR *labelList)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleFmt35ms_3rms() */
-#endif
-    ArmLIR *retChainingCell = &labelList[bb->fallThrough->id];
-    ArmLIR *predChainingCell = &labelList[bb->taken->id];
-    ArmLIR *pcrLabel = NULL;
+    MipsLIR *retChainingCell = &labelList[bb->fallThrough->id];
+    MipsLIR *predChainingCell = &labelList[bb->taken->id];
+    MipsLIR *pcrLabel = NULL;
 
     DecodedInstruction *dInsn = &mir->dalvikInsn;
     switch (mir->dalvikInsn.opCode) {
@@ -3172,7 +2994,7 @@ assert(1); /* DRP verify handleFmt35ms_3rms() */
 
             genInvokeSingletonCommon(cUnit, mir, bb, labelList, pcrLabel,
                                      calleeMethod);
-            /* Handle exceptions using the interpreter */ /* DRP duplicate genTrap? */
+            /* Handle exceptions using the interpreter */ /* duplicate genTrap? */
             genTrap(cUnit, mir->offset, pcrLabel);
             break;
         }
@@ -3190,11 +3012,10 @@ assert(1); /* DRP verify handleFmt35ms_3rms() */
  */
 static bool genInlinedCompareTo(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genInlinedCompareTo() */
 #if defined(USE_GLOBAL_STRING_DEFS)
     return false;
 #else
-    ArmLIR *rollback;
+    MipsLIR *rollback;
     RegLocation rlThis = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlComp = dvmCompilerGetSrc(cUnit, mir, 1);
 
@@ -3217,7 +3038,6 @@ assert(1); /* DRP verify genInlinedCompareTo() */
 
 static bool genInlinedIndexOf(CompilationUnit *cUnit, MIR *mir, bool singleI)
 {
-assert(1); /* DRP verify genInlinedIndexOf() */
 #if defined(USE_GLOBAL_STRING_DEFS)
     return false;
 #else
@@ -3243,7 +3063,6 @@ assert(1); /* DRP verify genInlinedIndexOf() */
 
 static bool genInlinedStringLength(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genInlinedStringLength() */
     RegLocation rlObj = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlDest = inlinedTarget(cUnit, mir, false);
     rlObj = loadValue(cUnit, rlObj, kCoreReg);
@@ -3257,7 +3076,6 @@ assert(1); /* DRP verify genInlinedStringLength() */
 
 static bool genInlinedStringCharAt(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genInlinedStringCharAt() */
     int contents = offsetof(ArrayObject, contents);
     RegLocation rlObj = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlIdx = dvmCompilerGetSrc(cUnit, mir, 1);
@@ -3268,7 +3086,7 @@ assert(1); /* DRP verify genInlinedStringCharAt() */
     int regMax = dvmCompilerAllocTemp(cUnit);
     int regOff = dvmCompilerAllocTemp(cUnit);
     int regPtr = dvmCompilerAllocTemp(cUnit);
-    ArmLIR *pcrLabel = genNullCheck(cUnit, rlObj.sRegLow, rlObj.lowReg,
+    MipsLIR *pcrLabel = genNullCheck(cUnit, rlObj.sRegLow, rlObj.lowReg,
                                     mir->offset, NULL);
     loadWordDisp(cUnit, rlObj.lowReg, gDvm.offJavaLangString_count, regMax);
     loadWordDisp(cUnit, rlObj.lowReg, gDvm.offJavaLangString_offset, regOff);
@@ -3285,7 +3103,6 @@ assert(1); /* DRP verify genInlinedStringCharAt() */
 
 static bool genInlinedAbsInt(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genInlinedAbsInt() */
     RegLocation rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
     rlSrc = loadValue(cUnit, rlSrc, kCoreReg);
     RegLocation rlDest = inlinedTarget(cUnit, mir, false);;
@@ -3305,7 +3122,6 @@ assert(1); /* DRP verify genInlinedAbsInt() */
 
 static bool genInlinedAbsLong(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genInlinedAbsLong() */
     RegLocation rlSrc = dvmCompilerGetSrcWide(cUnit, mir, 0, 1);
     RegLocation rlDest = inlinedTargetWide(cUnit, mir, false);
     rlSrc = loadValueWide(cUnit, rlSrc, kCoreReg);
@@ -3337,12 +3153,6 @@ assert(1); /* DRP verify genInlinedAbsLong() */
  */
 static bool handleExecuteInline(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleExecuteInline() */
-#endif
     DecodedInstruction *dInsn = &mir->dalvikInsn;
     switch( mir->dalvikInsn.opCode) {
         case OP_EXECUTE_INLINE_RANGE:
@@ -3422,16 +3232,11 @@ assert(1); /* DRP verify handleExecuteInline() */
             opReg(cUnit, kOpBlx, r_T9);
             newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
 
-#ifdef OLD_ARM
-            opRegImm(cUnit, kOpCmp, r0, 0); /* NULL? */
-            ArmLIR *branchOver = opCondBranch(cUnit, kArmCondNe);
-#else
-            ArmLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
-#endif
+            MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
             loadConstant(cUnit, r_A0,
                          (int) (cUnit->method->insns + mir->offset));
             genDispatchToHandler(cUnit, TEMPLATE_THROW_EXCEPTION_COMMON);
-            ArmLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
+            MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
             target->defMask = ENCODE_ALL;
             branchOver->generic.target = (LIR *) target;
             break;
@@ -3444,12 +3249,6 @@ assert(1); /* DRP verify handleExecuteInline() */
 
 static bool handleFmt51l(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0 
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify handleFmt51l() */
-#endif
     //TUNING: We're using core regs here - not optimal when target is a double
     RegLocation rlDest = dvmCompilerGetDestWide(cUnit, mir, 0, 1);
     RegLocation rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kCoreReg, true);
@@ -3471,24 +3270,11 @@ assert(1); /* DRP verify handleFmt51l() */
 static void handleNormalChainingCell(CompilationUnit *cUnit,
                                      unsigned int offset)
 {
-#ifdef OLDARM
-    /*
-     * Use raw instruction constructors to guarantee that the generated
-     * instructions fit the predefined cell size.
-     */
-    newLIR3(cUnit, kThumbLdrRRI5, r0, rGLUE,
-            offsetof(InterpState,
-                     jitToInterpEntries.dvmJitToInterpNormal) >> 2);
-    newLIR1(cUnit, kThumbBlxR, r0);
-    addWordData(cUnit, (int) (cUnit->method->insns + offset), true);
-#else
-assert(1); /* DRP verify handleNormalChainingCell() */
     newLIR3(cUnit, kMipsLw, r_A0, 
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpNormal),
         rGLUE);
     newLIR2(cUnit, kMipsJalr, r_RA, r_A0);
     addWordData(cUnit, (int) (cUnit->method->insns + offset), true);
-#endif
 }
 
 /*
@@ -3498,24 +3284,11 @@ assert(1); /* DRP verify handleNormalChainingCell() */
 static void handleHotChainingCell(CompilationUnit *cUnit,
                                   unsigned int offset)
 {
-#ifdef OLDARM
-    /*
-     * Use raw instruction constructors to guarantee that the generated
-     * instructions fit the predefined cell size.
-     */
-    newLIR3(cUnit, kThumbLdrRRI5, r0, rGLUE,
-            offsetof(InterpState,
-                     jitToInterpEntries.dvmJitToInterpTraceSelect) >> 2);
-    newLIR1(cUnit, kThumbBlxR, r0);
-    addWordData(cUnit, (int) (cUnit->method->insns + offset), true);
-#else
-assert(1); /* DRP verify handleHotChainingCell() */
     newLIR3(cUnit, kMipsLw, r_A0, 
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpTraceSelect),
         rGLUE);
     newLIR2(cUnit, kMipsJalr, r_RA, r_A0);
     addWordData(cUnit, (int) (cUnit->method->insns + offset), true);
-#endif
 }
 
 #if defined(WITH_SELF_VERIFICATION) || defined(WITH_JIT_TUNING)
@@ -3523,7 +3296,7 @@ assert(1); /* DRP verify handleHotChainingCell() */
 static void handleBackwardBranchChainingCell(CompilationUnit *cUnit,
                                              unsigned int offset)
 {
-assert(0); /* DRP port handleBackwardBranchChainingCell() */
+assert(0); /* MIPSTODO port handleBackwardBranchChainingCell() */
     /*
      * Use raw instruction constructors to guarantee that the generated
      * instructions fit the predefined cell size.
@@ -3545,30 +3318,16 @@ assert(0); /* DRP port handleBackwardBranchChainingCell() */
 static void handleInvokeSingletonChainingCell(CompilationUnit *cUnit,
                                               const Method *callee)
 {
-#ifdef OLDARM
-    /*
-     * Use raw instruction constructors to guarantee that the generated
-     * instructions fit the predefined cell size.
-     */
-    newLIR3(cUnit, kThumbLdrRRI5, r0, rGLUE,
-            offsetof(InterpState,
-                     jitToInterpEntries.dvmJitToInterpTraceSelect) >> 2);
-    newLIR1(cUnit, kThumbBlxR, r0);
-    addWordData(cUnit, (int) (callee->insns), true);
-#else
-assert(1); /* DRP verify handleInvokeSingletonChainingCell() */
     newLIR3(cUnit, kMipsLw, r_A0, 
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpTraceSelect),
         rGLUE);
     newLIR2(cUnit, kMipsJalr, r_RA, r_A0);
     addWordData(cUnit, (int) (callee->insns), true);
-#endif
 }
 
 /* Chaining cell for monomorphic method invocations. */
 static void handleInvokePredictedChainingCell(CompilationUnit *cUnit)
 {
-assert(1); /* DRP verify handleInvokePredictedChainingCell() */
     /* Should not be executed in the initial state */
     addWordData(cUnit, PREDICTED_CHAIN_BX_PAIR_INIT, true);
     /* branch delay slot nop */ 
@@ -3586,11 +3345,10 @@ assert(1); /* DRP verify handleInvokePredictedChainingCell() */
 
 /* Load the Dalvik PC into a0 and jump to the specified target */
 static void handlePCReconstruction(CompilationUnit *cUnit,
-                                   ArmLIR *targetLabel)
+                                   MipsLIR *targetLabel)
 {
-assert(1); /* DRP verify handlePCReconstruction() */
-    ArmLIR **pcrLabel =
-        (ArmLIR **) cUnit->pcReconstructionList.elemList;
+    MipsLIR **pcrLabel =
+        (MipsLIR **) cUnit->pcReconstructionList.elemList;
     int numElems = cUnit->pcReconstructionList.numUsed;
     int i;
     for (i = 0; i < numElems; i++) {
@@ -3619,7 +3377,6 @@ static char *extendedMIROpNames[kMirOpLast - kMirOpFirst] = {
  */
 static void genHoistedChecksForCountUpLoop(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP review and verify genHoistedChecksForCountUpLoop() */
     /*
      * NOTE: these synthesized blocks don't have ssa names assigned
      * for Dalvik registers.  However, because they dominate the following
@@ -3637,8 +3394,8 @@ assert(1); /* DRP review and verify genHoistedChecksForCountUpLoop() */
     /* regArray <- arrayRef */
     rlArray = loadValue(cUnit, rlArray, kCoreReg);
     rlIdxEnd = loadValue(cUnit, rlIdxEnd, kCoreReg);
-    genRegImmCheck(cUnit, kArmCondEq, rlArray.lowReg, 0, 0,
-                   (ArmLIR *) cUnit->loopAnalysis->branchToPCR);
+    genRegImmCheck(cUnit, kMipsCondEq, rlArray.lowReg, 0, 0,
+                   (MipsLIR *) cUnit->loopAnalysis->branchToPCR);
 
     /* regLength <- len(arrayRef) */
     regLength = dvmCompilerAllocTemp(cUnit);
@@ -3660,8 +3417,8 @@ assert(1); /* DRP review and verify genHoistedChecksForCountUpLoop() */
         dvmCompilerFreeTemp(cUnit, tReg);
     }
     /* Punt if "regIdxEnd < len(Array)" is false */
-    genRegRegCheck(cUnit, kArmCondGe, rlIdxEnd.lowReg, regLength, 0,
-                   (ArmLIR *) cUnit->loopAnalysis->branchToPCR);
+    genRegRegCheck(cUnit, kMipsCondGe, rlIdxEnd.lowReg, regLength, 0,
+                   (MipsLIR *) cUnit->loopAnalysis->branchToPCR);
 }
 
 /*
@@ -3674,7 +3431,6 @@ assert(1); /* DRP review and verify genHoistedChecksForCountUpLoop() */
  */
 static void genHoistedChecksForCountDownLoop(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genHoistedChecksForCountDownLoop() */
     DecodedInstruction *dInsn = &mir->dalvikInsn;
     const int lenOffset = offsetof(ArrayObject, length);
     const int regLength = dvmCompilerAllocTemp(cUnit);
@@ -3686,8 +3442,8 @@ assert(1); /* DRP verify genHoistedChecksForCountDownLoop() */
     /* regArray <- arrayRef */
     rlArray = loadValue(cUnit, rlArray, kCoreReg);
     rlIdxInit = loadValue(cUnit, rlIdxInit, kCoreReg);
-    genRegImmCheck(cUnit, kArmCondEq, rlArray.lowReg, 0, 0,
-                   (ArmLIR *) cUnit->loopAnalysis->branchToPCR);
+    genRegImmCheck(cUnit, kMipsCondEq, rlArray.lowReg, 0, 0,
+                   (MipsLIR *) cUnit->loopAnalysis->branchToPCR);
 
     /* regLength <- len(arrayRef) */
     loadWordDisp(cUnit, rlArray.lowReg, lenOffset, regLength);
@@ -3700,8 +3456,8 @@ assert(1); /* DRP verify genHoistedChecksForCountDownLoop() */
     }
 
     /* Punt if "regIdxInit < len(Array)" is false */
-    genRegRegCheck(cUnit, kArmCondGe, rlIdxInit.lowReg, regLength, 0,
-                   (ArmLIR *) cUnit->loopAnalysis->branchToPCR);
+    genRegRegCheck(cUnit, kMipsCondGe, rlIdxInit.lowReg, regLength, 0,
+                   (MipsLIR *) cUnit->loopAnalysis->branchToPCR);
 }
 
 /*
@@ -3710,7 +3466,6 @@ assert(1); /* DRP verify genHoistedChecksForCountDownLoop() */
  */
 static void genHoistedLowerBoundCheck(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genHoistedLowerBoundCheck() */
     DecodedInstruction *dInsn = &mir->dalvikInsn;
     const int minC = dInsn->vB;
     RegLocation rlIdx = cUnit->regLocation[mir->dalvikInsn.vA];
@@ -3719,14 +3474,13 @@ assert(1); /* DRP verify genHoistedLowerBoundCheck() */
     rlIdx = loadValue(cUnit, rlIdx, kCoreReg);
 
     /* Punt if "regIdxInit + minC >= 0" is false */
-    genRegImmCheck(cUnit, kArmCondLt, rlIdx.lowReg, -minC, 0,
-                   (ArmLIR *) cUnit->loopAnalysis->branchToPCR);
+    genRegImmCheck(cUnit, kMipsCondLt, rlIdx.lowReg, -minC, 0,
+                   (MipsLIR *) cUnit->loopAnalysis->branchToPCR);
 }
 
 /* Extended MIR instructions like PHI */
 static void handleExtendedMIR(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify handleExtendedMIR() */
     int opOffset = mir->dalvikInsn.opCode - kMirOpFirst;
     char *msg = dvmCompilerNew(strlen(extendedMIROpNames[opOffset]) + 1,
                                false);
@@ -3753,7 +3507,7 @@ assert(1); /* DRP verify handleExtendedMIR() */
         }
         case kMirOpPunt: {
             genUnconditionalBranch(cUnit,
-                                   (ArmLIR *) cUnit->loopAnalysis->branchToPCR);
+                                   (MipsLIR *) cUnit->loopAnalysis->branchToPCR);
             break;
         }
         default:
@@ -3769,11 +3523,10 @@ assert(1); /* DRP verify handleExtendedMIR() */
  * end of the entry block.
  */
 static void setupLoopEntryBlock(CompilationUnit *cUnit, BasicBlock *entry,
-                                ArmLIR *bodyLabel)
+                                MipsLIR *bodyLabel)
 {
-assert(1); /* DRP verify setupLoopEntryBlock() */
     /* Set up the place holder to reconstruct this Dalvik PC */
-    ArmLIR *pcrLabel = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *pcrLabel = dvmCompilerNew(sizeof(MipsLIR), true);
     pcrLabel->opCode = kMipsPseudoPCReconstructionCell;
     pcrLabel->operands[0] =
         (int) (cUnit->method->insns + entry->startOffset);
@@ -3785,13 +3538,13 @@ assert(1); /* DRP verify setupLoopEntryBlock() */
      * Next, create two branches - one branch over to the loop body and the
      * other branch to the PCR cell to punt.
      */
-    ArmLIR *branchToBody = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *branchToBody = dvmCompilerNew(sizeof(MipsLIR), true);
     branchToBody->opCode = kMipsB;
     branchToBody->generic.target = (LIR *) bodyLabel;
     setupResourceMasks(branchToBody);
     cUnit->loopAnalysis->branchToBody = (LIR *) branchToBody;
 
-    ArmLIR *branchToPCR = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *branchToPCR = dvmCompilerNew(sizeof(MipsLIR), true);
     branchToPCR->opCode = kMipsB;
     branchToPCR->generic.target = (LIR *) pcrLabel;
     setupResourceMasks(branchToPCR);
@@ -3801,7 +3554,7 @@ assert(1); /* DRP verify setupLoopEntryBlock() */
 #if defined(WITH_SELF_VERIFICATION)
 static bool selfVerificationPuntOps(MIR *mir)
 {
-assert(0); /* DRP port selfVerificationPuntOps() */
+assert(0); /* MIPSTODO port selfVerificationPuntOps() */
     DecodedInstruction *decInsn = &mir->dalvikInsn;
     OpCode op = decInsn->opCode;
     int flags =  dexGetInstrFlags(gDvm.instrFlags, op);
@@ -3822,8 +3575,8 @@ assert(0); /* DRP port selfVerificationPuntOps() */
 void dvmCompilerMIR2LIR(CompilationUnit *cUnit)
 {
     /* Used to hold the labels of each block */
-    ArmLIR *labelList =
-        dvmCompilerNew(sizeof(ArmLIR) * cUnit->numBlocks, true);
+    MipsLIR *labelList =
+        dvmCompilerNew(sizeof(MipsLIR) * cUnit->numBlocks, true);
     GrowableList chainingListByType[kChainingCellGap];
     int i;
 
@@ -3852,7 +3605,8 @@ void dvmCompilerMIR2LIR(CompilationUnit *cUnit)
          *       add   r1, #1
          *       str   r1, [r0]
          */
-assert(0); /* DRP port profile support dvmCompilerMIR2LIR() */
+assert(0); /* MIPSTODO port profile support dvmCompilerMIR2LIR() */
+#if 0
         newLIR1(cUnit, kArm16BitData, 0);
         newLIR1(cUnit, kArm16BitData, 0);
         cUnit->chainCellOffsetLIR =
@@ -3864,6 +3618,7 @@ assert(0); /* DRP port profile support dvmCompilerMIR2LIR() */
         newLIR3(cUnit, kThumbLdrRRI5, r1, r0, 0);
         newLIR2(cUnit, kThumbAddRI8, r1, 1);
         newLIR3(cUnit, kThumbStrRRI5, r1, r0, 0);
+#endif
     } else {
          /* Just reserve 4 bytes for the chain cell offset */
         cUnit->chainCellOffsetLIR =
@@ -3940,7 +3695,7 @@ assert(0); /* DRP port profile support dvmCompilerMIR2LIR() */
                 case kPCReconstruction:
                     /* Make sure exception handling block is next */
                     labelList[i].opCode =
-                        kMipsPseudoPCReconstructionBlockLabel; /* ??? DRP verify this case */
+                        kMipsPseudoPCReconstructionBlockLabel;
                     assert (i == cUnit->numBlocks - 2);
                     handlePCReconstruction(cUnit, &labelList[i+1]);
                     break;
@@ -3956,7 +3711,7 @@ assert(0); /* DRP port profile support dvmCompilerMIR2LIR() */
 #if defined(WITH_SELF_VERIFICATION) || defined(WITH_JIT_TUNING)
                 case kChainingCellBackwardBranch:
                     labelList[i].opCode =
-                        kArmPseudoChainingCellBackwardBranch;
+                        kMipsPseudoChainingCellBackwardBranch;
                     /* handle the codegen later */
                     dvmInsertGrowableList(
                         &chainingListByType[kChainingCellBackwardBranch],
@@ -3969,7 +3724,7 @@ assert(0); /* DRP port profile support dvmCompilerMIR2LIR() */
             continue;
         }
 
-        ArmLIR *headLIR = NULL;
+        MipsLIR *headLIR = NULL;
 
         for (mir = blockList[i]->firstMIRInsn; mir; mir = mir->next) {
 
@@ -3991,7 +3746,7 @@ assert(0); /* DRP port profile support dvmCompilerMIR2LIR() */
             OpCode dalvikOpCode = mir->dalvikInsn.opCode;
             InstructionFormat dalvikFormat =
                 dexGetInstrFormat(gDvm.instrFormat, dalvikOpCode);
-            ArmLIR *boundaryLIR =
+            MipsLIR *boundaryLIR =
                 newLIR2(cUnit, kMipsPseudoDalvikByteCodeBoundary,
                         mir->offset,
                         (int) dvmCompilerGetDalvikDisassembly(&mir->dalvikInsn)
@@ -4166,9 +3921,6 @@ gen_fallthrough:
         for (j = 0; j < chainingListByType[i].numUsed; j++) {
             int blockId = blockIdList[j];
 
-            /* Align this chaining cell first */
-/* DRP cleanup obsolete newLIR0(cUnit, kArmPseudoPseudoAlign4); */
-
             /* Insert the pseudo chaining instruction */
             dvmCompilerAppendLIR(cUnit, (LIR *) &labelList[blockId]);
 
@@ -4231,7 +3983,6 @@ gen_fallthrough:
 /* Accept the work and start compiling */
 bool dvmCompilerDoWork(CompilerWorkOrder *work)
 {
-assert(1); /* DRP verify dvmCompilerDoWork() */
     bool res;
 
     if (gDvmJit.codeCacheFull) {
@@ -4267,7 +4018,6 @@ assert(1); /* DRP verify dvmCompilerDoWork() */
 /* Architectural-specific debugging helpers go here */
 void dvmCompilerArchDump(void)
 {
-assert(1); /* DRP verify dvmCompilerArchDump() */
     /* Print compiled opcode in this VM instance */
     int i, start, streak;
     char buf[1024];
@@ -4314,10 +4064,9 @@ assert(1); /* DRP verify dvmCompilerArchDump() */
 /* Common initialization routine for an architecture family */
 bool dvmCompilerArchInit()
 {
-assert(1); /* DRP verify dvmCompilerArchInit() */
     int i;
 
-    for (i = 0; i < kArmLast; i++) {
+    for (i = 0; i < kMipsLast; i++) {
         if (EncodingMap[i].opCode != i) {
             LOGE("Encoding order for %s is wrong: expecting %d, seeing %d",
                  EncodingMap[i].name, i, EncodingMap[i].opCode);
@@ -4330,22 +4079,20 @@ assert(1); /* DRP verify dvmCompilerArchInit() */
 
 void *dvmCompilerGetInterpretTemplate()
 {
-assert(0); /* DRP activate dvmCompilerGetInterpretTemplate() */
+assert(0); /* MIPSTODO activate dvmCompilerGetInterpretTemplate() */
       return (void*) ((int)gDvmJit.codeCache +
                       templateEntryOffsets[TEMPLATE_INTERPRET]);
 }
 
 /* Needed by the ld/st optmizatons */
-ArmLIR* dvmCompilerRegCopyNoInsert(CompilationUnit *cUnit, int rDest, int rSrc)
+MipsLIR* dvmCompilerRegCopyNoInsert(CompilationUnit *cUnit, int rDest, int rSrc)
 {
-assert(1); /* DRP verify dvmCompilerRegCopyNoInsert() */
     return genRegCopyNoInsert(cUnit, rDest, rSrc);
 }
 
 /* Needed by the register allocator */
-ArmLIR* dvmCompilerRegCopy(CompilationUnit *cUnit, int rDest, int rSrc)
+MipsLIR* dvmCompilerRegCopy(CompilationUnit *cUnit, int rDest, int rSrc)
 {
-assert(1); /* DRP verify dvmCompilerRegCopy() */
     return genRegCopy(cUnit, rDest, rSrc);
 }
 
@@ -4353,20 +4100,17 @@ assert(1); /* DRP verify dvmCompilerRegCopy() */
 void dvmCompilerRegCopyWide(CompilationUnit *cUnit, int destLo, int destHi,
                             int srcLo, int srcHi)
 {
-assert(1); /* DRP verify dvmCompilerRegCopyWide() */
     genRegCopyWide(cUnit, destLo, destHi, srcLo, srcHi);
 }
 
 void dvmCompilerFlushRegImpl(CompilationUnit *cUnit, int rBase,
                              int displacement, int rSrc, OpSize size)
 {
-assert(1); /* DRP verify dvmCompilerFlushRegImpl() */
     storeBaseDisp(cUnit, rBase, displacement, rSrc, size);
 }
 
 void dvmCompilerFlushRegWideImpl(CompilationUnit *cUnit, int rBase,
                                  int displacement, int rSrcLo, int rSrcHi)
 {
-assert(1); /* DRP verify dvmCompilerFlushRegWideImpl() */
     storeBaseDispWide(cUnit, rBase, displacement, rSrcLo, rSrcHi);
 }

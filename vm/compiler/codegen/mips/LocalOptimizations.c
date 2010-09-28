@@ -21,26 +21,26 @@
 
 #define DEBUG_OPT(X)
 
-ArmLIR* dvmCompilerGenCopy(CompilationUnit *cUnit, int rDest, int rSrc);
+MipsLIR* dvmCompilerGenCopy(CompilationUnit *cUnit, int rDest, int rSrc);
 
 /* Is this a Dalvik register access? */
-static inline bool isDalvikLoad(ArmLIR *lir)
+static inline bool isDalvikLoad(MipsLIR *lir)
 {
     return (lir->useMask != ENCODE_ALL) && (lir->useMask & ENCODE_DALVIK_REG);
 }
 
 /* Is this a load from the literal pool? */
-static inline bool isLiteralLoad(ArmLIR *lir)
+static inline bool isLiteralLoad(MipsLIR *lir)
 {
     return (lir->useMask != ENCODE_ALL) && (lir->useMask & ENCODE_LITERAL);
 }
 
-static inline bool isDalvikStore(ArmLIR *lir)
+static inline bool isDalvikStore(MipsLIR *lir)
 {
     return (lir->defMask != ENCODE_ALL) && (lir->defMask & ENCODE_DALVIK_REG);
 }
 
-static inline bool isDalvikRegisterClobbered(ArmLIR *lir1, ArmLIR *lir2)
+static inline bool isDalvikRegisterClobbered(MipsLIR *lir1, MipsLIR *lir2)
 {
   int reg1Lo = DECODE_ALIAS_INFO_REG(lir1->aliasInfo);
   int reg1Hi = reg1Lo + DECODE_ALIAS_INFO_WIDE(lir1->aliasInfo);
@@ -50,7 +50,7 @@ static inline bool isDalvikRegisterClobbered(ArmLIR *lir1, ArmLIR *lir2)
   return (reg1Lo == reg2Lo) || (reg1Lo == reg2Hi) || (reg1Hi == reg2Lo);
 }
 
-static void dumpDependentInsnPair(ArmLIR *thisLIR, ArmLIR *checkLIR,
+static void dumpDependentInsnPair(MipsLIR *thisLIR, MipsLIR *checkLIR,
                                   const char *optimization)
 {
     LOGD("************ %s ************", optimization);
@@ -64,10 +64,10 @@ static void dumpDependentInsnPair(ArmLIR *thisLIR, ArmLIR *checkLIR,
  * 2) Sink stores to latest possible slot
  */
 static void applyLoadStoreElimination(CompilationUnit *cUnit,
-                                      ArmLIR *headLIR,
-                                      ArmLIR *tailLIR)
+                                      MipsLIR *headLIR,
+                                      MipsLIR *tailLIR)
 {
-    ArmLIR *thisLIR;
+    MipsLIR *thisLIR;
 
     cUnit->optRound++;
     for (thisLIR = headLIR;
@@ -81,7 +81,7 @@ static void applyLoadStoreElimination(CompilationUnit *cUnit,
             int dRegId = DECODE_ALIAS_INFO_REG(thisLIR->aliasInfo);
             int dRegIdHi = dRegId + DECODE_ALIAS_INFO_WIDE(thisLIR->aliasInfo);
             int nativeRegId = thisLIR->operands[0];
-            ArmLIR *checkLIR;
+            MipsLIR *checkLIR;
             int sinkDistance = 0;
             /*
              * Add r15 (pc) to the mask to prevent this instruction
@@ -101,7 +101,7 @@ static void applyLoadStoreElimination(CompilationUnit *cUnit,
                     (REGTYPE(checkLIR->operands[0]) == REGTYPE(nativeRegId))) {
                     /* Insert a move to replace the load */
                     if (checkLIR->operands[0] != nativeRegId) {
-                        ArmLIR *moveLIR;
+                        MipsLIR *moveLIR;
                         moveLIR = dvmCompilerRegCopyNoInsert(
                                     cUnit, checkLIR->operands[0], nativeRegId);
                         /*
@@ -145,8 +145,8 @@ static void applyLoadStoreElimination(CompilationUnit *cUnit,
                                                         "SINK STORE"));
                         /* The store can be sunk for at least one cycle */
                         if (sinkDistance != 0) {
-                            ArmLIR *newStoreLIR =
-                                dvmCompilerNew(sizeof(ArmLIR), true);
+                            MipsLIR *newStoreLIR =
+                                dvmCompilerNew(sizeof(MipsLIR), true);
                             *newStoreLIR = *thisLIR;
                             newStoreLIR->age = cUnit->optRound;
                             /*
@@ -174,10 +174,10 @@ static void applyLoadStoreElimination(CompilationUnit *cUnit,
 }
 
 static void applyLoadHoisting(CompilationUnit *cUnit,
-                              ArmLIR *headLIR,
-                              ArmLIR *tailLIR)
+                              MipsLIR *headLIR,
+                              MipsLIR *tailLIR)
 {
-    ArmLIR *thisLIR;
+    MipsLIR *thisLIR;
     /*
      * Don't want to hoist in front of first load following a barrier (or
      * first instruction of the block.
@@ -210,7 +210,7 @@ static void applyLoadHoisting(CompilationUnit *cUnit,
             int dRegId = DECODE_ALIAS_INFO_REG(thisLIR->aliasInfo);
             int dRegIdHi = dRegId + DECODE_ALIAS_INFO_WIDE(thisLIR->aliasInfo);
             int nativeRegId = thisLIR->operands[0];
-            ArmLIR *checkLIR;
+            MipsLIR *checkLIR;
             int hoistDistance = 0;
             u8 stopUseMask = (ENCODE_REG_PC | thisLIR->useMask);
             u8 stopDefMask = thisLIR->defMask;
@@ -299,7 +299,7 @@ static void applyLoadHoisting(CompilationUnit *cUnit,
                     (REGTYPE(checkLIR->operands[0]) == REGTYPE(nativeRegId))) {
                     /* Insert a move to replace the load */
                     if (checkLIR->operands[0] != nativeRegId) {
-                        ArmLIR *moveLIR;
+                        MipsLIR *moveLIR;
                         moveLIR = dvmCompilerRegCopyNoInsert(
                                     cUnit, nativeRegId, checkLIR->operands[0]);
                         /*
@@ -368,8 +368,8 @@ static void applyLoadHoisting(CompilationUnit *cUnit,
                                                         "HOIST LOAD"));
                         /* The load can be hoisted for at least one cycle */
                         if (hoistDistance != 0) {
-                            ArmLIR *newLoadLIR =
-                                dvmCompilerNew(sizeof(ArmLIR), true);
+                            MipsLIR *newLoadLIR =
+                                dvmCompilerNew(sizeof(MipsLIR), true);
                             *newLoadLIR = *thisLIR;
                             newLoadLIR->age = cUnit->optRound;
                             /*
@@ -396,7 +396,7 @@ static void applyLoadHoisting(CompilationUnit *cUnit,
         } else if (isLiteralLoad(thisLIR)) {
             int litVal = thisLIR->aliasInfo;
             int nativeRegId = thisLIR->operands[0];
-            ArmLIR *checkLIR;
+            MipsLIR *checkLIR;
             int hoistDistance = 0;
             u8 stopUseMask = (ENCODE_REG_PC | thisLIR->useMask) &
                              ~ENCODE_LITPOOL_REF;
@@ -472,8 +472,8 @@ static void applyLoadHoisting(CompilationUnit *cUnit,
                                                     "HOIST LOAD"));
                     /* The store can be hoisted for at least one cycle */
                     if (hoistDistance != 0) {
-                        ArmLIR *newLoadLIR =
-                            dvmCompilerNew(sizeof(ArmLIR), true);
+                        MipsLIR *newLoadLIR =
+                            dvmCompilerNew(sizeof(MipsLIR), true);
                         *newLoadLIR = *thisLIR;
                         newLoadLIR->age = cUnit->optRound;
                         /*
@@ -503,10 +503,10 @@ void dvmCompilerApplyLocalOptimizations(CompilationUnit *cUnit, LIR *headLIR,
                                         LIR *tailLIR)
 {
     if (!(gDvmJit.disableOpt & (1 << kLoadStoreElimination))) {
-        applyLoadStoreElimination(cUnit, (ArmLIR *) headLIR,
-                                  (ArmLIR *) tailLIR);
+        applyLoadStoreElimination(cUnit, (MipsLIR *) headLIR,
+                                  (MipsLIR *) tailLIR);
     }
     if (!(gDvmJit.disableOpt & (1 << kLoadHoisting))) {
-        applyLoadHoisting(cUnit, (ArmLIR *) headLIR, (ArmLIR *) tailLIR);
+        applyLoadHoisting(cUnit, (MipsLIR *) headLIR, (MipsLIR *) tailLIR);
     }
 }

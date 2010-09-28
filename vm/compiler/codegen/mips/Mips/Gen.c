@@ -15,7 +15,7 @@
  */
 
 /*
- * This file contains codegen for the Thumb ISA and is intended to be
+ * This file contains codegen for the Mips ISA and is intended to be
  * includes by:
  *
  *        Codegen-$(TARGET_ARCH_VARIANT).c
@@ -29,7 +29,6 @@
 static void genNegFloat(CompilationUnit *cUnit, RegLocation rlDest,
                         RegLocation rlSrc)
 {
-assert(1); /* DRP verify genNegFloat () */
     RegLocation rlResult;
     rlSrc = loadValue(cUnit, rlSrc, kCoreReg);
     rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kCoreReg, true);
@@ -41,7 +40,6 @@ assert(1); /* DRP verify genNegFloat () */
 static void genNegDouble(CompilationUnit *cUnit, RegLocation rlDest,
                          RegLocation rlSrc)
 {
-assert(1); /* DRP verify genNegDouble() */
     RegLocation rlResult;
     rlSrc = loadValueWide(cUnit, rlSrc, kCoreReg);
     rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kCoreReg, true);
@@ -54,7 +52,6 @@ assert(1); /* DRP verify genNegDouble() */
 static void genMulLong(CompilationUnit *cUnit, RegLocation rlDest,
                        RegLocation rlSrc1, RegLocation rlSrc2)
 {
-assert(1); /* DRP verify genMulLong() */
     RegLocation rlResult;
     loadValueDirectWideFixed(cUnit, rlSrc1, r_A0, r_A1);
     loadValueDirectWideFixed(cUnit, rlSrc2, r_A2, r_A3);
@@ -68,7 +65,7 @@ static bool partialOverlap(int sreg1, int sreg2)
     return abs(sreg1 - sreg2) == 1;
 }
 
-static void withCarryHelper(CompilationUnit *cUnit, ArmOpCode opc, 
+static void withCarryHelper(CompilationUnit *cUnit, MipsOpCode opc, 
                             RegLocation rlDest, RegLocation rlSrc1, 
                             RegLocation rlSrc2, int sltuSrc1, int sltuSrc2)
 {
@@ -84,48 +81,6 @@ static void genLong3Addr(CompilationUnit *cUnit, MIR *mir, OpKind firstOp,
                          OpKind secondOp, RegLocation rlDest,
                          RegLocation rlSrc1, RegLocation rlSrc2)
 {
-assert(1); /* DRP verify genLong3Addr() */
-#ifdef OLD_ARM
-    RegLocation rlResult;
-    if (partialOverlap(rlSrc1.sRegLow,rlSrc2.sRegLow) ||
-        partialOverlap(rlSrc1.sRegLow,rlDest.sRegLow) ||
-        partialOverlap(rlSrc2.sRegLow,rlDest.sRegLow)) {
-        // Rare case - not enough registers to properly handle
-        genInterpSingleStep(cUnit, mir);
-    } else if (rlDest.sRegLow == rlSrc1.sRegLow) {
-        // Already 2-operand
-        rlResult = loadValueWide(cUnit, rlDest, kCoreReg);
-        rlSrc2 = loadValueWide(cUnit, rlSrc2, kCoreReg);
-        opRegReg(cUnit, firstOp, rlResult.lowReg, rlSrc2.lowReg);
-        opRegReg(cUnit, secondOp, rlResult.highReg, rlSrc2.highReg);
-        storeValueWide(cUnit, rlDest, rlResult);
-    } else if (rlDest.sRegLow == rlSrc2.sRegLow) {
-        // Bad case - must use/clobber Src1 and reassign Dest
-        rlSrc1 = loadValueWide(cUnit, rlSrc1, kCoreReg);
-        rlResult = loadValueWide(cUnit, rlDest, kCoreReg);
-        opRegReg(cUnit, firstOp, rlSrc1.lowReg, rlResult.lowReg);
-        opRegReg(cUnit, secondOp, rlSrc1.highReg, rlResult.highReg);
-        // Old reg assignments are now invalid
-        dvmCompilerClobber(cUnit, rlResult.lowReg);
-        dvmCompilerClobber(cUnit, rlResult.highReg);
-        dvmCompilerClobber(cUnit, rlSrc1.lowReg);
-        dvmCompilerClobber(cUnit, rlSrc1.highReg);
-        rlDest.location = kLocDalvikFrame;
-        assert(rlSrc1.location == kLocPhysReg);
-        // Reassign registers - rlDest will now get rlSrc1's old regs
-        storeValueWide(cUnit, rlDest, rlSrc1);
-    } else {
-        // Copy Src1 to Dest
-        rlSrc2 = loadValueWide(cUnit, rlSrc2, kCoreReg);
-        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kCoreReg, false);
-        loadValueDirectWide(cUnit, rlSrc1, rlResult.lowReg,
-                            rlResult.highReg);
-        rlResult.location = kLocPhysReg;
-        opRegReg(cUnit, firstOp, rlResult.lowReg, rlSrc2.lowReg);
-        opRegReg(cUnit, secondOp, rlResult.highReg, rlSrc2.highReg);
-        storeValueWide(cUnit, rlDest, rlResult);
-    }
-#else
     RegLocation rlResult;
     int carryOp = (secondOp == kOpAdc || secondOp == kOpSbc);
 
@@ -181,12 +136,10 @@ assert(1); /* DRP verify genLong3Addr() */
         }
         storeValueWide(cUnit, rlDest, rlResult);
     }
-#endif
 }
 
 void dvmCompilerInitializeRegAlloc(CompilationUnit *cUnit)
 {
-assert(1); /* DRP verify dvmCompilerInitializeRegAlloc() */
     int i;
     int numTemps = sizeof(coreTemps)/sizeof(int);
     RegisterPool *pool = dvmCompilerNew(sizeof(*pool), true);
@@ -209,39 +162,26 @@ assert(1); /* DRP verify dvmCompilerInitializeRegAlloc() */
 }
 
 /* Export the Dalvik PC assicated with an instruction to the StackSave area */
-static ArmLIR *genExportPC(CompilationUnit *cUnit, MIR *mir)
+static MipsLIR *genExportPC(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genExportPC() */
-    ArmLIR *res;
+    MipsLIR *res;
     int rDPC = dvmCompilerAllocTemp(cUnit);
     int rAddr = dvmCompilerAllocTemp(cUnit);
     int offset = offsetof(StackSaveArea, xtra.currentPc);
     res = loadConstant(cUnit, rDPC, (int) (cUnit->method->insns + mir->offset));
-#ifdef OLD_ARM
-    newLIR2(cUnit, kThumbMovRR, rAddr, rFP);
-    newLIR2(cUnit, kThumbSubRI8, rAddr, sizeof(StackSaveArea) - offset);
-#else
     newLIR3(cUnit, kMipsAddiu, rAddr, rFP, -(sizeof(StackSaveArea) - offset));
-#endif
     storeWordDisp( cUnit, rAddr, 0, rDPC);
     return res;
 }
 
 static void genMonitor(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verified genMonitor() */
     genMonitorPortable(cUnit, mir);
 }
 
 static void genCmpLong(CompilationUnit *cUnit, MIR *mir, RegLocation rlDest,
                        RegLocation rlSrc1, RegLocation rlSrc2)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return;
-#else
-assert(1); /* DRP retarg genCmpLong() */
-#endif
     RegLocation rlResult;
     loadValueDirectWideFixed(cUnit, rlSrc1, r0, r1);
     loadValueDirectWideFixed(cUnit, rlSrc2, r2, r3);
@@ -252,18 +192,10 @@ assert(1); /* DRP retarg genCmpLong() */
 
 static bool genInlinedAbsFloat(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genInlinedAbsFloat() */
     int offset = offsetof(InterpState, retval);
     RegLocation rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
     int reg0 = loadValue(cUnit, rlSrc, kCoreReg).lowReg;
-#if 0
-    int signMask = dvmCompilerAllocTemp(cUnit);
-    loadConstant(cUnit, signMask, 0x7fffffff);
-    newLIR2(cUnit, kThumbAndRR, reg0, signMask);
-    dvmCompilerFreeTemp(cUnit, signMask);
-#else
     newLIR4(cUnit, kMipsExt, reg0, reg0, 0, 31-1 /* size-1 */);
-#endif
     storeWordDisp(cUnit, rGLUE, offset, reg0);
     //TUNING: rewrite this to not clobber
     dvmCompilerClobber(cUnit, reg0);
@@ -272,23 +204,13 @@ assert(1); /* DRP verify genInlinedAbsFloat() */
 
 static bool genInlinedAbsDouble(CompilationUnit *cUnit, MIR *mir)
 {
-assert(1); /* DRP verify genInlinedAbsDouble() */
     int offset = offsetof(InterpState, retval);
     RegLocation rlSrc = dvmCompilerGetSrcWide(cUnit, mir, 0, 1);
     RegLocation regSrc = loadValueWide(cUnit, rlSrc, kCoreReg);
     int reglo = regSrc.lowReg;
     int reghi = regSrc.highReg;
-#if 0
-    int signMask = dvmCompilerAllocTemp(cUnit);
-    loadConstant(cUnit, signMask, 0x7fffffff);
-    storeWordDisp(cUnit, rGLUE, offset, reglo);
-    newLIR2(cUnit, kThumbAndRR, reghi, signMask);
-    newLIR2(cUnit, kMipsAnd, reghi, reghi, signMask);
-    dvmCompilerFreeTemp(cUnit, signMask);
-#else
     storeWordDisp(cUnit, rGLUE, offset, reglo);
     newLIR4(cUnit, kMipsExt, reghi, reghi, 0, 31-1 /* size-1 */);
-#endif
     storeWordDisp(cUnit, rGLUE, offset + 4, reghi);
     //TUNING: rewrite this to not clobber
     dvmCompilerClobber(cUnit, reghi);
@@ -298,7 +220,6 @@ assert(1); /* DRP verify genInlinedAbsDouble() */
 /* No select in thumb, so we need to branch.  Thumb2 will do better */
 static bool genInlinedMinMaxInt(CompilationUnit *cUnit, MIR *mir, bool isMin)
 {
-assert(1); /* DRP verify genInlinedMinMaxInt() */
     int offset = offsetof(InterpState, retval);
     RegLocation rlSrc1 = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlSrc2 = dvmCompilerGetSrc(cUnit, mir, 1);
@@ -323,7 +244,6 @@ static void genMultiplyByTwoBitMultiplier(CompilationUnit *cUnit,
         RegLocation rlSrc, RegLocation rlResult, int lit,
         int firstBit, int secondBit)
 {
-assert(1); /* DRP verify genMultiplyByTwoBitMultiplier() */
     // We can't implement "add src, src, src, lsl#shift" on Thumb, so we have
     // to do a regular multiply.
     opRegRegImm(cUnit, kOpMul, rlResult.lowReg, rlSrc.lowReg, lit);

@@ -16,7 +16,7 @@
 
 /*
  * This file contains codegen and support common to all supported
- * ARM variants.  It is included by:
+ * Mips variants.  It is included by:
  *
  *        Codegen-$(TARGET_ARCH_VARIANT).c
  *
@@ -32,9 +32,9 @@ static intptr_t templateEntryOffsets[TEMPLATE_LAST_MARK];
 /* Track exercised opcodes */
 static int opcodeCoverage[256];
 
-static void setMemRefType(ArmLIR *lir, bool isLoad, int memType)
+static void setMemRefType(MipsLIR *lir, bool isLoad, int memType)
 {
-/* DRP possibly simplify setMemRefType() */
+    /* MIPSTODO simplify setMemRefType() */
     u8 *maskPtr;
     u8 mask;
     assert( EncodingMap[lir->opCode].flags & (IS_LOAD | IS_STORE));
@@ -70,9 +70,9 @@ static void setMemRefType(ArmLIR *lir, bool isLoad, int memType)
  * Mark load/store instructions that access Dalvik registers through rFP +
  * offset.
  */
-static void annotateDalvikRegAccess(ArmLIR *lir, int regId, bool isLoad)
+static void annotateDalvikRegAccess(MipsLIR *lir, int regId, bool isLoad)
 {
-/* DRP possibly simplify annotateDalvikRegAccess() */
+    /* MIPSTODO simplify annotateDalvikRegAccess() */
     setMemRefType(lir, isLoad, kDalvikReg);
 
     /*
@@ -90,11 +90,11 @@ static void annotateDalvikRegAccess(ArmLIR *lir, int regId, bool isLoad)
  */
 static inline void setupRegMask(u8 *mask, int reg)
 {
-assert(1); /* DRP review setupRegMask() */
+    /* MIPSTODO simplify setupRegMask() */
     u8 seed;
     int shift;
     int regId = reg & 0x3f;
-    assert(regId <= r_PC); /* DRP fp not supported currently */
+    assert(regId <= r_PC); /* MIPSTODO fp not supported currently */
 
     /*
      * Each double register is equal to a pair of single-precision FP registers
@@ -110,9 +110,9 @@ assert(1); /* DRP review setupRegMask() */
 /*
  * Set up the proper fields in the resource mask
  */
-static void setupResourceMasks(ArmLIR *lir)
+static void setupResourceMasks(MipsLIR *lir)
 {
-assert(1); /* DRP verify and simplify setupResourceMasks() */
+    /* MIPSTODO simplify setupResourceMasks() */
     int opCode = lir->opCode;
     int flags;
 
@@ -207,13 +207,9 @@ assert(1); /* DRP verify and simplify setupResourceMasks() */
  * The following are building blocks to construct low-level IRs with 0 - 4
  * operands.
  */
-static ArmLIR *newLIR0(CompilationUnit *cUnit, ArmOpCode opCode)
+static MipsLIR *newLIR0(CompilationUnit *cUnit, MipsOpCode opCode)
 {
-assert(1); /* DRP verify newLIR0() */
-if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
-   LOGD("newLIR0 ARM opCode = 0x%x", opCode);
-}
-    ArmLIR *insn = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *insn = dvmCompilerNew(sizeof(MipsLIR), true);
     assert(isPseudoOpCode(opCode) || (EncodingMap[opCode].flags & NO_OPERAND));
     insn->opCode = opCode;
     setupResourceMasks(insn);
@@ -221,14 +217,10 @@ if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
     return insn;
 }
 
-static ArmLIR *newLIR1(CompilationUnit *cUnit, ArmOpCode opCode,
+static MipsLIR *newLIR1(CompilationUnit *cUnit, MipsOpCode opCode,
                            int dest)
 {
-assert(1); /* DRP verify newLIR1() */
-if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
-   LOGD("newLIR1 ARM opCode = 0x%x", opCode);
-}
-    ArmLIR *insn = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *insn = dvmCompilerNew(sizeof(MipsLIR), true);
     assert(isPseudoOpCode(opCode) || (EncodingMap[opCode].flags & IS_UNARY_OP));
     insn->opCode = opCode;
     insn->operands[0] = dest;
@@ -237,14 +229,10 @@ if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
     return insn;
 }
 
-static ArmLIR *newLIR2(CompilationUnit *cUnit, ArmOpCode opCode,
+static MipsLIR *newLIR2(CompilationUnit *cUnit, MipsOpCode opCode,
                            int dest, int src1)
 {
-assert(1); /* DRP verify newLIR2() */
-if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
-   LOGD("newLIR2 ARM opCode = 0x%x", opCode);
-}
-    ArmLIR *insn = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *insn = dvmCompilerNew(sizeof(MipsLIR), true);
     assert(isPseudoOpCode(opCode) ||
            (EncodingMap[opCode].flags & IS_BINARY_OP));
     insn->opCode = opCode;
@@ -255,14 +243,10 @@ if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
     return insn;
 }
 
-static ArmLIR *newLIR3(CompilationUnit *cUnit, ArmOpCode opCode,
+static MipsLIR *newLIR3(CompilationUnit *cUnit, MipsOpCode opCode,
                            int dest, int src1, int src2)
 {
-assert(1); /* DRP verify newLIR3() */
-if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
-   LOGD("newLIR3 ARM opCode = 0x%x", opCode);
-}
-    ArmLIR *insn = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *insn = dvmCompilerNew(sizeof(MipsLIR), true);
     if (!(EncodingMap[opCode].flags & IS_TERTIARY_OP)) {
         LOGE("Bad LIR3: %s[%d]",EncodingMap[opCode].name,opCode);
     }
@@ -277,14 +261,10 @@ if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
     return insn;
 }
 
-static ArmLIR *newLIR4(CompilationUnit *cUnit, ArmOpCode opCode,
+static MipsLIR *newLIR4(CompilationUnit *cUnit, MipsOpCode opCode,
                            int dest, int src1, int src2, int info)
 {
-assert(1); /* DRP verify newLIR4() */
-if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
-   LOGD("newLIR4 ARM opCode = 0x%x", opCode);
-}
-    ArmLIR *insn = dvmCompilerNew(sizeof(ArmLIR), true);
+    MipsLIR *insn = dvmCompilerNew(sizeof(MipsLIR), true);
     assert(isPseudoOpCode(opCode) ||
            (EncodingMap[opCode].flags & IS_QUAD_OP));
     insn->opCode = opCode;
@@ -305,7 +285,6 @@ if (opCode >= kArmChainingCellBottom && opCode < kMipsFirst) {
 static RegLocation inlinedTarget(CompilationUnit *cUnit, MIR *mir,
                                   bool fpHint)
 {
-assert(1); /* DRP verify inlinedTarget() */
     if (mir->next &&
         ((mir->next->dalvikInsn.opCode == OP_MOVE_RESULT) ||
          (mir->next->dalvikInsn.opCode == OP_MOVE_RESULT_OBJECT))) {
@@ -322,16 +301,14 @@ assert(1); /* DRP verify inlinedTarget() */
  * Search the existing constants in the literal pool for an exact or close match
  * within specified delta (greater or equal to 0).
  */
-static ArmLIR *scanLiteralPool(CompilationUnit *cUnit, int value,
+static MipsLIR *scanLiteralPool(CompilationUnit *cUnit, int value,
                                    unsigned int delta)
 {
-return NULL; /* DRP retarg scanLiteralPool() */
-
     LIR *dataTarget = cUnit->wordList;
     while (dataTarget) {
-        if (((unsigned) (value - ((ArmLIR *) dataTarget)->operands[0])) <=
+        if (((unsigned) (value - ((MipsLIR *) dataTarget)->operands[0])) <=
             delta)
-            return (ArmLIR *) dataTarget;
+            return (MipsLIR *) dataTarget;
         dataTarget = dataTarget->next;
     }
     return NULL;
@@ -343,12 +320,11 @@ return NULL; /* DRP retarg scanLiteralPool() */
  */
 
 /* Add a 32-bit constant either in the constant pool or mixed with code */
-static ArmLIR *addWordData(CompilationUnit *cUnit, int value, bool inPlace)
+static MipsLIR *addWordData(CompilationUnit *cUnit, int value, bool inPlace)
 {
     /* Add the constant to the literal pool */
     if (!inPlace) {
-assert(0); /* DRP !inPlace addWordData */
-        ArmLIR *newValue = dvmCompilerNew(sizeof(ArmLIR), true);
+        MipsLIR *newValue = dvmCompilerNew(sizeof(MipsLIR), true);
         newValue->operands[0] = value;
         newValue->generic.next = cUnit->wordList;
         cUnit->wordList = (LIR *) newValue;
@@ -363,7 +339,6 @@ assert(0); /* DRP !inPlace addWordData */
 static RegLocation inlinedTargetWide(CompilationUnit *cUnit, MIR *mir,
                                       bool fpHint)
 {
-assert(1); /* DRP verify inlinedTargetWide() */
     if (mir->next &&
         (mir->next->dalvikInsn.opCode == OP_MOVE_RESULT_WIDE)) {
         mir->next->dalvikInsn.opCode = OP_NOP;
@@ -377,30 +352,28 @@ assert(1); /* DRP verify inlinedTargetWide() */
 
 
 /*
- * Generate an kArmPseudoBarrier marker to indicate the boundary of special
+ * Generate an kMipsPseudoBarrier marker to indicate the boundary of special
  * blocks.
  */
 static void genBarrier(CompilationUnit *cUnit)
 {
-assert(1); /* DRP verify genBarrier() */
-    ArmLIR *barrier = newLIR0(cUnit, kMipsPseudoBarrier);
+    MipsLIR *barrier = newLIR0(cUnit, kMipsPseudoBarrier);
     /* Mark all resources as being clobbered */
     barrier->defMask = -1;
 }
 
 /* Create the PC reconstruction slot if not already done */
-extern ArmLIR *genCheckCommon(CompilationUnit *cUnit, int dOffset,
-                              ArmLIR *branch,
-                              ArmLIR *pcrLabel)
+extern MipsLIR *genCheckCommon(CompilationUnit *cUnit, int dOffset,
+                              MipsLIR *branch,
+                              MipsLIR *pcrLabel)
 {
-assert(1); /* DRP verify genCheckCommon() */
     /* Forget all def info (because we might rollback here.  Bug #2367397 */
     dvmCompilerResetDefTracking(cUnit);
 
     /* Set up the place holder to reconstruct this Dalvik PC */
     if (pcrLabel == NULL) {
         int dPC = (int) (cUnit->method->insns + dOffset);
-        pcrLabel = dvmCompilerNew(sizeof(ArmLIR), true);
+        pcrLabel = dvmCompilerNew(sizeof(MipsLIR), true);
         pcrLabel->opCode = kMipsPseudoPCReconstructionCell;
         pcrLabel->operands[0] = dPC;
         pcrLabel->operands[1] = dOffset;

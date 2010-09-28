@@ -97,12 +97,6 @@
 .LdvmSelfVerificationMemOpDecode:
     .word   dvmSelfVerificationMemOpDecode
 #endif
-#if 0 /* !!! DRP handle __aeabi_cXcmple */
-.L__aeabi_cdcmple:
-    .word   __aeabi_cdcmple
-.L__aeabi_cfcmple:
-    .word   __aeabi_cfcmple
-#endif
 
     .global dmvCompilerTemplateEnd
 dmvCompilerTemplateEnd:

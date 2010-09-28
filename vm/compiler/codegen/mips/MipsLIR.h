@@ -68,8 +68,6 @@
 /* Reg types */
 #define REGTYPE(x) (x & (FP_REG_OFFSET | FP_DOUBLE))
 #define FPREG(x) ((x & FP_REG_OFFSET) == FP_REG_OFFSET)
-/* DRP cleanup #define LOWREG(x) ((x & 0x7) == x) */
-/* #define LOWREG(x) ((x & 0x1F) == x) */
 #define LOWREG(x) ((x) <= r_PC)
 #define DOUBLEREG(x) ((x & FP_DOUBLE) == FP_DOUBLE)
 #define SINGLEREG(x) (FPREG(x) && !DOUBLEREG(x))
@@ -388,7 +386,7 @@ typedef enum NativeRegisterPool {
 /* must match gp offset used mterp/mips files */
 #define STACK_OFFSET_GP 84
 
-/* DRP cleanup: properly remap arm regs (r0-r3, dPC, dFP, dGLUE) and remove these mappings */
+/* MIPSTODO: properly remap arm regs (r0-r3, dPC, dFP, dGLUE) and remove these mappings */
 #define r0 r_A0
 #define r1 r_A1
 #define r2 r_A2
@@ -399,32 +397,32 @@ typedef enum NativeRegisterPool {
 #define rINST r_S4
 
 /* Shift encodings */
-typedef enum ArmShiftEncodings {
-    kArmLsl = 0x0,
-    kArmLsr = 0x1,
-    kArmAsr = 0x2,
-    kArmRor = 0x3
-} ArmShiftEncodings;
+typedef enum MipsShiftEncodings {
+    kMipsLsl = 0x0,
+    kMipsLsr = 0x1,
+    kMipsAsr = 0x2,
+    kMipsRor = 0x3
+} MipsShiftEncodings;
 
-/* Thumb condition encodings */
-typedef enum ArmConditionCode {
-    kArmCondEq = 0x0,    /* 0000 */
-    kArmCondNe = 0x1,    /* 0001 */
-    kArmCondCs = 0x2,    /* 0010 */
-    kArmCondCc = 0x3,    /* 0011 */
-    kArmCondMi = 0x4,    /* 0100 */
-    kArmCondPl = 0x5,    /* 0101 */
-    kArmCondVs = 0x6,    /* 0110 */
-    kArmCondVc = 0x7,    /* 0111 */
-    kArmCondHi = 0x8,    /* 1000 */
-    kArmCondLs = 0x9,    /* 1001 */
-    kArmCondGe = 0xa,    /* 1010 */
-    kArmCondLt = 0xb,    /* 1011 */
-    kArmCondGt = 0xc,    /* 1100 */
-    kArmCondLe = 0xd,    /* 1101 */
-    kArmCondAl = 0xe,    /* 1110 */
-    kArmCondNv = 0xf,    /* 1111 */
-} ArmConditionCode;
+/* condition encodings */
+typedef enum MipsConditionCode {
+    kMipsCondEq = 0x0,    /* 0000 */
+    kMipsCondNe = 0x1,    /* 0001 */
+    kMipsCondCs = 0x2,    /* 0010 */
+    kMipsCondCc = 0x3,    /* 0011 */
+    kMipsCondMi = 0x4,    /* 0100 */
+    kMipsCondPl = 0x5,    /* 0101 */
+    kMipsCondVs = 0x6,    /* 0110 */
+    kMipsCondVc = 0x7,    /* 0111 */
+    kMipsCondHi = 0x8,    /* 1000 */
+    kMipsCondLs = 0x9,    /* 1001 */
+    kMipsCondGe = 0xa,    /* 1010 */
+    kMipsCondLt = 0xb,    /* 1011 */
+    kMipsCondGt = 0xc,    /* 1100 */
+    kMipsCondLe = 0xd,    /* 1101 */
+    kMipsCondAl = 0xe,    /* 1110 */
+    kMipsCondNv = 0xf,    /* 1111 */
+} MipsConditionCode;
 
 #define isPseudoOpCode(opCode) ((int)(opCode) < 0)
 
@@ -433,334 +431,25 @@ typedef enum ArmConditionCode {
  * assembler. Their corresponding snippet positions will be defined in
  * Assemble.c.
  */
-typedef enum ArmOpCode {
-    kMipsChainingCellBottom = -118,
-    kMipsPseudoBarrier = -117,
-    kMipsPseudoExtended = -116,
-    kMipsPseudoSSARep = -115,
-    kMipsPseudoEntryBlock = -114,
-    kMipsPseudoExitBlock = -113,
-    kMipsPseudoTargetLabel = -112,
-    kMipsPseudoChainingCellBackwardBranch = -111,
-    kMipsPseudoChainingCellHot = -110,
-    kMipsPseudoChainingCellInvokePredicted = -109,
-    kMipsPseudoChainingCellInvokeSingleton = -108,
-    kMipsPseudoChainingCellNormal = -107,
-    kMipsPseudoDalvikByteCodeBoundary = -106,
-    kMipsPseudoPseudoAlign4 = -105,
-    kMipsPseudoPCReconstructionCell = -104,
-    kMipsPseudoPCReconstructionBlockLabel = -103,
-    kMipsPseudoEHBlockLabel = -102,
-    kMipsPseudoNormalBlockLabel = -101,
-
-    kArmChainingCellBottom = -18,
-    kArmPseudoBarrier = -17,
-    kArmPseudoExtended = -16,
-    kArmPseudoSSARep = -15,
-    kArmPseudoEntryBlock = -14,
-    kArmPseudoExitBlock = -13,
-    kArmPseudoTargetLabel = -12,
-    kArmPseudoChainingCellBackwardBranch = -11,
-    kArmPseudoChainingCellHot = -10,
-    kArmPseudoChainingCellInvokePredicted = -9,
-    kArmPseudoChainingCellInvokeSingleton = -8,
-    kArmPseudoChainingCellNormal = -7,
-    kArmPseudoDalvikByteCodeBoundary = -6,
-    kArmPseudoPseudoAlign4 = -5,
-    kArmPseudoPCReconstructionCell = -4,
-    kArmPseudoPCReconstructionBlockLabel = -3,
-    kArmPseudoEHBlockLabel = -2,
-    kArmPseudoNormalBlockLabel = -1,
-    /************************************************************************/
-    kArm16BitData,       /* DATA   [0] rd[15..0] */
-    kThumbAdcRR,         /* adc     [0100000101] rm[5..3] rd[2..0] */
-    kThumbAddRRI3,       /* add(1)  [0001110] imm_3[8..6] rn[5..3] rd[2..0]*/
-    kThumbAddRI8,        /* add(2)  [00110] rd[10..8] imm_8[7..0] */
-    kThumbAddRRR,        /* add(3)  [0001100] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbAddRRLH,       /* add(4)  [01000100] H12[01] rm[5..3] rd[2..0] */
-    kThumbAddRRHL,       /* add(4)  [01001000] H12[10] rm[5..3] rd[2..0] */
-    kThumbAddRRHH,       /* add(4)  [01001100] H12[11] rm[5..3] rd[2..0] */
-    kThumbAddPcRel,      /* add(5)  [10100] rd[10..8] imm_8[7..0] */
-    kThumbAddSpRel,      /* add(6)  [10101] rd[10..8] imm_8[7..0] */
-    kThumbAddSpI7,       /* add(7)  [101100000] imm_7[6..0] */
-    kThumbAndRR,         /* and     [0100000000] rm[5..3] rd[2..0] */
-    kThumbAsrRRI5,       /* asr(1)  [00010] imm_5[10..6] rm[5..3] rd[2..0] */
-    kThumbAsrRR,         /* asr(2)  [0100000100] rs[5..3] rd[2..0] */
-    kThumbBCond,         /* b(1)    [1101] cond[11..8] offset_8[7..0] */
-    kThumbBUncond,       /* b(2)    [11100] offset_11[10..0] */
-    kThumbBicRR,         /* bic     [0100001110] rm[5..3] rd[2..0] */
-    kThumbBkpt,          /* bkpt    [10111110] imm_8[7..0] */
-    kThumbBlx1,          /* blx(1)  [111] H[10] offset_11[10..0] */
-    kThumbBlx2,          /* blx(1)  [111] H[01] offset_11[10..0] */
-    kThumbBl1,           /* blx(1)  [111] H[10] offset_11[10..0] */
-    kThumbBl2,           /* blx(1)  [111] H[11] offset_11[10..0] */
-    kThumbBlxR,          /* blx(2)  [010001111] rm[6..3] [000] */
-    kThumbBx,            /* bx      [010001110] H2[6..6] rm[5..3] SBZ[000] */
-    kThumbCmnRR,         /* cmn     [0100001011] rm[5..3] rd[2..0] */
-    kThumbCmpRI8,        /* cmp(1)  [00101] rn[10..8] imm_8[7..0] */
-    kThumbCmpRR,         /* cmp(2)  [0100001010] rm[5..3] rd[2..0] */
-    kThumbCmpLH,         /* cmp(3)  [01000101] H12[01] rm[5..3] rd[2..0] */
-    kThumbCmpHL,         /* cmp(3)  [01000110] H12[10] rm[5..3] rd[2..0] */
-    kThumbCmpHH,         /* cmp(3)  [01000111] H12[11] rm[5..3] rd[2..0] */
-    kThumbEorRR,         /* eor     [0100000001] rm[5..3] rd[2..0] */
-    kThumbLdmia,         /* ldmia   [11001] rn[10..8] reglist [7..0] */
-    kThumbLdrRRI5,       /* ldr(1)  [01101] imm_5[10..6] rn[5..3] rd[2..0] */
-    kThumbLdrRRR,        /* ldr(2)  [0101100] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbLdrPcRel,      /* ldr(3)  [01001] rd[10..8] imm_8[7..0] */
-    kThumbLdrSpRel,      /* ldr(4)  [10011] rd[10..8] imm_8[7..0] */
-    kThumbLdrbRRI5,      /* ldrb(1) [01111] imm_5[10..6] rn[5..3] rd[2..0] */
-    kThumbLdrbRRR,       /* ldrb(2) [0101110] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbLdrhRRI5,      /* ldrh(1) [10001] imm_5[10..6] rn[5..3] rd[2..0] */
-    kThumbLdrhRRR,       /* ldrh(2) [0101101] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbLdrsbRRR,      /* ldrsb   [0101011] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbLdrshRRR,      /* ldrsh   [0101111] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbLslRRI5,       /* lsl(1)  [00000] imm_5[10..6] rm[5..3] rd[2..0] */
-    kThumbLslRR,         /* lsl(2)  [0100000010] rs[5..3] rd[2..0] */
-    kThumbLsrRRI5,       /* lsr(1)  [00001] imm_5[10..6] rm[5..3] rd[2..0] */
-    kThumbLsrRR,         /* lsr(2)  [0100000011] rs[5..3] rd[2..0] */
-    kThumbMovImm,        /* mov(1)  [00100] rd[10..8] imm_8[7..0] */
-    kThumbMovRR,         /* mov(2)  [0001110000] rn[5..3] rd[2..0] */
-    kThumbMovRR_H2H,     /* mov(3)  [01000111] H12[11] rm[5..3] rd[2..0] */
-    kThumbMovRR_H2L,     /* mov(3)  [01000110] H12[01] rm[5..3] rd[2..0] */
-    kThumbMovRR_L2H,     /* mov(3)  [01000101] H12[10] rm[5..3] rd[2..0] */
-    kThumbMul,           /* mul     [0100001101] rm[5..3] rd[2..0] */
-    kThumbMvn,           /* mvn     [0100001111] rm[5..3] rd[2..0] */
-    kThumbNeg,           /* neg     [0100001001] rm[5..3] rd[2..0] */
-    kThumbOrr,           /* orr     [0100001100] rm[5..3] rd[2..0] */
-    kThumbPop,           /* pop     [1011110] r[8..8] rl[7..0] */
-    kThumbPush,          /* push    [1011010] r[8..8] rl[7..0] */
-    kThumbRorRR,         /* ror     [0100000111] rs[5..3] rd[2..0] */
-    kThumbSbc,           /* sbc     [0100000110] rm[5..3] rd[2..0] */
-    kThumbStmia,         /* stmia   [11000] rn[10..8] reglist [7.. 0] */
-    kThumbStrRRI5,       /* str(1)  [01100] imm_5[10..6] rn[5..3] rd[2..0] */
-    kThumbStrRRR,        /* str(2)  [0101000] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbStrSpRel,      /* str(3)  [10010] rd[10..8] imm_8[7..0] */
-    kThumbStrbRRI5,      /* strb(1) [01110] imm_5[10..6] rn[5..3] rd[2..0] */
-    kThumbStrbRRR,       /* strb(2) [0101010] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbStrhRRI5,      /* strh(1) [10000] imm_5[10..6] rn[5..3] rd[2..0] */
-    kThumbStrhRRR,       /* strh(2) [0101001] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbSubRRI3,       /* sub(1)  [0001111] imm_3[8..6] rn[5..3] rd[2..0]*/
-    kThumbSubRI8,        /* sub(2)  [00111] rd[10..8] imm_8[7..0] */
-    kThumbSubRRR,        /* sub(3)  [0001101] rm[8..6] rn[5..3] rd[2..0] */
-    kThumbSubSpI7,       /* sub(4)  [101100001] imm_7[6..0] */
-    kThumbSwi,           /* swi     [11011111] imm_8[7..0] */
-    kThumbTst,           /* tst     [0100001000] rm[5..3] rn[2..0] */
-    kThumb2Vldrs,        /* vldr low  sx [111011011001] rn[19..16] rd[15-12]
-                                    [1010] imm_8[7..0] */
-    kThumb2Vldrd,        /* vldr low  dx [111011011001] rn[19..16] rd[15-12]
-                                    [1011] imm_8[7..0] */
-    kThumb2Vmuls,        /* vmul vd, vn, vm [111011100010] rn[19..16]
-                                    rd[15-12] [10100000] rm[3..0] */
-    kThumb2Vmuld,        /* vmul vd, vn, vm [111011100010] rn[19..16]
-                                    rd[15-12] [10110000] rm[3..0] */
-    kThumb2Vstrs,        /* vstr low  sx [111011011000] rn[19..16] rd[15-12]
-                                    [1010] imm_8[7..0] */
-    kThumb2Vstrd,        /* vstr low  dx [111011011000] rn[19..16] rd[15-12]
-                                    [1011] imm_8[7..0] */
-    kThumb2Vsubs,        /* vsub vd, vn, vm [111011100011] rn[19..16]
-                                    rd[15-12] [10100040] rm[3..0] */
-    kThumb2Vsubd,        /* vsub vd, vn, vm [111011100011] rn[19..16]
-                                    rd[15-12] [10110040] rm[3..0] */
-    kThumb2Vadds,        /* vadd vd, vn, vm [111011100011] rn[19..16]
-                                    rd[15-12] [10100000] rm[3..0] */
-    kThumb2Vaddd,        /* vadd vd, vn, vm [111011100011] rn[19..16]
-                                    rd[15-12] [10110000] rm[3..0] */
-    kThumb2Vdivs,        /* vdiv vd, vn, vm [111011101000] rn[19..16]
-                                    rd[15-12] [10100000] rm[3..0] */
-    kThumb2Vdivd,        /* vdiv vd, vn, vm [111011101000] rn[19..16]
-                                    rd[15-12] [10110000] rm[3..0] */
-    kThumb2VcvtIF,       /* vcvt.F32 vd, vm [1110111010111000] vd[15..12]
-                                    [10101100] vm[3..0] */
-    kThumb2VcvtID,       /* vcvt.F64 vd, vm [1110111010111000] vd[15..12]
-                                       [10111100] vm[3..0] */
-    kThumb2VcvtFI,       /* vcvt.S32.F32 vd, vm [1110111010111101] vd[15..12]
-                                       [10101100] vm[3..0] */
-    kThumb2VcvtDI,       /* vcvt.S32.F32 vd, vm [1110111010111101] vd[15..12]
-                                       [10111100] vm[3..0] */
-    kThumb2VcvtFd,       /* vcvt.F64.F32 vd, vm [1110111010110111] vd[15..12]
-                                       [10101100] vm[3..0] */
-    kThumb2VcvtDF,       /* vcvt.F32.F64 vd, vm [1110111010110111] vd[15..12]
-                                       [10111100] vm[3..0] */
-    kThumb2Vsqrts,       /* vsqrt.f32 vd, vm [1110111010110001] vd[15..12]
-                                       [10101100] vm[3..0] */
-    kThumb2Vsqrtd,       /* vsqrt.f64 vd, vm [1110111010110001] vd[15..12]
-                                       [10111100] vm[3..0] */
-    kThumb2MovImmShift,  /* mov(T2) rd, #<const> [11110] i [00001001111]
-                                       imm3 rd[11..8] imm8 */
-    kThumb2MovImm16,     /* mov(T3) rd, #<const> [11110] i [0010100] imm4 [0]
-                                       imm3 rd[11..8] imm8 */
-    kThumb2StrRRI12,     /* str(Imm,T3) rd,[rn,#imm12] [111110001100]
-                                       rn[19..16] rt[15..12] imm12[11..0] */
-    kThumb2LdrRRI12,     /* str(Imm,T3) rd,[rn,#imm12] [111110001100]
-                                       rn[19..16] rt[15..12] imm12[11..0] */
-    kThumb2StrRRI8Predec, /* str(Imm,T4) rd,[rn,#-imm8] [111110000100]
-                                       rn[19..16] rt[15..12] [1100] imm[7..0]*/
-    kThumb2LdrRRI8Predec, /* ldr(Imm,T4) rd,[rn,#-imm8] [111110000101]
-                                       rn[19..16] rt[15..12] [1100] imm[7..0]*/
-    kThumb2Cbnz,         /* cbnz rd,<label> [101110] i [1] imm5[7..3]
-                                       rn[2..0] */
-    kThumb2Cbz,          /* cbn rd,<label> [101100] i [1] imm5[7..3]
-                                       rn[2..0] */
-    kThumb2AddRRI12,     /* add rd, rn, #imm12 [11110] i [100000] rn[19..16]
-                                       [0] imm3[14..12] rd[11..8] imm8[7..0] */
-    kThumb2MovRR,        /* mov rd, rm [11101010010011110000] rd[11..8]
-                                       [0000] rm[3..0] */
-    kThumb2Vmovs,        /* vmov.f32 vd, vm [111011101] D [110000]
-                                       vd[15..12] 101001] M [0] vm[3..0] */
-    kThumb2Vmovd,        /* vmov.f64 vd, vm [111011101] D [110000]
-                                       vd[15..12] 101101] M [0] vm[3..0] */
-    kThumb2Ldmia,        /* ldmia  [111010001001[ rn[19..16] mask[15..0] */
-    kThumb2Stmia,        /* stmia  [111010001000[ rn[19..16] mask[15..0] */
-    kThumb2AddRRR,       /* add [111010110000] rn[19..16] [0000] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2SubRRR,       /* sub [111010111010] rn[19..16] [0000] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2SbcRRR,       /* sbc [111010110110] rn[19..16] [0000] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2CmpRR,        /* cmp [111010111011] rn[19..16] [0000] [1111]
-                                   [0000] rm[3..0] */
-    kThumb2SubRRI12,     /* sub rd, rn, #imm12 [11110] i [01010] rn[19..16]
-                                       [0] imm3[14..12] rd[11..8] imm8[7..0] */
-    kThumb2MvnImmShift,  /* mov(T2) rd, #<const> [11110] i [00011011110]
-                                       imm3 rd[11..8] imm8 */
-    kThumb2Sel,          /* sel rd, rn, rm [111110101010] rn[19-16] rd[11-8]
-                                       rm[3-0] */
-    kThumb2Ubfx,         /* ubfx rd,rn,#lsb,#width [111100111100] rn[19..16]
-                                       [0] imm3[14-12] rd[11-8] w[4-0] */
-    kThumb2Sbfx,         /* ubfx rd,rn,#lsb,#width [111100110100] rn[19..16]
-                                       [0] imm3[14-12] rd[11-8] w[4-0] */
-    kThumb2LdrRRR,       /* ldr rt,[rn,rm,LSL #imm] [111110000101] rn[19-16]
-                                       rt[15-12] [000000] imm[5-4] rm[3-0] */
-    kThumb2LdrhRRR,      /* ldrh rt,[rn,rm,LSL #imm] [111110000101] rn[19-16]
-                                       rt[15-12] [000000] imm[5-4] rm[3-0] */
-    kThumb2LdrshRRR,     /* ldrsh rt,[rn,rm,LSL #imm] [111110000101] rn[19-16]
-                                       rt[15-12] [000000] imm[5-4] rm[3-0] */
-    kThumb2LdrbRRR,      /* ldrb rt,[rn,rm,LSL #imm] [111110000101] rn[19-16]
-                                       rt[15-12] [000000] imm[5-4] rm[3-0] */
-    kThumb2LdrsbRRR,     /* ldrsb rt,[rn,rm,LSL #imm] [111110000101] rn[19-16]
-                                       rt[15-12] [000000] imm[5-4] rm[3-0] */
-    kThumb2StrRRR,       /* str rt,[rn,rm,LSL #imm] [111110000100] rn[19-16]
-                                       rt[15-12] [000000] imm[5-4] rm[3-0] */
-    kThumb2StrhRRR,      /* str rt,[rn,rm,LSL #imm] [111110000010] rn[19-16]
-                                       rt[15-12] [000000] imm[5-4] rm[3-0] */
-    kThumb2StrbRRR,      /* str rt,[rn,rm,LSL #imm] [111110000000] rn[19-16]
-                                       rt[15-12] [000000] imm[5-4] rm[3-0] */
-    kThumb2LdrhRRI12,    /* ldrh rt,[rn,#imm12] [111110001011]
-                                       rt[15..12] rn[19..16] imm12[11..0] */
-    kThumb2LdrshRRI12,   /* ldrsh rt,[rn,#imm12] [111110011011]
-                                       rt[15..12] rn[19..16] imm12[11..0] */
-    kThumb2LdrbRRI12,    /* ldrb rt,[rn,#imm12] [111110001001]
-                                       rt[15..12] rn[19..16] imm12[11..0] */
-    kThumb2LdrsbRRI12,   /* ldrsb rt,[rn,#imm12] [111110011001]
-                                       rt[15..12] rn[19..16] imm12[11..0] */
-    kThumb2StrhRRI12,    /* strh rt,[rn,#imm12] [111110001010]
-                                       rt[15..12] rn[19..16] imm12[11..0] */
-    kThumb2StrbRRI12,    /* strb rt,[rn,#imm12] [111110001000]
-                                       rt[15..12] rn[19..16] imm12[11..0] */
-    kThumb2Pop,          /* pop     [1110100010111101] list[15-0]*/
-    kThumb2Push,         /* push    [1110100010101101] list[15-0]*/
-    kThumb2CmpRI8,       /* cmp rn, #<const> [11110] i [011011] rn[19-16] [0]
-                                       imm3 [1111] imm8[7..0] */
-    kThumb2AdcRRR,       /* adc [111010110101] rn[19..16] [0000] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2AndRRR,       /* and [111010100000] rn[19..16] [0000] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2BicRRR,       /* bic [111010100010] rn[19..16] [0000] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2CmnRR,        /* cmn [111010110001] rn[19..16] [0000] [1111]
-                                   [0000] rm[3..0] */
-    kThumb2EorRRR,       /* eor [111010101000] rn[19..16] [0000] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2MulRRR,       /* mul [111110110000] rn[19..16] [1111] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2MnvRR,        /* mvn [11101010011011110] rd[11-8] [0000]
-                                   rm[3..0] */
-    kThumb2RsubRRI8,     /* rsub [111100011100] rn[19..16] [0000] rd[11..8]
-                                   imm8[7..0] */
-    kThumb2NegRR,        /* actually rsub rd, rn, #0 */
-    kThumb2OrrRRR,       /* orr [111010100100] rn[19..16] [0000] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2TstRR,        /* tst [111010100001] rn[19..16] [0000] [1111]
-                                   [0000] rm[3..0] */
-    kThumb2LslRRR,       /* lsl [111110100000] rn[19..16] [1111] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2LsrRRR,       /* lsr [111110100010] rn[19..16] [1111] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2AsrRRR,       /* asr [111110100100] rn[19..16] [1111] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2RorRRR,       /* ror [111110100110] rn[19..16] [1111] rd[11..8]
-                                   [0000] rm[3..0] */
-    kThumb2LslRRI5,      /* lsl [11101010010011110] imm[14.12] rd[11..8]
-                                   [00] rm[3..0] */
-    kThumb2LsrRRI5,      /* lsr [11101010010011110] imm[14.12] rd[11..8]
-                                   [01] rm[3..0] */
-    kThumb2AsrRRI5,      /* asr [11101010010011110] imm[14.12] rd[11..8]
-                                   [10] rm[3..0] */
-    kThumb2RorRRI5,      /* ror [11101010010011110] imm[14.12] rd[11..8]
-                                   [11] rm[3..0] */
-    kThumb2BicRRI8,      /* bic [111100000010] rn[19..16] [0] imm3
-                                   rd[11..8] imm8 */
-    kThumb2AndRRI8,      /* bic [111100000000] rn[19..16] [0] imm3
-                                   rd[11..8] imm8 */
-    kThumb2OrrRRI8,      /* orr [111100000100] rn[19..16] [0] imm3
-                                   rd[11..8] imm8 */
-    kThumb2EorRRI8,      /* eor [111100001000] rn[19..16] [0] imm3
-                                   rd[11..8] imm8 */
-    kThumb2AddRRI8,      /* add [111100001000] rn[19..16] [0] imm3
-                                   rd[11..8] imm8 */
-    kThumb2AdcRRI8,      /* adc [111100010101] rn[19..16] [0] imm3
-                                   rd[11..8] imm8 */
-    kThumb2SubRRI8,      /* sub [111100011011] rn[19..16] [0] imm3
-                                   rd[11..8] imm8 */
-    kThumb2SbcRRI8,      /* sbc [111100010111] rn[19..16] [0] imm3
-                                   rd[11..8] imm8 */
-    kThumb2It,           /* it [10111111] firstcond[7-4] mask[3-0] */
-    kThumb2Fmstat,       /* fmstat [11101110111100011111101000010000] */
-    kThumb2Vcmpd,        /* vcmp [111011101] D [11011] rd[15-12] [1011]
-                                   E [1] M [0] rm[3-0] */
-    kThumb2Vcmps,        /* vcmp [111011101] D [11010] rd[15-12] [1011]
-                                   E [1] M [0] rm[3-0] */
-    kThumb2LdrPcRel12,   /* ldr rd,[pc,#imm12] [1111100011011111] rt[15-12]
-                                  imm12[11-0] */
-    kThumb2BCond,        /* b<c> [1110] S cond[25-22] imm6[21-16] [10]
-                                  J1 [0] J2 imm11[10..0] */
-    kThumb2Vmovd_RR,     /* vmov [111011101] D [110000] vd[15-12 [101101]
-                                  M [0] vm[3-0] */
-    kThumb2Vmovs_RR,     /* vmov [111011101] D [110000] vd[15-12 [101001]
-                                  M [0] vm[3-0] */
-    kThumb2Fmrs,         /* vmov [111011100000] vn[19-16] rt[15-12] [1010]
-                                  N [0010000] */
-    kThumb2Fmsr,         /* vmov [111011100001] vn[19-16] rt[15-12] [1010]
-                                  N [0010000] */
-    kThumb2Fmrrd,        /* vmov [111011000100] rt2[19-16] rt[15-12]
-                                  [101100] M [1] vm[3-0] */
-    kThumb2Fmdrr,        /* vmov [111011000101] rt2[19-16] rt[15-12]
-                                  [101100] M [1] vm[3-0] */
-    kThumb2Vabsd,        /* vabs.f64 [111011101] D [110000] rd[15-12]
-                                  [1011110] M [0] vm[3-0] */
-    kThumb2Vabss,        /* vabs.f32 [111011101] D [110000] rd[15-12]
-                                  [1010110] M [0] vm[3-0] */
-    kThumb2Vnegd,        /* vneg.f64 [111011101] D [110000] rd[15-12]
-                                  [1011110] M [0] vm[3-0] */
-    kThumb2Vnegs,        /* vneg.f32 [111011101] D [110000] rd[15-12]
-                                 [1010110] M [0] vm[3-0] */
-    kThumb2Vmovs_IMM8,   /* vmov.f32 [111011101] D [11] imm4h[19-16] vd[15-12]
-                                  [10100000] imm4l[3-0] */
-    kThumb2Vmovd_IMM8,   /* vmov.f64 [111011101] D [11] imm4h[19-16] vd[15-12]
-                                  [10110000] imm4l[3-0] */
-    kThumb2Mla,          /* mla [111110110000] rn[19-16] ra[15-12] rd[7-4]
-                                  [0000] rm[3-0] */
-    kThumb2Umull,        /* umull [111110111010] rn[19-16], rdlo[15-12]
-                                  rdhi[11-8] [0000] rm[3-0] */
-    kThumb2Ldrex,        /* ldrex [111010000101] rn[19-16] rt[11-8] [1111]
-                                  imm8[7-0] */
-    kThumb2Strex,        /* strex [111010000100] rn[19-16] rt[11-8] rd[11-8]
-                                  imm8[7-0] */
-    kThumb2Clrex,        /* clrex [111100111011111110000111100101111] */
-    kThumb2Bfi,          /* bfi [111100110110] rn[19-16] [0] imm3[14-12]
-                                  rd[11-8] imm2[7-6] [0] msb[4-0] */
-    kThumb2Bfc,          /* bfc [11110011011011110] [0] imm3[14-12]
-                                  rd[11-8] imm2[7-6] [0] msb[4-0] */
+typedef enum MipsOpCode {
+    kMipsChainingCellBottom = -18,
+    kMipsPseudoBarrier = -17,
+    kMipsPseudoExtended = -16,
+    kMipsPseudoSSARep = -15,
+    kMipsPseudoEntryBlock = -14,
+    kMipsPseudoExitBlock = -13,
+    kMipsPseudoTargetLabel = -12,
+    kMipsPseudoChainingCellBackwardBranch = -11,
+    kMipsPseudoChainingCellHot = -10,
+    kMipsPseudoChainingCellInvokePredicted = -9,
+    kMipsPseudoChainingCellInvokeSingleton = -8,
+    kMipsPseudoChainingCellNormal = -7,
+    kMipsPseudoDalvikByteCodeBoundary = -6,
+    kMipsPseudoPseudoAlign4 = -5,
+    kMipsPseudoPCReconstructionCell = -4,
+    kMipsPseudoPCReconstructionBlockLabel = -3,
+    kMipsPseudoEHBlockLabel = -2,
+    kMipsPseudoNormalBlockLabel = -1,
 
     kMipsFirst,
     kMips32BitData = kMipsFirst, /* data [31..0] */
@@ -816,13 +505,11 @@ typedef enum ArmOpCode {
     kMipsSw,      /* sw t,o(b) [101011] b[25..21] t[20..16] o[15..0] */
     kMipsXor,     /* xor d,s,t [000000] s[25..21] t[20..16] d[15..11] [00000100110] */
     kMipsXori,    /* xori t,s,imm16 [001110] s[25..21] t[20..16] imm16[15..0] */
-      
-    kArmLast,
-    kMipsLast = kArmLast,
-} ArmOpCode;
+    kMipsLast
+} MipsOpCode;
 
 /* Bit flags describing the behavior of each native opcode */
-typedef enum ArmOpFeatureFlags {
+typedef enum MipsOpFeatureFlags {
     kIsBranch = 0,
     kRegDef0,
     kRegDef1,
@@ -848,7 +535,7 @@ typedef enum ArmOpFeatureFlags {
     kUsesCCodes,
     kMemLoad,
     kMemStore,
-} ArmOpFeatureFlags;
+} MipsOpFeatureFlags;
 
 #define IS_LOAD         (1 << kMemLoad)
 #define IS_STORE        (1 << kMemStore)
@@ -891,7 +578,7 @@ typedef enum ArmOpFeatureFlags {
 #define REG_DEF01_USE2  (REG_DEF0 | REG_DEF1 | REG_USE2)
 
 /* Instruction assembly fieldLoc kind */
-typedef enum ArmEncodingKind {
+typedef enum MipsEncodingKind {
     kFmtUnused,
     kFmtBitBlt,        /* Bit string using end/start */
     kFmtDfp,           /* Double FP reg */
@@ -906,29 +593,29 @@ typedef enum ArmEncodingKind {
     kFmtShift5,        /* Shift count, [14..12,7..6] */
     kFmtBrOffset,      /* Signed extended [26,11,13,21-16,10-0]:0 */
     kFmtFPImm,         /* Encoded floating point immediate */
-} ArmEncodingKind;
+} MipsEncodingKind;
 
 /* Struct used to define the snippet positions for each Thumb opcode */
-typedef struct ArmEncodingMap {
+typedef struct MipsEncodingMap {
     u4 skeleton;
     struct {
-        ArmEncodingKind kind;
+        MipsEncodingKind kind;
         int end;   /* end for kFmtBitBlt, 1-bit slice end for FP regs */
         int start; /* start for kFmtBitBlt, 4-bit slice end for FP regs */
     } fieldLoc[4];
-    ArmOpCode opCode;
+    MipsOpCode opCode;
     int flags;
     char *name;
     char* fmt;
     int size;
-} ArmEncodingMap;
+} MipsEncodingMap;
 
 /* Keys for target-specific scheduling and other optimization hints */
-typedef enum ArmTargetOptHints {
+typedef enum MipsTargetOptHints {
     kMaxHoistDistance,
-} ArmTargetOptHints;
+} MipsTargetOptHints;
 
-extern ArmEncodingMap EncodingMap[kArmLast];
+extern MipsEncodingMap EncodingMap[kMipsLast];
 
 /*
  * Each instance of this struct holds a pseudo or real LIR instruction:
@@ -944,9 +631,9 @@ extern ArmEncodingMap EncodingMap[kArmLast];
  * - [49]: integer condition code
  * - [50]: floatint-point status word
  */
-typedef struct ArmLIR {
+typedef struct MipsLIR {
     LIR generic;
-    ArmOpCode opCode;
+    MipsOpCode opCode;
     int operands[4];    // [0..3] = [dest, src1, src2, extra]
     bool isNop;         // LIR is optimized away
     bool branchInsertSV;// mark for insertion of branch before this instruction,
@@ -956,7 +643,7 @@ typedef struct ArmLIR {
     int aliasInfo;      // For Dalvik register access & litpool disambiguation
     u8 useMask;         // Resource mask for use
     u8 defMask;         // Resource mask for def
-} ArmLIR;
+} MipsLIR;
 
 /* Init values when a predicted chain is initially assembled */
 /* E7FE is branch to self */
@@ -975,14 +662,14 @@ typedef struct ArmLIR {
 /* Used if the resolved callee is a native method */
 #define PREDICTED_CHAIN_COUNTER_AVOID    0x7fffffff
 
-/* Utility macros to traverse the LIR/ArmLIR list */
-#define NEXT_LIR(lir) ((ArmLIR *) lir->generic.next)
-#define PREV_LIR(lir) ((ArmLIR *) lir->generic.prev)
+/* Utility macros to traverse the LIR/MipsLIR list */
+#define NEXT_LIR(lir) ((MipsLIR *) lir->generic.next)
+#define PREV_LIR(lir) ((MipsLIR *) lir->generic.prev)
 
 #define NEXT_LIR_LVALUE(lir) (lir)->generic.next
 #define PREV_LIR_LVALUE(lir) (lir)->generic.prev
 
-#define CHAIN_CELL_OFFSET_TAG   0xcdabcdab
+#define CHAIN_CELL_OFFSET_TAG   0xcdabcdabL
 
 #define IS_UIMM16(v) ((0 <= (v)) && ((v) <= 65535))
 #define IS_SIMM16(v) ((-32768 <= (v)) && ((v) <= 32766))

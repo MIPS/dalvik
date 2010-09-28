@@ -25,14 +25,12 @@
  */
 JitInstructionSetType dvmCompilerInstructionSet(void)
 {
-/* DRP verified dvmCompilerInstructionSet() */
     return DALVIK_JIT_MIPS;
 }
 
 /* Architecture-specific initializations and checks go here */
 bool dvmCompilerArchVariantInit(void)
 {
-/* DRP cleanup dvmCompilerArchVariantInit() */
     /* First, declare dvmCompiler_TEMPLATE_XXX for each template */
 #define JIT_TEMPLATE(X) extern void dvmCompiler_TEMPLATE_##X();
 #include "../../../template/mips/TemplateOpList.h"
@@ -83,7 +81,6 @@ bool dvmCompilerArchVariantInit(void)
 
 int dvmCompilerTargetOptHint(int key)
 {
-/* DRP verify dvmCompilerTargetOptHint() */
     int res;
     switch (key) {
         case kMaxHoistDistance:

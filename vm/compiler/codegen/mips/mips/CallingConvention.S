@@ -19,7 +19,6 @@
  * On entry:
  *    a0 : pointer to save area of JIT_CALLEE_SAVE_WORD_SIZE
  */
-/* DRP port CallingConvention.S */
     .text
     .align 2
     .global dvmJitCalleeSave

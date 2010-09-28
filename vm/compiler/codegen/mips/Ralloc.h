@@ -27,8 +27,6 @@
 #include "compiler/Dataflow.h"
 #include "compiler/codegen/mips/MipsLIR.h"
 
-/* DRP review and verify inline funcs() */
-
 static inline int dvmCompilerS2VReg(CompilationUnit *cUnit, int sReg)
 {
     assert(sReg != INVALID_SREG);
