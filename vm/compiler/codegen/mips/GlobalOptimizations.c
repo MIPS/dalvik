@@ -24,15 +24,15 @@
  */
 static void applyRedundantBranchElimination(CompilationUnit *cUnit)
 {
-    ArmLIR *thisLIR;
+    MipsLIR *thisLIR;
 
-    for (thisLIR = (ArmLIR *) cUnit->firstLIRInsn;
-         thisLIR != (ArmLIR *) cUnit->lastLIRInsn;
+    for (thisLIR = (MipsLIR *) cUnit->firstLIRInsn;
+         thisLIR != (MipsLIR *) cUnit->lastLIRInsn;
          thisLIR = NEXT_LIR(thisLIR)) {
 
         /* Branch to the next instruction */
         if (thisLIR->opCode == kMipsB) {
-            ArmLIR *nextLIR = thisLIR;
+            MipsLIR *nextLIR = thisLIR;
 
             while (true) {
                 nextLIR = NEXT_LIR(nextLIR);
@@ -40,7 +40,7 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
                 /*
                  * Is the branch target the next instruction?
                  */
-                if (nextLIR == (ArmLIR *) thisLIR->generic.target) {
+                if (nextLIR == (MipsLIR *) thisLIR->generic.target) {
                     thisLIR->isNop = true;
                     break;
                 }
@@ -63,17 +63,17 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
  */
 static void introduceBranchDelaySlot(CompilationUnit *cUnit)
 {
-    ArmLIR *thisLIR;
+    MipsLIR *thisLIR;
 
-    for (thisLIR = (ArmLIR *) cUnit->firstLIRInsn;
-         thisLIR != (ArmLIR *) cUnit->lastLIRInsn;
+    for (thisLIR = (MipsLIR *) cUnit->firstLIRInsn;
+         thisLIR != (MipsLIR *) cUnit->lastLIRInsn;
          thisLIR = NEXT_LIR(thisLIR)) {
         if (thisLIR->isNop)
             continue;
             
         if (EncodingMap[thisLIR->opCode].flags & IS_BRANCH &&
             NEXT_LIR(thisLIR)->opCode != kMipsNop) {
-            ArmLIR *nopLIR = dvmCompilerNew(sizeof(ArmLIR), true);
+            MipsLIR *nopLIR = dvmCompilerNew(sizeof(MipsLIR), true);
             nopLIR->opCode = kMipsNop;
             nopLIR->defMask = 0;
             nopLIR->useMask = 0;
@@ -82,7 +82,7 @@ static void introduceBranchDelaySlot(CompilationUnit *cUnit)
     }
 
     if (EncodingMap[thisLIR->opCode].flags & IS_BRANCH) {
-        ArmLIR *nopLIR = dvmCompilerNew(sizeof(ArmLIR), true);
+        MipsLIR *nopLIR = dvmCompilerNew(sizeof(MipsLIR), true);
         nopLIR->opCode = kMipsNop;
         nopLIR->defMask = 0;
         nopLIR->useMask = 0;
@@ -92,7 +92,6 @@ static void introduceBranchDelaySlot(CompilationUnit *cUnit)
 
 void dvmCompilerApplyGlobalOptimizations(CompilationUnit *cUnit)
 {
-/* DRP verify dvmCompilerApplyGlobalOptimizations() */
     applyRedundantBranchElimination(cUnit);
     introduceBranchDelaySlot(cUnit);
 }

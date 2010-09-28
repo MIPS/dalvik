@@ -16,7 +16,7 @@
 
 /*
  * This file contains codegen and support common to all supported
- * ARM variants.  It is included by:
+ * Mips variants.  It is included by:
  *
  *        Codegen-$(TARGET_ARCH_VARIANT).c
  *
@@ -26,18 +26,16 @@
 
 
 /* Load a word at base + displacement.  Displacement must be word multiple */
-static ArmLIR *loadWordDisp(CompilationUnit *cUnit, int rBase, int displacement,
+static MipsLIR *loadWordDisp(CompilationUnit *cUnit, int rBase, int displacement,
                             int rDest)
 {
-assert(1); /* DRP verify loadWordDisp() */
     return loadBaseDisp(cUnit, NULL, rBase, displacement, rDest, kWord,
                         INVALID_SREG);
 }
 
-static ArmLIR *storeWordDisp(CompilationUnit *cUnit, int rBase,
+static MipsLIR *storeWordDisp(CompilationUnit *cUnit, int rBase,
                              int displacement, int rSrc)
 {
-assert(1); /* DRP verify storeWordDisp() */
     return storeBaseDisp(cUnit, rBase, displacement, rSrc, kWord);
 }
 
@@ -49,7 +47,6 @@ assert(1); /* DRP verify storeWordDisp() */
 static void loadValueDirect(CompilationUnit *cUnit, RegLocation rlSrc,
                                 int reg1)
 {
-assert(1); /* DRP verify loadValueDirect() */
     rlSrc = dvmCompilerUpdateLoc(cUnit, rlSrc);
     if (rlSrc.location == kLocPhysReg) {
         genRegCopy(cUnit, reg1, rlSrc.lowReg);
@@ -70,7 +67,6 @@ assert(1); /* DRP verify loadValueDirect() */
 static void loadValueDirectFixed(CompilationUnit *cUnit, RegLocation rlSrc,
                                  int reg1)
 {
-assert(1); /* DRP verify loadValueDirectFixed() */
     dvmCompilerClobber(cUnit, reg1);
     dvmCompilerMarkInUse(cUnit, reg1);
     loadValueDirect(cUnit, rlSrc, reg1);
@@ -84,7 +80,6 @@ assert(1); /* DRP verify loadValueDirectFixed() */
 static void loadValueDirectWide(CompilationUnit *cUnit, RegLocation rlSrc,
                                 int regLo, int regHi)
 {
-assert(1); /* DRP verify loadValueDirectWide() */
     rlSrc = dvmCompilerUpdateLocWide(cUnit, rlSrc);
     if (rlSrc.location == kLocPhysReg) {
         genRegCopyWide(cUnit, regLo, regHi, rlSrc.lowReg, rlSrc.highReg);
@@ -107,7 +102,6 @@ assert(1); /* DRP verify loadValueDirectWide() */
 static void loadValueDirectWideFixed(CompilationUnit *cUnit, RegLocation rlSrc,
                                      int regLo, int regHi)
 {
-assert(1); /* DRP verify loadValueDirectWideFixed() */
     dvmCompilerClobber(cUnit, regLo);
     dvmCompilerClobber(cUnit, regHi);
     dvmCompilerMarkInUse(cUnit, regLo);
@@ -118,7 +112,6 @@ assert(1); /* DRP verify loadValueDirectWideFixed() */
 static RegLocation loadValue(CompilationUnit *cUnit, RegLocation rlSrc,
                              RegisterClass opKind)
 {
-assert(1); /* DRP verify loadValue() */
     RegisterInfo *pReg;
     rlSrc = dvmCompilerEvalLoc(cUnit, rlSrc, opKind, false);
     if (rlSrc.location == kLocDalvikFrame) {
@@ -136,7 +129,6 @@ assert(1); /* DRP verify loadValue() */
 static void storeValue(CompilationUnit *cUnit, RegLocation rlDest,
                        RegLocation rlSrc)
 {
-assert(1); /* DRP in progress storeValue() */
     RegisterInfo *pRegLo;
     LIR *defStart;
     LIR *defEnd;
@@ -187,7 +179,6 @@ assert(1); /* DRP in progress storeValue() */
 static RegLocation loadValueWide(CompilationUnit *cUnit, RegLocation rlSrc,
                                  RegisterClass opKind)
 {
-assert(1); /* DRP verify loadValueWide() */
     RegisterInfo *pRegLo;
     RegisterInfo *pRegHi;
     assert(rlSrc.wide);
@@ -211,7 +202,6 @@ assert(1); /* DRP verify loadValueWide() */
 static void storeValueWide(CompilationUnit *cUnit, RegLocation rlDest,
                        RegLocation rlSrc)
 {
-assert(1); /* DRP verify storeValueWide() */
     RegisterInfo *pRegLo;
     RegisterInfo *pRegHi;
     LIR *defStart;
@@ -279,16 +269,15 @@ assert(1); /* DRP verify storeValueWide() */
  * and mReg is the machine register holding the actual value. If internal state
  * indicates that sReg has been checked before the check request is ignored.
  */
-static ArmLIR *genNullCheck(CompilationUnit *cUnit, int sReg, int mReg,
-                                int dOffset, ArmLIR *pcrLabel)
+static MipsLIR *genNullCheck(CompilationUnit *cUnit, int sReg, int mReg,
+                                int dOffset, MipsLIR *pcrLabel)
 {
-assert(1); /* DRP verify genNullCheck() */
     /* This particular Dalvik register has been null-checked */
     if (dvmIsBitSet(cUnit->regPool->nullCheckedRegs, sReg)) {
         return pcrLabel;
     }
     dvmSetBit(cUnit->regPool->nullCheckedRegs, sReg);
-    return genRegImmCheck(cUnit, kArmCondEq, mReg, 0, dOffset, pcrLabel);
+    return genRegImmCheck(cUnit, kMipsCondEq, mReg, 0, dOffset, pcrLabel);
 }
 
 
@@ -297,54 +286,44 @@ assert(1); /* DRP verify genNullCheck() */
  * Perform a "reg cmp reg" operation and jump to the PCR region if condition
  * satisfies.
  */
-static ArmLIR *genRegRegCheck(CompilationUnit *cUnit,
-                              ArmConditionCode cond,
+static MipsLIR *genRegRegCheck(CompilationUnit *cUnit,
+                              MipsConditionCode cond,
                               int reg1, int reg2, int dOffset,
-                              ArmLIR *pcrLabel)
+                              MipsLIR *pcrLabel)
 {
-assert(1); /* DRP finish genRegRegCheck() */
-    ArmLIR *res;
-#ifdef OLD_ARM
-    res = opRegReg(cUnit, kOpCmp, reg1, reg2);
-    ArmLIR *branch = opCondBranch(cUnit, cond);
-    genCheckCommon(cUnit, dOffset, branch, pcrLabel);
-    return res;
-#else
-    if (cond == kArmCondGe) { /* signed >= case */
+    MipsLIR *res = NULL;
+    if (cond == kMipsCondGe) { /* signed >= case */
         int tReg = dvmCompilerAllocTemp(cUnit);
         res = newLIR3(cUnit, kMipsSlt, tReg, reg1, reg2);
-        ArmLIR *branch = opCondBranchMips(cUnit, kMipsBeqz, tReg, -1);
+        MipsLIR *branch = opCondBranchMips(cUnit, kMipsBeqz, tReg, -1);
         genCheckCommon(cUnit, dOffset, branch, pcrLabel);
-    } else if (cond == kArmCondCs) {  /* unsigned >= case */
+    } else if (cond == kMipsCondCs) {  /* unsigned >= case */
         int tReg = dvmCompilerAllocTemp(cUnit);
         res = newLIR3(cUnit, kMipsSltu, tReg, reg1, reg2);
-        ArmLIR *branch = opCondBranchMips(cUnit, kMipsBeqz, tReg, -1);
+        MipsLIR *branch = opCondBranchMips(cUnit, kMipsBeqz, tReg, -1);
         genCheckCommon(cUnit, dOffset, branch, pcrLabel);
     } else {
-        assert(0); /* DRP add cases to genRegRegCheck() */
+        LOGE("Unexpected condition in genRegRegCheck: %d\n", (int) cond);
+        dvmAbort();
     }
-
     return res;
-#endif
 }
 
 /*
  * Perform zero-check on a register. Similar to genNullCheck but the value being
  * checked does not have a corresponding Dalvik register.
  */
-static ArmLIR *genZeroCheck(CompilationUnit *cUnit, int mReg,
-                                int dOffset, ArmLIR *pcrLabel)
+static MipsLIR *genZeroCheck(CompilationUnit *cUnit, int mReg,
+                                int dOffset, MipsLIR *pcrLabel)
 {
-assert(1); /* DRP verify genZeroCheck() */
-    return genRegImmCheck(cUnit, kArmCondEq, mReg, 0, dOffset, pcrLabel);
+    return genRegImmCheck(cUnit, kMipsCondEq, mReg, 0, dOffset, pcrLabel);
 }
 
 /* Perform bound check on two registers */
-static ArmLIR *genBoundsCheck(CompilationUnit *cUnit, int rIndex,
-                                  int rBound, int dOffset, ArmLIR *pcrLabel)
+static MipsLIR *genBoundsCheck(CompilationUnit *cUnit, int rIndex,
+                                  int rBound, int dOffset, MipsLIR *pcrLabel)
 {
-assert(1); /* DRP verify genBoundsCheck() */
-    return genRegRegCheck(cUnit, kArmCondCs, rIndex, rBound, dOffset,
+    return genRegRegCheck(cUnit, kMipsCondCs, rIndex, rBound, dOffset,
                             pcrLabel);
 }
 
@@ -354,7 +333,6 @@ assert(1); /* DRP verify genBoundsCheck() */
  */
 static void genDispatchToHandler(CompilationUnit *cUnit, TemplateOpCode opCode)
 {
-assert(1); /* DRP verify genDispatchToHandler() */
     /*
      * We're jumping from a trace to a template. Using jal is preferable to jalr,
      * but we need to ensure source and target addresses allow the use of jal.  

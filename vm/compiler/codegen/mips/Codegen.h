@@ -28,9 +28,9 @@
 /*
  * loadConstant() sometimes needs to add a small imm to a pre-existing constant
  */
-static ArmLIR *opRegImm(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
+static MipsLIR *opRegImm(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
                         int value);
-static ArmLIR *opRegReg(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
+static MipsLIR *opRegReg(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
                         int rSrc2);
 
 /* Forward decalraton the portable versions due to circular dependency */
@@ -55,7 +55,7 @@ void dvmSelfVerificationMemOpDecode(int lr, int* sp);
 
 /*
  * Architecture-dependent register allocation routines implemented in
- * Thumb[2]/Ralloc.c
+ * Mips/Ralloc.c
  */
 extern int dvmCompilerAllocTypedTempPair(CompilationUnit *cUnit,
                                          bool fpHint, int regClass);
@@ -63,10 +63,10 @@ extern int dvmCompilerAllocTypedTempPair(CompilationUnit *cUnit,
 extern int dvmCompilerAllocTypedTemp(CompilationUnit *cUnit, bool fpHint,
                                      int regClass);
 
-extern ArmLIR* dvmCompilerRegCopyNoInsert(CompilationUnit *cUnit, int rDest,
+extern MipsLIR* dvmCompilerRegCopyNoInsert(CompilationUnit *cUnit, int rDest,
                                           int rSrc);
 
-extern ArmLIR* dvmCompilerRegCopy(CompilationUnit *cUnit, int rDest, int rSrc);
+extern MipsLIR* dvmCompilerRegCopy(CompilationUnit *cUnit, int rDest, int rSrc);
 
 extern void dvmCompilerRegCopyWide(CompilationUnit *cUnit, int destLo,
                                    int destHi, int srcLo, int srcHi);

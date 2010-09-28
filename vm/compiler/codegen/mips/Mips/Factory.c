@@ -22,24 +22,20 @@
  *
  */
 
-#ifdef OLD_ARM
-static int coreTemps[] = {r0, r1, r2, r3, r4PC, r7}; 
-#else
 static int coreTemps[] = {r_V0, r_V1, r_A0, r_A1, r_A2, r_A3, r_T0, r_T1, r_T2, r_T3, r_T4, r_T5, r_T6, r_T7, r_T8, r_T9, r_S0, r_S4};
-#endif
 static int corePreserved[] = {};
 
 static void storePair(CompilationUnit *cUnit, int base, int lowReg,
                       int highReg);
 static void loadPair(CompilationUnit *cUnit, int base, int lowReg, int highReg);
-static ArmLIR *loadWordDisp(CompilationUnit *cUnit, int rBase, int displacement,
+static MipsLIR *loadWordDisp(CompilationUnit *cUnit, int rBase, int displacement,
                             int rDest);
-static ArmLIR *storeWordDisp(CompilationUnit *cUnit, int rBase,
+static MipsLIR *storeWordDisp(CompilationUnit *cUnit, int rBase,
                              int displacement, int rSrc);
-static ArmLIR *genRegRegCheck(CompilationUnit *cUnit,
-                              ArmConditionCode cond,
+static MipsLIR *genRegRegCheck(CompilationUnit *cUnit,
+                              MipsConditionCode cond,
                               int reg1, int reg2, int dOffset,
-                              ArmLIR *pcrLabel);
+                              MipsLIR *pcrLabel);
 
 
 /*
@@ -51,11 +47,10 @@ static ArmLIR *genRegRegCheck(CompilationUnit *cUnit,
  * 1) rDest is freshly returned from dvmCompilerAllocTemp or
  * 2) The codegen is under fixed register usage
  */
-static ArmLIR *loadConstantNoClobber(CompilationUnit *cUnit, int rDest,
+static MipsLIR *loadConstantNoClobber(CompilationUnit *cUnit, int rDest,
                                      int value)
 {
-assert(1); /* DRP verify loadConstantNoClobber() */
-    ArmLIR *res;
+    MipsLIR *res;
 
     /* See if the value can be constructed cheaply */
     if ((value >= 0) && (value <= 65535)) {
@@ -67,73 +62,14 @@ assert(1); /* DRP verify loadConstantNoClobber() */
         newLIR3(cUnit, kMipsOri, rDest, rDest, value); 
     }
     return res; 
-
-#ifdef OLD_ARM
-    ArmLIR *res;
-    int tDest = LOWREG(rDest) ? rDest : dvmCompilerAllocTemp(cUnit);
-    /* See if the value can be constructed cheaply */
-    if ((value >= 0) && (value <= 255)) {
-        res = newLIR2(cUnit, kThumbMovImm, tDest, value);
-        if (rDest != tDest) {
-           opRegReg(cUnit, kOpMov, rDest, tDest);
-           dvmCompilerFreeTemp(cUnit, tDest);
-        }
-        return res;
-    } else if ((value & 0xFFFFFF00) == 0xFFFFFF00) {
-        res = newLIR2(cUnit, kThumbMovImm, tDest, ~value);
-        newLIR2(cUnit, kThumbMvn, tDest, tDest);
-        if (rDest != tDest) {
-           opRegReg(cUnit, kOpMov, rDest, tDest);
-           dvmCompilerFreeTemp(cUnit, tDest);
-        }
-        return res;
-    }
-    /* No shortcut - go ahead and use literal pool */
-    ArmLIR *dataTarget = scanLiteralPool(cUnit, value, 255);
-    if (dataTarget == NULL) {
-        dataTarget = addWordData(cUnit, value, false);
-    }
-    ArmLIR *loadPcRel = dvmCompilerNew(sizeof(ArmLIR), true);
-    loadPcRel->opCode = kThumbLdrPcRel;
-    loadPcRel->generic.target = (LIR *) dataTarget;
-    loadPcRel->operands[0] = tDest;
-    setupResourceMasks(loadPcRel);
-    /*
-     * Special case for literal loads with a link register target.
-     * Self-cosim mode will insert calls prior to heap references
-     * after optimization, and those will destroy r14.  The easy
-     * workaround is to treat literal loads into r14 as heap references
-     * to prevent them from being hoisted.  Use of r14 in this manner
-     * is currently rare.  Revist if that changes.
-     */
-    if (rDest != rlr)
-        setMemRefType(loadPcRel, true, kLiteral);
-    loadPcRel->aliasInfo = dataTarget->operands[0];
-    res = loadPcRel;
-    dvmCompilerAppendLIR(cUnit, (LIR *) loadPcRel);
-
-    /*
-     * To save space in the constant pool, we use the ADD_RRI8 instruction to
-     * add up to 255 to an existing constant value.
-     */
-    if (dataTarget->operands[0] != value) {
-        newLIR2(cUnit, kThumbAddRI8, tDest, value - dataTarget->operands[0]);
-    }
-    if (rDest != tDest) {
-       opRegReg(cUnit, kOpMov, rDest, tDest);
-       dvmCompilerFreeTemp(cUnit, tDest);
-    }
-    return res;
-#endif
 }
 
 /*
  * Load an immediate value into a fixed or temp register.  Target
  * register is clobbered, and marked inUse.
  */
-static ArmLIR *loadConstant(CompilationUnit *cUnit, int rDest, int value)
+static MipsLIR *loadConstant(CompilationUnit *cUnit, int rDest, int value)
 {
-assert(1); /* DRP verify loadConstant() */
     if (dvmCompilerIsTemp(cUnit, rDest)) {
         dvmCompilerClobber(cUnit, rDest);
         dvmCompilerMarkInUse(cUnit, rDest);
@@ -141,11 +77,10 @@ assert(1); /* DRP verify loadConstant() */
     return loadConstantNoClobber(cUnit, rDest, value);
 }
 
-static ArmLIR *opNone(CompilationUnit *cUnit, OpKind op)
+static MipsLIR *opNone(CompilationUnit *cUnit, OpKind op)
 {
-assert(1); /* DRP cleanup opNone() */
-    ArmLIR *res;
-    ArmOpCode opCode = kThumbBkpt;
+    MipsLIR *res;
+    MipsOpCode opCode = kMipsNop;
     switch (op) {
         case kOpUncondBr:
             opCode = kMipsB;
@@ -158,15 +93,9 @@ assert(1); /* DRP cleanup opNone() */
     return res;
 }
 
-static ArmLIR *opCondBranch(CompilationUnit *cUnit, ArmConditionCode cc)
+static MipsLIR *opCondBranchMips(CompilationUnit *cUnit, MipsOpCode opc, int rs, int rt)
 {
-assert(0); /* DRP cleanup/replace opCondBranch() with Mips version */
-    return newLIR2(cUnit, kThumbBCond, 0 /* offset to be patched */, cc);
-}
-
-static ArmLIR *opCondBranchMips(CompilationUnit *cUnit, ArmOpCode opc, int rs, int rt)
-{
-    ArmLIR *res;
+    MipsLIR *res;
     if (rt < 0) {
       assert(opc >= kMipsBeqz && opc <= kMipsBltzal);
       res = newLIR1(cUnit, opc, rs);
@@ -177,33 +106,11 @@ static ArmLIR *opCondBranchMips(CompilationUnit *cUnit, ArmOpCode opc, int rs, i
     return res;
 }
 
-static ArmLIR *loadMultiple(CompilationUnit *cUnit, int rBase, int rMask);
+static MipsLIR *loadMultiple(CompilationUnit *cUnit, int rBase, int rMask);
 
-static ArmLIR *opImm(CompilationUnit *cUnit, OpKind op, int value)
+static MipsLIR *opReg(CompilationUnit *cUnit, OpKind op, int rDestSrc)
 {
-assert(0); /* DRP cleanup/remove opImm() */
-    ArmOpCode opCode = kThumbBkpt;
-    switch (op) {
-        case kOpPush:
-            /* need stmdb so can't call storeMultiple which does stdmia */
-            break;
-        case kOpPop: /* ldmia */
-            return loadMultiple(cUnit, r_SP, value);
-            break;
-        default:
-            LOGE("Jit: bad case in opCondBranch");
-            dvmCompilerAbort(cUnit);
-    }
-   
-    assert(0); /* would need stmdb here */
-
-    return newLIR1(cUnit, opCode, value);
-}
-
-static ArmLIR *opReg(CompilationUnit *cUnit, OpKind op, int rDestSrc)
-{
-assert(1); /* DRP verify opReg() */
-    ArmOpCode opCode = kThumbBkpt;
+    MipsOpCode opCode = kMipsNop;
     switch (op) {
         case kOpBlx:
             opCode = kMipsJalr;
@@ -215,36 +122,22 @@ assert(1); /* DRP verify opReg() */
     return newLIR2(cUnit, opCode, r_RA, rDestSrc);
 }
 
-static ArmLIR *opRegRegImm(CompilationUnit *cUnit, OpKind op, int rDest,
+static MipsLIR *opRegRegImm(CompilationUnit *cUnit, OpKind op, int rDest,
                            int rSrc1, int value);
-static ArmLIR *opRegImm(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
+static MipsLIR *opRegImm(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
                         int value)
 {
-assert(1); /* DRP cleanup/remove kOpCmp in opRegImm() */
-    ArmLIR *res;
+    MipsLIR *res;
     bool neg = (value < 0);
     int absValue = (neg) ? -value : value;
     bool shortForm = (absValue & 0xff) == absValue;
-    ArmOpCode opCode = kThumbBkpt;
+    MipsOpCode opCode = kMipsNop;
     switch (op) {
         case kOpAdd:
             return opRegRegImm(cUnit, op, rDestSrc1, rDestSrc1, value);
             break;
         case kOpSub:
             return opRegRegImm(cUnit, op, rDestSrc1, rDestSrc1, value);
-            break;
-        case kOpCmp:
-assert(0);
-            if (neg)
-               shortForm = false;
-            if (LOWREG(rDestSrc1) && shortForm) {
-                opCode = kThumbCmpRI8;
-            } else if (LOWREG(rDestSrc1)) {
-                opCode = kThumbCmpRR;
-            } else {
-                shortForm = false;
-                opCode = kThumbCmpHL;
-            }
             break;
         default:
             LOGE("Jit: bad case in opRegImm");
@@ -264,11 +157,10 @@ assert(0);
     return res;
 }
 
-static ArmLIR *opRegRegReg(CompilationUnit *cUnit, OpKind op, int rDest,
+static MipsLIR *opRegRegReg(CompilationUnit *cUnit, OpKind op, int rDest,
                            int rSrc1, int rSrc2)
 {
-assert(1); /* DRP cleanup opRegRegReg() */
-    ArmOpCode opCode = kThumbBkpt;
+    MipsOpCode opCode = kMipsNop;
     switch (op) {
         case kOpAdd:
             opCode = kMipsAddu;
@@ -298,19 +190,18 @@ assert(1); /* DRP cleanup opRegRegReg() */
             opCode = kMipsSrav;
             break;
         default:
-LOGE("Jit: bad op in opRegRegReg: %d", op);
-assert(0); /* DRP unsupported op in opRegRegReg() */
+            LOGE("Jit: bad case in opRegRegReg");
+            dvmCompilerAbort(cUnit);
             break;
     }
     return newLIR3(cUnit, opCode, rDest, rSrc1, rSrc2);
 }
 
-static ArmLIR *opRegRegImm(CompilationUnit *cUnit, OpKind op, int rDest,
+static MipsLIR *opRegRegImm(CompilationUnit *cUnit, OpKind op, int rDest,
                            int rSrc1, int value)
 {
-assert(1); /* DRP review and verify opRegRegImm() */
-    ArmLIR *res;
-    ArmOpCode opCode = kThumbBkpt;
+    MipsLIR *res;
+    MipsOpCode opCode = kMipsNop;
     bool shortForm = true;
 
     switch(op) {
@@ -397,29 +288,12 @@ assert(1); /* DRP review and verify opRegRegImm() */
     return res;
 }
 
-static ArmLIR *opRegReg(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
+static MipsLIR *opRegReg(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
                         int rSrc2)
 {
-assert(1); /* DRP retarg opRegReg() finish cases */
-    ArmLIR *res;
-    ArmOpCode opCode = kThumbBkpt;
+    MipsLIR *res;
+    MipsOpCode opCode = kMipsNop;
     switch (op) {
-        case kOpAdc:
-assert(0);
-            opCode = kThumbAdcRR;
-            break;
-        case kOpBic:
-assert(0);
-            opCode = kThumbBicRR;
-            break;
-        case kOpCmn:
-assert(0);
-            opCode = kThumbCmnRR;
-            break;
-        case kOpCmp:
-assert(0);
-            opCode = kThumbCmpRR;
-            break;
         case kOpMov:
             opCode = kMipsMove;
             break;
@@ -427,30 +301,6 @@ assert(0);
             return newLIR3(cUnit, kMipsNor, rDestSrc1, rSrc2, r_ZERO);
         case kOpNeg:
             return newLIR3(cUnit, kMipsSubu, rDestSrc1, r_ZERO, rSrc2);
-        case kOpSbc:
-assert(0);
-            opCode = kThumbSbc;
-            break;
-        case kOpTst:
-assert(0);
-            opCode = kThumbTst;
-            break;
-        case kOpLsl:
-assert(0);
-            opCode = kThumbLslRR;
-            break;
-        case kOpLsr:
-assert(0);
-            opCode = kThumbLsrRR;
-            break;
-        case kOpAsr:
-assert(0);
-            opCode = kThumbAsrRR;
-            break;
-        case kOpRor:
-assert(0);
-            opCode = kThumbRorRR;
-            break;
         case kOpAdd:
         case kOpAnd:
         case kOpMul:
@@ -458,15 +308,15 @@ assert(0);
         case kOpSub:
         case kOpXor:
             return opRegRegReg(cUnit, op, rDestSrc1, rDestSrc1, rSrc2);
-        case kOp2Byte: /* DRP use seb instruction */
+        case kOp2Byte: /* MIPSTODO use seb instruction */
              res = opRegRegImm(cUnit, kOpLsl, rDestSrc1, rSrc2, 24);
              opRegRegImm(cUnit, kOpAsr, rDestSrc1, rDestSrc1, 24);
              return res;
-        case kOp2Short: /* DRP use seh instruction */
+        case kOp2Short: /* MIPSTODO use seh instruction */
              res = opRegRegImm(cUnit, kOpLsl, rDestSrc1, rSrc2, 16);
              opRegRegImm(cUnit, kOpAsr, rDestSrc1, rDestSrc1, 16);
              return res;
-        case kOp2Char: /* DRP use andi instruction */
+        case kOp2Char: /* MIPSTODO use andi instruction */
              res = opRegRegImm(cUnit, kOpLsl, rDestSrc1, rSrc2, 16);
              opRegRegImm(cUnit, kOpLsr, rDestSrc1, rDestSrc1, 16);
              return res;
@@ -478,24 +328,22 @@ assert(0);
     return newLIR2(cUnit, opCode, rDestSrc1, rSrc2);
 }
 
-static ArmLIR *loadConstantValueWide(CompilationUnit *cUnit, int rDestLo,
+static MipsLIR *loadConstantValueWide(CompilationUnit *cUnit, int rDestLo,
                                      int rDestHi, int valLo, int valHi)
 {
-assert(1); /* DRP verify loadConstantValueWide() */
-    ArmLIR *res;
+    MipsLIR *res;
     res = loadConstantNoClobber(cUnit, rDestLo, valLo);
     loadConstantNoClobber(cUnit, rDestHi, valHi);
     return res;
 }
 
 /* Load value from base + scaled index. */
-static ArmLIR *loadBaseIndexed(CompilationUnit *cUnit, int rBase,
+static MipsLIR *loadBaseIndexed(CompilationUnit *cUnit, int rBase,
                                int rIndex, int rDest, int scale, OpSize size)
 {
-assert(1); /* DRP verify loadBaseIndexed() */
-    ArmLIR *first = NULL;
-    ArmLIR *res;
-    ArmOpCode opCode = kThumbBkpt;
+    MipsLIR *first = NULL;
+    MipsLIR *res;
+    MipsOpCode opCode = kMipsNop;
     int tReg = dvmCompilerAllocTemp(cUnit);
 
     if (!scale) {
@@ -536,13 +384,12 @@ assert(1); /* DRP verify loadBaseIndexed() */
 }
 
 /* store value base base + scaled index. */
-static ArmLIR *storeBaseIndexed(CompilationUnit *cUnit, int rBase,
+static MipsLIR *storeBaseIndexed(CompilationUnit *cUnit, int rBase,
                                 int rIndex, int rSrc, int scale, OpSize size)
 {
-assert(1); /* DRP verify storeBaseIndexed() */
-    ArmLIR *first = NULL;
-    ArmLIR *res;
-    ArmOpCode opCode = kThumbBkpt;
+    MipsLIR *first = NULL;
+    MipsLIR *res;
+    MipsOpCode opCode = kMipsNop;
     int rNewIndex = rIndex;
     int tReg = dvmCompilerAllocTemp(cUnit);
 
@@ -578,16 +425,15 @@ assert(1); /* DRP verify storeBaseIndexed() */
     return first;
 }
 
-static ArmLIR *loadMultiple(CompilationUnit *cUnit, int rBase, int rMask)
+static MipsLIR *loadMultiple(CompilationUnit *cUnit, int rBase, int rMask)
 {
-assert(1); /* DRP verify loadMultiple() */
     int i;
     int loadCnt = 0;
-    ArmLIR *res = NULL ;
+    MipsLIR *res = NULL ;
     genBarrier(cUnit);
 
     for (i = 0; i < 8; i++, rMask >>= 1) {
-        if (rMask & 0x1) { /* map ARM r0 to MIPS r_A0 */
+        if (rMask & 0x1) { /* map r0 to MIPS r_A0 */
             newLIR3(cUnit, kMipsLw, i+r_A0, loadCnt*4, rBase);
             loadCnt++;
         }
@@ -605,16 +451,15 @@ assert(1); /* DRP verify loadMultiple() */
     return res; /* NULL always returned which should be ok since no callers use it */
 }
 
-static ArmLIR *storeMultiple(CompilationUnit *cUnit, int rBase, int rMask)
+static MipsLIR *storeMultiple(CompilationUnit *cUnit, int rBase, int rMask)
 {
-assert(1); /* DRP verify storeMultiple() */
     int i;
     int storeCnt = 0;
-    ArmLIR *res = NULL ;
+    MipsLIR *res = NULL ;
     genBarrier(cUnit);
 
     for (i = 0; i < 8; i++, rMask >>= 1) {
-        if (rMask & 0x1) { /* map ARM r0 to MIPS r_A0 */
+        if (rMask & 0x1) { /* map r0 to MIPS r_A0 */
             newLIR3(cUnit, kMipsSw, i+r_A0, storeCnt*4, rBase);
             storeCnt++;
         }
@@ -632,7 +477,7 @@ assert(1); /* DRP verify storeMultiple() */
     return res; /* NULL always returned which should be ok since no callers use it */
 }
 
-static ArmLIR *loadBaseDispBody(CompilationUnit *cUnit, MIR *mir, int rBase,
+static MipsLIR *loadBaseDispBody(CompilationUnit *cUnit, MIR *mir, int rBase,
                                 int displacement, int rDest, int rDestHi,
                                 OpSize size, int sReg)
 /*
@@ -644,11 +489,10 @@ static ArmLIR *loadBaseDispBody(CompilationUnit *cUnit, MIR *mir, int rBase,
  * rlp and then restore.
  */
 {
-assert(1); /* DRP verify loadBaseDispBody() */
-    ArmLIR *res;
-    ArmLIR *load = NULL;
-    ArmLIR *load2 = NULL;
-    ArmOpCode opCode = kThumbBkpt;
+    MipsLIR *res;
+    MipsLIR *load = NULL;
+    MipsLIR *load2 = NULL;
+    MipsOpCode opCode = kMipsNop;
     bool shortForm = IS_SIMM16(displacement);
     bool pair = false;
 
@@ -722,33 +566,30 @@ assert(1); /* DRP verify loadBaseDispBody() */
     return res;
 }
 
-static ArmLIR *loadBaseDisp(CompilationUnit *cUnit, MIR *mir, int rBase,
+static MipsLIR *loadBaseDisp(CompilationUnit *cUnit, MIR *mir, int rBase,
                             int displacement, int rDest, OpSize size,
                             int sReg)
 {
-assert(1); /* DRP verify loadBaseDisp() */
     return loadBaseDispBody(cUnit, mir, rBase, displacement, rDest, -1,
                             size, sReg);
 }
 
-static ArmLIR *loadBaseDispWide(CompilationUnit *cUnit, MIR *mir, int rBase,
+static MipsLIR *loadBaseDispWide(CompilationUnit *cUnit, MIR *mir, int rBase,
                                 int displacement, int rDestLo, int rDestHi,
                                 int sReg)
 {
-assert(1); /* DRP verify loadBaseDispWide() */
     return loadBaseDispBody(cUnit, mir, rBase, displacement, rDestLo, rDestHi,
                             kLong, sReg);
 }
 
-static ArmLIR *storeBaseDispBody(CompilationUnit *cUnit, int rBase,
+static MipsLIR *storeBaseDispBody(CompilationUnit *cUnit, int rBase,
                                  int displacement, int rSrc, int rSrcHi,
                                  OpSize size)
 {
-assert(1); /* DRP verify storeBaseDispBody() */
-    ArmLIR *res;
-    ArmLIR *store = NULL;
-    ArmLIR *store2 = NULL;
-    ArmOpCode opCode = kThumbBkpt;
+    MipsLIR *res;
+    MipsLIR *store = NULL;
+    MipsLIR *store2 = NULL;
+    MipsOpCode opCode = kMipsNop;
     bool shortForm = IS_SIMM16(displacement);
     bool pair = false;
 
@@ -811,63 +652,37 @@ assert(1); /* DRP verify storeBaseDispBody() */
     return res;
 }
 
-static ArmLIR *storeBaseDisp(CompilationUnit *cUnit, int rBase,
+static MipsLIR *storeBaseDisp(CompilationUnit *cUnit, int rBase,
                              int displacement, int rSrc, OpSize size)
 {
-assert(1); /* DRP verify storeBaseDisp() */
     return storeBaseDispBody(cUnit, rBase, displacement, rSrc, -1, size);
 }
 
-static ArmLIR *storeBaseDispWide(CompilationUnit *cUnit, int rBase,
+static MipsLIR *storeBaseDispWide(CompilationUnit *cUnit, int rBase,
                                  int displacement, int rSrcLo, int rSrcHi)
 {
-assert(1); /* DRP verify storeBaseDispWide() */
     return storeBaseDispBody(cUnit, rBase, displacement, rSrcLo, rSrcHi, kLong);
 }
 
 static void storePair(CompilationUnit *cUnit, int base, int lowReg, int highReg)
 {
-assert(1); /* DRP cleanup storePair() */
-    if (0 && lowReg < highReg) {
-        storeMultiple(cUnit, base, (1 << lowReg) | (1 << highReg));
-    } else {
-        storeWordDisp(cUnit, base, 0, lowReg);
-        storeWordDisp(cUnit, base, 4, highReg);
-    }
+    storeWordDisp(cUnit, base, 0, lowReg);
+    storeWordDisp(cUnit, base, 4, highReg);
 }
 
 static void loadPair(CompilationUnit *cUnit, int base, int lowReg, int highReg)
 {
-assert(1); /* DRP cleanup loadPair() */
-    if (0 && lowReg < highReg) {
-        loadMultiple(cUnit, base, (1 << lowReg) | (1 << highReg));
-    } else {
-        loadWordDisp(cUnit, base, 0 , lowReg);
-        loadWordDisp(cUnit, base, 4 , highReg);
-    }
+    loadWordDisp(cUnit, base, 0 , lowReg);
+    loadWordDisp(cUnit, base, 4 , highReg);
 }
 
-static ArmLIR* genRegCopyNoInsert(CompilationUnit *cUnit, int rDest, int rSrc)
+static MipsLIR* genRegCopyNoInsert(CompilationUnit *cUnit, int rDest, int rSrc)
 {
-assert(1); /* DRP verify genRegCopyNoInsert() */
-    ArmLIR* res;
-    ArmOpCode opCode;
-    res = dvmCompilerNew(sizeof(ArmLIR), true);
-#ifdef OLD_ARM 
-    if (LOWREG(rDest) && LOWREG(rSrc))
-        opCode = kThumbMovRR;
-    else if (!LOWREG(rDest) && !LOWREG(rSrc))
-         opCode = kThumbMovRR_H2H;
-    else if (LOWREG(rDest))
-         opCode = kThumbMovRR_H2L;
-    else
-         opCode = kThumbMovRR_L2H;
-#else
+    MipsLIR* res;
+    MipsOpCode opCode;
+    res = dvmCompilerNew(sizeof(MipsLIR), true);
     opCode = kMipsMove;
-    if (!LOWREG(rDest) || !LOWREG(rSrc)) {
-        assert(0); /* DRP cleanup this LOWREG stuff after testing */
-    }
-#endif
+    assert(LOWREG(rDest) && LOWREG(rSrc));
     res->operands[0] = rDest;
     res->operands[1] = rSrc;
     res->opCode = opCode;
@@ -878,10 +693,9 @@ assert(1); /* DRP verify genRegCopyNoInsert() */
     return res;
 }
 
-static ArmLIR* genRegCopy(CompilationUnit *cUnit, int rDest, int rSrc)
+static MipsLIR* genRegCopy(CompilationUnit *cUnit, int rDest, int rSrc)
 {
-assert(1); /* DRP verify genRegCopy() */
-    ArmLIR *res = genRegCopyNoInsert(cUnit, rDest, rSrc);
+    MipsLIR *res = genRegCopyNoInsert(cUnit, rDest, rSrc);
     dvmCompilerAppendLIR(cUnit, (LIR*)res);
     return res;
 }
@@ -889,7 +703,6 @@ assert(1); /* DRP verify genRegCopy() */
 static void genRegCopyWide(CompilationUnit *cUnit, int destLo, int destHi,
                            int srcLo, int srcHi)
 {
-assert(1); /* DRP verify genRegCopyWide() */
     // Handle overlap
     if (srcHi == destLo) {
         genRegCopy(cUnit, destHi, srcHi);
@@ -900,57 +713,44 @@ assert(1); /* DRP verify genRegCopyWide() */
     }
 }
 
-static inline ArmLIR *genRegImmCheck(CompilationUnit *cUnit,
-                                     ArmConditionCode cond, int reg,
+static inline MipsLIR *genRegImmCheck(CompilationUnit *cUnit,
+                                     MipsConditionCode cond, int reg,
                                      int checkValue, int dOffset,
-                                     ArmLIR *pcrLabel)
+                                     MipsLIR *pcrLabel)
 {
-assert(1); /* DRP finish retarg genRegImmCheck() */
-#ifdef OLD_ARM
-    int tReg;
-    ArmLIR *res;
-    if ((checkValue & 0xff) != checkValue) {
-        tReg = dvmCompilerAllocTemp(cUnit);
-        loadConstant(cUnit, tReg, checkValue);
-        res = genRegRegCheck(cUnit, cond, reg, tReg, dOffset, pcrLabel);
-        dvmCompilerFreeTemp(cUnit, tReg);
-        return res;
-    }
-    newLIR2(cUnit, kThumbCmpRI8, reg, checkValue);
-    ArmLIR *branch = newLIR2(cUnit, kThumbBCond, 0, cond);
-    return genCheckCommon(cUnit, dOffset, branch, pcrLabel);
-#else
-    ArmLIR *branch;
+    MipsLIR *branch = NULL;
 
     if (checkValue == 0) {
-        ArmOpCode opc = kMipsNop;
-        if (cond == kArmCondEq) {
+        MipsOpCode opc = kMipsNop;
+        if (cond == kMipsCondEq) {
             opc = kMipsBeqz;
-        } else if (cond == kArmCondLt || cond == kArmCondMi) {
+        } else if (cond == kMipsCondLt || cond == kMipsCondMi) {
             opc = kMipsBltz;
-        } else if (cond == kArmCondLe) {
+        } else if (cond == kMipsCondLe) {
             opc = kMipsBlez;
-        } else if (cond == kArmCondGt) {
+        } else if (cond == kMipsCondGt) {
             opc = kMipsBgtz;
-        } else if (cond == kArmCondGe) {
+        } else if (cond == kMipsCondGe) {
             opc = kMipsBgez;
         } else {
-            assert(0); /* add cases to genRegImmCheck() */
+            LOGE("Jit: bad case in genRegImmCheck");
+            dvmCompilerAbort(cUnit);
         }
         branch = opCondBranchMips(cUnit, opc, reg, -1);
     } else if (IS_SIMM16(checkValue)) {
-        if (cond == kArmCondLt) {
+        if (cond == kMipsCondLt) {
             int tReg = dvmCompilerAllocTemp(cUnit);
             newLIR3(cUnit, kMipsSlti, tReg, reg, checkValue);       
             branch = opCondBranchMips(cUnit, kMipsBne, tReg, r_ZERO);
             dvmCompilerFreeTemp(cUnit, tReg);
         } else {
-            assert(0); /* DRP add cases to genRegImmCheck() */
+            LOGE("Jit: bad case in genRegImmCheck");
+            dvmCompilerAbort(cUnit);
         } 
     } else {
-        assert(0); /* DRP add cases to genRegImmCheck() */
+        LOGE("Jit: bad case in genRegImmCheck");
+        dvmCompilerAbort(cUnit);
     }
 
     return genCheckCommon(cUnit, dOffset, branch, pcrLabel);
-#endif
 }

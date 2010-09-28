@@ -43,12 +43,6 @@ static void loadValueAddress(CompilationUnit *cUnit, RegLocation rlSrc,
 
 static bool genInlineSqrt(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return true;
-#else
-assert(1); /* DRP in progress genInlineSqrt() results in system_server failure */
-#endif
     RegLocation rlSrc = dvmCompilerGetSrcWide(cUnit, mir, 0, 1);
     RegLocation rlResult = LOC_C_RETURN_WIDE;
     RegLocation rlDest = LOC_DALVIK_RETURN_VAL_WIDE;
@@ -70,12 +64,6 @@ static bool genArithOpFloat(CompilationUnit *cUnit, MIR *mir,
                             RegLocation rlDest, RegLocation rlSrc1,
                             RegLocation rlSrc2)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify genArithOpFloat() */
-#endif
     TemplateOpCode opCode;
 
     /*
@@ -124,12 +112,6 @@ static bool genArithOpDouble(CompilationUnit *cUnit, MIR *mir,
                              RegLocation rlDest, RegLocation rlSrc1,
                              RegLocation rlSrc2)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify genArithOpDouble() */
-#endif
     TemplateOpCode opCode;
 
     switch (mir->dalvikInsn.opCode) {
@@ -174,12 +156,6 @@ assert(1); /* DRP verify genArithOpDouble() */
 
 static bool genConversion(CompilationUnit *cUnit, MIR *mir)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify genConversion() */
-#endif
     OpCode opCode = mir->dalvikInsn.opCode;
     bool longSrc = false;
     bool longDest = false;
@@ -254,12 +230,6 @@ assert(1); /* DRP verify genConversion() */
 static bool genCmpFP(CompilationUnit *cUnit, MIR *mir, RegLocation rlDest,
                      RegLocation rlSrc1, RegLocation rlSrc2)
 {
-#if 0
-genInterpSingleStep(cUnit, mir);
-return false;
-#else
-assert(1); /* DRP verify genCmpFP() */
-#endif
     TemplateOpCode template;
     RegLocation rlResult = dvmCompilerGetReturn(cUnit);
     bool wide = true;

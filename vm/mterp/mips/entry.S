@@ -21,7 +21,7 @@ dvmMterpStdRun:
 
 	/* set up "named" registers, figure out entry point */
 	move		rGLUE, a0		# set rGLUE
-	lw 		a1, offGlue_entryPoint(a0) # ??? DRP InterpEntry enum is 4 bytes 
+	lw 		a1, offGlue_entryPoint(a0)
 	LOAD_PC_FROM_GLUE()
 	LOAD_FP_FROM_GLUE()
 	la		rIBASE, dvmAsmInstructionStart	#set rIBASE. GOT needed here.

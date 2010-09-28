@@ -336,7 +336,7 @@ dvmMterpStdRun:
 
 	/* set up "named" registers, figure out entry point */
 	move		rGLUE, a0		# set rGLUE
-	lw 		a1, offGlue_entryPoint(a0) # ??? DRP InterpEntry enum is 4 bytes 
+	lw 		a1, offGlue_entryPoint(a0)
 	LOAD_PC_FROM_GLUE()
 	LOAD_FP_FROM_GLUE()
 	la		rIBASE, dvmAsmInstructionStart	#set rIBASE. GOT needed here.
@@ -1923,7 +1923,7 @@ dalvik_inst:
 #if defined(WITH_JIT)
     GET_JIT_PROF_TABLE(a0)
     FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
-    bnez    a0, common_updateProfile # ??? DRP should target be common_testUpdateProfile?
+    bnez    a0, common_updateProfile
     GET_INST_OPCODE(t0)                 	# extract opcode from rINST
     GOTO_OPCODE(t0)                     	# jump to next instruction
 #else
@@ -1958,7 +1958,7 @@ dalvik_inst:
 #if defined(WITH_JIT)
     GET_JIT_PROF_TABLE(a0)
     FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
-    bnez    a0, common_updateProfile # ??? DRP should target be common_testUpdateProfile?
+    bnez    a0, common_updateProfile
     GET_INST_OPCODE(t0)                 	# extract opcode from rINST
     GOTO_OPCODE(t0)                     	# jump to next instruction
 #else
@@ -1993,7 +1993,7 @@ dalvik_inst:
 #if defined(WITH_JIT)
     GET_JIT_PROF_TABLE(a0)
     FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
-    bnez    a0, common_updateProfile # ??? DRP should target be common_testUpdateProfile?
+    bnez    a0, common_updateProfile
     GET_INST_OPCODE(t0)                 	# extract opcode from rINST
     GOTO_OPCODE(t0)                     	# jump to next instruction
 #else
@@ -2028,7 +2028,7 @@ dalvik_inst:
 #if defined(WITH_JIT)
     GET_JIT_PROF_TABLE(a0)
     FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
-    bnez    a0, common_updateProfile # ??? DRP should target be common_testUpdateProfile?
+    bnez    a0, common_updateProfile
     GET_INST_OPCODE(t0)                 	# extract opcode from rINST
     GOTO_OPCODE(t0)                     	# jump to next instruction
 #else
@@ -2063,7 +2063,7 @@ dalvik_inst:
 #if defined(WITH_JIT)
     GET_JIT_PROF_TABLE(a0)
     FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
-    bnez    a0, common_updateProfile # ??? DRP should target be common_testUpdateProfile?
+    bnez    a0, common_updateProfile
     GET_INST_OPCODE(t0)                 	# extract opcode from rINST
     GOTO_OPCODE(t0)                     	# jump to next instruction
 #else
@@ -2098,7 +2098,7 @@ dalvik_inst:
 #if defined(WITH_JIT)
     GET_JIT_PROF_TABLE(a0)
     FETCH_ADVANCE_INST_RB(rBIX)           	# update rPC, load rINST
-    bnez    a0, common_updateProfile # ??? DRP should target be common_testUpdateProfile?
+    bnez    a0, common_updateProfile
     GET_INST_OPCODE(t0)                 	# extract opcode from rINST
     GOTO_OPCODE(t0)                     	# jump to next instruction
 #else
@@ -9838,7 +9838,7 @@ dvmAsmSisterEnd:
 #if defined(WITH_JIT)
 #if defined(WITH_SELF_VERIFICATION)
 
-# !!! DRP xlate self verification from arm to mips
+# MIPSTODO  xlate self verification from arm to mips
 
     .global dvmJitToInterpPunt
 dvmJitToInterpPunt:
@@ -9912,7 +9912,7 @@ dvmJitToInterpPunt:
     lw    gp, STACK_OFFSET_GP(sp)
     move  rPC, a0
 #ifdef JIT_STATS
-    move  a0, ra /* ??? DRP should be ok, but verify */
+    move  a0, ra
     JAL(dvmBumpPunt)
 #endif 
     lw    t0, offGlue_self(rGLUE) # callee saved t0 <- glue->self
@@ -9934,7 +9934,7 @@ dvmJitToInterpPunt:
     .global dvmJitToInterpSingleStep
 dvmJitToInterpSingleStep:
     lw    gp, STACK_OFFSET_GP(sp)
-    sw    ra, offGlue_jitResumeNPC(rGLUE) /* ??? DRP verify ra is correct here */
+    sw    ra, offGlue_jitResumeNPC(rGLUE)
     sw    a1, offGlue_jitResumeDPC(rGLUE)
     li    a1, kInterpEntryInstr
     sw    a1, offGlue_entryPoint(rGLUE)
@@ -9986,7 +9986,7 @@ dvmJitToInterpTraceSelect:
     JAL(dvmJitChain)              # v0<- dvmJitChain(codeAddr,chainAddr)
     move  a1, rPC                 # arg1 of translation may need this
     move  ra, zero                # in case target is HANDLER_INTERPRET
-    move  a0, v0                  # ??? DRP can this copy be eliminated?
+    move  a0, v0
     beqz  a0, toInterpreter       # didn't chain - resume with interpreter 
     jr    a0                      # continue native execution
 
@@ -10033,7 +10033,7 @@ dvmJitToInterpNormal:
     JAL(dvmJitChain)              # v0<- dvmJitChain(codeAddr,chainAddr)
     move  a1, rPC                 # arg1 of translation may need this
     move  ra, zero                # in case target is HANDLER_INTERPRET
-    move  a0, v0                  # ??? DRP can this copy be eliminated?
+    move  a0, v0
     beqz  a0, toInterpreter       # didn't chain - resume with interpreter 
     jr    a0                      # continue native execution
 
@@ -10050,7 +10050,7 @@ dvmJitToInterpNoChain:
     move  a0, rPC
     JAL(dvmJitGetCodeAddr)        # Is there a translation?
     lw    t0, offGlue_self(rGLUE) # callee saved t0 <- glue->self
-    move  a0, v0                  # ??? DRP can this copy be eliminated?
+    move  a0, v0
     sw    a0, offThread_inJitCodeCache(t0) # set the inJitCodeCache flag
     move  a1, rPC                 # arg1 of translation may need this
     move  ra, zero                # in case target is HANDLER_INTERPRET
@@ -10118,11 +10118,11 @@ common_updateProfile:
 
 #if !defined(WITH_SELF_VERIFICATION)
     li    t0, kJitTSelectRequest # ask for trace selection 
-    movz  a2, t0, a0             # ??? DRP optimize movz away by just clobbering a2?
+    movz  a2, t0, a0
     beqz  a0, common_selectTrace
     jr    a0                     # jump to the translation
 #else
-# !!! DRP xlate self verification from arm to mips
+# MIPSTODO xlate self verification from arm to mips
     moveq   r2,#kJitTSelectRequest      @ ask for trace selection
     beq     common_selectTrace
     /*
@@ -10152,7 +10152,7 @@ common_selectTrace:
     b     common_gotoBail
 
 #if defined(WITH_SELF_VERIFICATION)
-# !!! DRP xlate self verification from arm to mips
+# MIPSTODO xlate self verification from arm to mips
 /*
  * Save PC and registers to shadow memory for self verification mode
  * before jumping to native translation.
@@ -10280,11 +10280,11 @@ common_periodicChecks:
     lw		a3, offGlue_ppJitProfTable(rGLUE) # a3<-&gDvmJit.pJitProfTable
     lw		a0, offGlue_self(rGLUE)    # a0 <- glue->self
     lw          a3, (a3)                  # a3 <- pJitProfTable
-    EXPORT_PC() # need for precise GC /* ??? DRP added for common_periodicChecks for check suspend */
+    EXPORT_PC()
     sw          a3, offGlue_pJitProfTable(rGLUE) # refresh Jit's on/off switch
 #else
     lw		a0, offGlue_self(rGLUE)    # a0 <- glue->self
-    EXPORT_PC() # need for precise GC /* ??? DRP added for common_periodicChecks for check suspend */
+    EXPORT_PC() # need for precise GC
 #endif
     la		t9, dvmCheckSuspendPending
     jr		t9	# suspend if necessary, then return
@@ -10532,7 +10532,7 @@ common_returnFromMethod:
 	sw      t0, offThread_inJitCodeCache(a3) # may return to JIT'ed land
 	beqz	t0, no_compiled_code_caller
 	jalr	t0  # caller is compiled code
-	move	a0, v0  # ??? DRP verify this is correct
+	move	a0, v0
 no_compiled_code_caller:
 	GET_INST_OPCODE(t0)
 	bnez	a0, common_updateProfile

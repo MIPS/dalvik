@@ -24,58 +24,16 @@ static const char *mipsRegName[MIPS_REG_COUNT] = {
     "zero", "at", "v0", "v1", "a0", "a1", "a2", "a3",
     "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
     "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
-    "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra" 
+    "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
-
-/* Decode and print a ARM register name */
-static char * decodeRegList(int vector, char *buf)
-{
-assert(0); /* DRP remove decodeRegList() since not needed */
-    int i;
-    bool printed = false;
-    buf[0] = 0;
-    for (i = 0; i < 8; i++, vector >>= 1) {
-        if (vector & 0x1) {
-            if (printed) {
-                sprintf(buf + strlen(buf), ", r%d", i);
-            } else {
-                printed = true;
-                sprintf(buf, "r%d", i);
-            }
-        }
-    }
-    return buf;
-}
-
-static int expandImmediate(int value)
-{
-assert(0); /* DRP remove expandImmediate() since not needed */
-    int mode = (value & 0xf00) >> 8;
-    u4 bits = value & 0xff;
-    switch(mode) {
-        case 0:
-            return bits;
-       case 1:
-            return (bits << 16) | bits;
-       case 2:
-            return (bits << 24) | (bits << 8);
-       case 3:
-            return (bits << 24) | (bits << 16) | (bits << 8) | bits;
-      default:
-            break;
-    }
-    bits = (bits | 0x80) << 24;
-    return bits >> (((value & 0xf80) >> 7) - 8);
-}
 
 /*
  * Interpret a format string and build a string no longer than size
  * See format key in Assemble.c.
  */
-static void buildInsnString(char *fmt, ArmLIR *lir, char* buf,
+static void buildInsnString(char *fmt, MipsLIR *lir, char* buf,
                             unsigned char *baseAddr, int size)
 {
-assert(1); /* DRP verify buildInsnString() */
     int i;
     char *bufEnd = &buf[size-1];
     char *fmtEnd = &fmt[strlen(fmt)];
@@ -101,14 +59,6 @@ assert(1); /* DRP verify buildInsnString() */
                            operand >>= 1;
                        }
                        break;
-                   case 'n':
-                       operand = ~expandImmediate(operand);
-                       sprintf(tbuf,"%d [0x%x]", operand, operand);
-                       break;
-                   case 'm':
-                       operand = expandImmediate(operand);
-                       sprintf(tbuf,"%d [0x%x]", operand, operand);
-                       break;
                    case 's':
                        sprintf(tbuf,"s%d",operand & FP_REG_MASK);
                        break;
@@ -133,28 +83,28 @@ assert(1); /* DRP verify buildInsnString() */
                        break;
                    case 'c':
                        switch (operand) {
-                           case kArmCondEq:
+                           case kMipsCondEq:
                                strcpy(tbuf, "eq");
                                break;
-                           case kArmCondNe:
+                           case kMipsCondNe:
                                strcpy(tbuf, "ne");
                                break;
-                           case kArmCondLt:
+                           case kMipsCondLt:
                                strcpy(tbuf, "lt");
                                break;
-                           case kArmCondGe:
+                           case kMipsCondGe:
                                strcpy(tbuf, "ge");
                                break;
-                           case kArmCondGt:
+                           case kMipsCondGt:
                                strcpy(tbuf, "gt");
                                break;
-                           case kArmCondLe:
+                           case kMipsCondLe:
                                strcpy(tbuf, "le");
                                break;
-                           case kArmCondCs:
+                           case kMipsCondCs:
                                strcpy(tbuf, "cs");
                                break;
-                           case kArmCondMi:
+                           case kMipsCondMi:
                                strcpy(tbuf, "mi");
                                break;
                            default:
@@ -186,9 +136,6 @@ assert(1); /* DRP verify buildInsnString() */
                    case 'v':
                        strcpy(tbuf, "see above");
                        break;
-                   case 'R':
-                       decodeRegList(operand, tbuf);
-                       break;
                    case 'r':
                        if (operand < 0 || operand > MIPS_REG_COUNT) {
                            LOGD("bad mips operand (%d) in insn buf: %s", operand, buf);
@@ -218,10 +165,9 @@ assert(1); /* DRP verify buildInsnString() */
 
 void dvmDumpResourceMask(LIR *lir, u8 mask, const char *prefix)
 {
-/* DRP cleanup/remove unneeded parts of dvmDumpResourceMask() */
     char buf[256];
     buf[0] = 0;
-    ArmLIR *armLIR = (ArmLIR *) lir;
+    MipsLIR *mipsLIR = (MipsLIR *) lir;
 
     if (mask == ENCODE_ALL) {
         strcpy(buf, "all");
@@ -242,9 +188,9 @@ void dvmDumpResourceMask(LIR *lir, u8 mask, const char *prefix)
         if (mask & ENCODE_FP_STATUS) {
             strcat(buf, "fpcc ");
         }
-        if (armLIR && (mask & ENCODE_DALVIK_REG)) {
-            sprintf(buf + strlen(buf), "dr%d%s", armLIR->aliasInfo & 0xffff,
-                    (armLIR->aliasInfo & 0x80000000) ? "(+1)" : "");
+        if (mipsLIR && (mask & ENCODE_DALVIK_REG)) {
+            sprintf(buf + strlen(buf), "dr%d%s", mipsLIR->aliasInfo & 0xffff,
+                    (mipsLIR->aliasInfo & 0x80000000) ? "(+1)" : "");
         }
     }
     if (buf[0]) {
@@ -261,8 +207,7 @@ void dvmDumpResourceMask(LIR *lir, u8 mask, const char *prefix)
 /* Pretty-print a LIR instruction */
 void dvmDumpLIRInsn(LIR *arg, unsigned char *baseAddr)
 {
-assert(1); /* DRP verify dvmDumpLIRInsn() */
-    ArmLIR *lir = (ArmLIR *) arg;
+    MipsLIR *lir = (MipsLIR *) arg;
     char buf[256];
     char opName[256];
     int offset = lir->generic.offset;
@@ -355,10 +300,9 @@ assert(1); /* DRP verify dvmDumpLIRInsn() */
 /* Dump instructions and constant pool contents */
 void dvmCompilerCodegenDump(CompilationUnit *cUnit)
 {
-/* DRP verify dvmCompilerCodegenDump() */
     LOGD("Dumping LIR insns\n");
     LIR *lirInsn;
-    ArmLIR *armLIR;
+    MipsLIR *mipsLIR;
 
     LOGD("installed code is at %p\n", cUnit->baseAddr);
     LOGD("total size is %d bytes\n", cUnit->totalSize);
@@ -366,10 +310,10 @@ void dvmCompilerCodegenDump(CompilationUnit *cUnit)
         dvmDumpLIRInsn(lirInsn, cUnit->baseAddr);
     }
     for (lirInsn = cUnit->wordList; lirInsn; lirInsn = lirInsn->next) {
-        armLIR = (ArmLIR *) lirInsn;
+        mipsLIR = (MipsLIR *) lirInsn;
         LOGD("%p (%04x): .word (0x%x)\n",
-             (char*)cUnit->baseAddr + armLIR->generic.offset,
-             armLIR->generic.offset,
-             armLIR->operands[0]);
+             (char*)cUnit->baseAddr + mipsLIR->generic.offset,
+             mipsLIR->generic.offset,
+             mipsLIR->operands[0]);
     }
 }

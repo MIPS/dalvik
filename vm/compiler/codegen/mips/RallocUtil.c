@@ -29,8 +29,6 @@
 #include "Codegen.h"
 #include "Ralloc.h"
 
-/* DRP review and verify all funcs() */
-
 /*
  * Register usage for 16-bit Thumb systems:
  *     r0-r3: Temp/argument
@@ -475,7 +473,7 @@ static void lockArgRegs(CompilationUnit *cUnit)
 
 /* Clobber all regs that might be used by an external C call */
 extern void dvmCompilerClobberCallRegs(CompilationUnit *cUnit)
-{   /* DRP review and verify dvmCompilerClobberCallRegs */
+{
     dvmCompilerClobber(cUnit, r_ZERO);
     dvmCompilerClobber(cUnit, r_AT);
     dvmCompilerClobber(cUnit, r_V0);
@@ -505,7 +503,7 @@ extern void dvmCompilerClobberCallRegs(CompilationUnit *cUnit)
 
 /* Clobber all of the temps that might be used by a handler. */
 extern void dvmCompilerClobberHandlerRegs(CompilationUnit *cUnit)
-{   /* DRP review and verify dvmCompilerClobberHandlerRegs */
+{
     //TUNING: reduce the set of regs used by handlers.  Only a few need lots.
     dvmCompilerClobberCallRegs(cUnit); 
     dvmCompilerClobber(cUnit, r_S0);
@@ -532,7 +530,7 @@ static void nullifyRange(CompilationUnit *cUnit, LIR *start, LIR *finish,
         LIR *p;
         assert(sReg1 == sReg2);
         for (p = start; ;p = p->next) {
-            ((ArmLIR *)p)->isNop = true;
+            ((MipsLIR *)p)->isNop = true;
             if (p == finish)
                 break;
         }
@@ -944,7 +942,6 @@ extern RegLocation dvmCompilerGetSrc(CompilationUnit *cUnit, MIR *mir, int num)
 extern RegLocation dvmCompilerGetDest(CompilationUnit *cUnit, MIR *mir,
                                       int num)
 {
-assert(1); /* DRP verify dvmCompilerGetDest() */
     RegLocation loc = cUnit->regLocation[SREG(cUnit, getDestSSAName(mir, num))];
     loc.fp = cUnit->regLocation[getDestSSAName(mir, num)].fp;
     loc.wide = false;
@@ -978,7 +975,6 @@ static RegLocation getLocWide(CompilationUnit *cUnit, MIR *mir,
 extern RegLocation dvmCompilerGetDestWide(CompilationUnit *cUnit, MIR *mir,
                                           int low, int high)
 {
-assert(1); /* DRP verified dvmCompilerGetDest() */
     return getLocWide(cUnit, mir, low, high, false);
 }
 
@@ -999,35 +995,11 @@ extern RegLocation dvmCompilerGetReturnWide(CompilationUnit *cUnit)
     return res;
 }
 
-extern RegLocation dvmCompilerGetReturnWideAlt(CompilationUnit *cUnit)
-{
-assert(0); /* DRP retarg dvmCompilerGetReturnWideAlt() may not be needed for MIPS */
-    RegLocation res = LOC_C_RETURN_WIDE;
-    res.lowReg = r2;
-    res.highReg = r3;
-    dvmCompilerClobber(cUnit, r2);
-    dvmCompilerClobber(cUnit, r3);
-    dvmCompilerMarkInUse(cUnit, r2);
-    dvmCompilerMarkInUse(cUnit, r3);
-    dvmCompilerMarkPair(cUnit, res.lowReg, res.highReg);
-    return res;
-}
-
 extern RegLocation dvmCompilerGetReturn(CompilationUnit *cUnit)
 {
     RegLocation res = LOC_C_RETURN;
     dvmCompilerClobber(cUnit, r_V0);
     dvmCompilerMarkInUse(cUnit, r_V0);
-    return res;
-}
-
-extern RegLocation dvmCompilerGetReturnAlt(CompilationUnit *cUnit)
-{
-assert(0); /* DRP retarg dvmCompilerGetReturnAlt() may not be needed for MIPS */
-    RegLocation res = LOC_C_RETURN;
-    res.lowReg = r1;
-    dvmCompilerClobber(cUnit, r1);
-    dvmCompilerMarkInUse(cUnit, r1);
     return res;
 }
 
