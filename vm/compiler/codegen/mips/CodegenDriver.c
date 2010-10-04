@@ -3605,20 +3605,17 @@ void dvmCompilerMIR2LIR(CompilationUnit *cUnit)
          *       add   r1, #1
          *       str   r1, [r0]
          */
-assert(0); /* MIPSTODO port profile support dvmCompilerMIR2LIR() */
-#if 0
-        newLIR1(cUnit, kArm16BitData, 0);
-        newLIR1(cUnit, kArm16BitData, 0);
+        MipsLIR *executionCount = newLIR1(cUnit, kMips32BitData, 0);
         cUnit->chainCellOffsetLIR =
-            (LIR *) newLIR1(cUnit, kArm16BitData, CHAIN_CELL_OFFSET_TAG);
+            (LIR *) newLIR1(cUnit, kMips32BitData, CHAIN_CELL_OFFSET_TAG);
         cUnit->headerSize = 8;
-        /* Thumb instruction used directly here to ensure correct size */
-        newLIR2(cUnit, kThumbMovRR_H2L, r0, rpc);
-        newLIR2(cUnit, kThumbSubRI8, r0, 10);
-        newLIR3(cUnit, kThumbLdrRRI5, r1, r0, 0);
-        newLIR2(cUnit, kThumbAddRI8, r1, 1);
-        newLIR3(cUnit, kThumbStrRRI5, r1, r0, 0);
-#endif
+        MipsLIR *loadAddr = newLIR2(cUnit, kMipsLahi, r_A1, 0);
+        loadAddr->generic.target = (LIR *) executionCount;
+        loadAddr = newLIR3(cUnit, kMipsLalo, r_A1, r_A1, 0);
+        loadAddr ->generic.target = (LIR *) executionCount;
+        newLIR3(cUnit, kMipsLw, r_A0, 0, r_A1);
+        newLIR3(cUnit, kMipsAddiu, r_A0, r_A0, 1); 
+        newLIR3(cUnit, kMipsSw, r_A0, 0, r_A1);
     } else {
          /* Just reserve 4 bytes for the chain cell offset */
         cUnit->chainCellOffsetLIR =

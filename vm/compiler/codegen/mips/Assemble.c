@@ -1116,7 +1116,6 @@ typedef struct jitProfileAddrToLine {
 /* Callback function to track the bytecode offset/line number relationiship */
 static int addrToLineCb (void *cnxt, u4 bytecodeOffset, u4 lineNum)
 {
-assert(0); /* MIPSTODO retarg func */
     jitProfileAddrToLine *addrToLine = (jitProfileAddrToLine *) cnxt;
 
     /* Best match so far for this offset */
@@ -1128,21 +1127,18 @@ assert(0); /* MIPSTODO retarg func */
 
 char *getTraceBase(const JitEntry *p)
 {
-assert(0); /* MIPSTODO retarg func */
-    return (char*)p->codeAddress -
-        (6 + (p->u.info.instructionSet == DALVIK_JIT_ARM ? 0 : 1));
+    return (char*)p->codeAddress - 8;
 }
 
 /* Dumps profile info for a single trace */
 static int dumpTraceProfile(JitEntry *p, bool silent, bool reset,
                             unsigned long sum)
 {
-assert(0); /* MIPSTODO retarg func */
     ChainCellCounts* pCellCounts;
     char* traceBase;
     u4* pExecutionCount;
     u4 executionCount;
-    u2* pCellOffset;
+    u4* pCellOffset;
     JitTraceDescription *desc;
     const Method* method;
 
@@ -1167,7 +1163,7 @@ assert(0); /* MIPSTODO retarg func */
     if (silent) {
         return executionCount;
     }
-    pCellOffset = (u2*) (traceBase + 4);
+    pCellOffset = (u4*) (traceBase + 4);
     pCellCounts = (ChainCellCounts*) ((char *)pCellOffset + *pCellOffset);
     desc = (JitTraceDescription*) ((char*)pCellCounts + sizeof(*pCellCounts));
     method = desc->method;
@@ -1205,7 +1201,6 @@ assert(0); /* MIPSTODO retarg func */
 JitTraceDescription *dvmCopyTraceDescriptor(const u2 *pc,
                                             const JitEntry *knownEntry)
 {
-assert(0); /* MIPSTODO retarg func */
     const JitEntry *jitEntry = knownEntry ? knownEntry : dvmFindJitEntry(pc);
     if (jitEntry == NULL) return NULL;
 
@@ -1213,7 +1208,7 @@ assert(0); /* MIPSTODO retarg func */
     char *traceBase = getTraceBase(jitEntry);
 
     /* Then find out the starting point of the chaining cell */
-    u2 *pCellOffset = (u2*) (traceBase + 4);
+    u4 *pCellOffset = (u4*) (traceBase + 4);
     ChainCellCounts *pCellCounts =
         (ChainCellCounts*) ((char *)pCellOffset + *pCellOffset);
 
@@ -1231,7 +1226,6 @@ assert(0); /* MIPSTODO retarg func */
 /* Handy function to retrieve the profile count */
 static inline int getProfileCount(const JitEntry *entry)
 {
-assert(0); /* MIPSTODO retarg func */
     if (entry->dPC == 0 || entry->codeAddress == 0)
         return 0;
     u4 *pExecutionCount = (u4 *) getTraceBase(entry);
@@ -1243,7 +1237,6 @@ assert(0); /* MIPSTODO retarg func */
 /* qsort callback function */
 static int sortTraceProfileCount(const void *entry1, const void *entry2)
 {
-assert(0); /* MIPSTODO retarg func */
     const JitEntry *jitEntry1 = entry1;
     const JitEntry *jitEntry2 = entry2;
 
@@ -1255,7 +1248,6 @@ assert(0); /* MIPSTODO retarg func */
 /* Sort the trace profile counts and dump them */
 void dvmCompilerSortAndPrintTraceProfiles()
 {
-assert(0); /* MIPSTODO retarg func */
     JitEntry *sortedEntries;
     int numTraces = 0;
     unsigned long sum = 0;
@@ -1302,10 +1294,12 @@ assert(0); /* MIPSTODO retarg func */
     }
 
     for (i=0; i < gDvmJit.jitTableSize && i < 10; i++) {
-        JitTraceDescription* desc =
-            dvmCopyTraceDescriptor(NULL, &sortedEntries[i]);
-        dvmCompilerWorkEnqueue(sortedEntries[i].dPC,
-                               kWorkOrderTraceDebug, desc);
+        if (sortedEntries[i].dPC && sortedEntries[i].codeAddress) {
+            JitTraceDescription* desc =
+                dvmCopyTraceDescriptor(NULL, &sortedEntries[i]);
+            dvmCompilerWorkEnqueue(sortedEntries[i].dPC,
+                                   kWorkOrderTraceDebug, desc);
+        }
     }
 
     free(sortedEntries);
