@@ -56,7 +56,6 @@ include $(BUILD_SHARED_LIBRARY)
 # If WITH_JIT is configured, build multiple versions of libdvm.so to facilitate
 # correctness/performance bugs triage
 ifeq ($(WITH_JIT),true)
- ifneq ($(dvm_arch),mips)	# MIPS support for alternate configurations is not complete 
     # Derivation #1
     # Enable assert and JIT tuning
     include $(LOCAL_PATH)/ReconfigureDvm.mk
@@ -67,6 +66,7 @@ ifeq ($(WITH_JIT),true)
     LOCAL_MODULE := libdvm_assert
     include $(BUILD_SHARED_LIBRARY)
 
+ ifneq ($(dvm_arch),mips)	# MIPS support for alternate configurations is not complete 
     # Derivation #2
     # Enable assert and self-verification
     include $(LOCAL_PATH)/ReconfigureDvm.mk

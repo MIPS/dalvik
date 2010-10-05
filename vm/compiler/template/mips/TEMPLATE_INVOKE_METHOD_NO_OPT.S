@@ -59,6 +59,6 @@
 
     # Start executing the callee
 #if defined(JIT_STATS)
-    move   a0, kInlineCacheMiss
+    li     a0, kInlineCacheMiss
 #endif
     jr     t0                                     # dvmJitToInterpTraceSelectNoChain

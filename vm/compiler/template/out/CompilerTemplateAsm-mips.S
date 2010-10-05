@@ -584,7 +584,7 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NO_OPT:
 
     # Start executing the callee
 #if defined(JIT_STATS)
-    move   a0, kInlineCacheMiss
+    li     a0, kInlineCacheMiss
 #endif
     jr     t0                                     # dvmJitToInterpTraceSelectNoChain
 
@@ -2431,7 +2431,7 @@ dvmCompiler_TEMPLATE_MONITOR_ENTER:
 
     # Bail to interpreter - no chain [note - rPC still contains dPC]
 #if defined(JIT_STATS)
-    mov     a0, #kHeavyweightMonitor
+    li      a0, kHeavyweightMonitor
 #endif
     jr      a2
 
@@ -2469,7 +2469,7 @@ dvmCompiler_TEMPLATE_MONITOR_ENTER_DEBUG:
 1:
     # Bail to interpreter - no chain [note - rPC still contains dPC]
 #if defined(JIT_STATS)
-    mov    a0, #kHeavyweightMonitor
+    li     a0, kHeavyweightMonitor
 #endif
     la     a2, .LdvmJitToInterpNoChain
     lw     a2, (a2)

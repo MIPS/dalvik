@@ -505,8 +505,9 @@ void dvmJitStats()
              gDvmJit.invokeMonoGetterInlined, gDvmJit.invokeMonoSetterInlined,
              gDvmJit.invokePolyGetterInlined, gDvmJit.invokePolySetterInlined);
         LOGD("JIT: Total compilation time: %llu ms", gDvmJit.jitTime / 1000);
-        LOGD("JIT: Avg unit compilation time: %llu us",
-             gDvmJit.jitTime / gDvmJit.numCompilations);
+        if (gDvmJit.numCompilations)
+	    LOGD("JIT: Avg unit compilation time: %llu us",
+		 gDvmJit.jitTime / gDvmJit.numCompilations);
 #endif
 
         LOGD("JIT: %d Translation chains, %d interp stubs",

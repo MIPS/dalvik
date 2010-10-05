@@ -3296,20 +3296,20 @@ static void handleHotChainingCell(CompilationUnit *cUnit,
 static void handleBackwardBranchChainingCell(CompilationUnit *cUnit,
                                              unsigned int offset)
 {
-assert(0); /* MIPSTODO port handleBackwardBranchChainingCell() */
     /*
      * Use raw instruction constructors to guarantee that the generated
      * instructions fit the predefined cell size.
      */
 #if defined(WITH_SELF_VERIFICATION)
-    newLIR3(cUnit, kThumbLdrRRI5, r0, rGLUE,
-        offsetof(InterpState,
-                 jitToInterpEntries.dvmJitToInterpBackwardBranch) >> 2);
+    newLIR3(cUnit, kMipsLw, r_A0, 
+        offsetof(InterpState, jitToInterpEntries.dvmJitToInterpBackwardBranch),
+        rGLUE);
 #else
-    newLIR3(cUnit, kThumbLdrRRI5, r0, rGLUE,
-        offsetof(InterpState, jitToInterpEntries.dvmJitToInterpNormal) >> 2);
+    newLIR3(cUnit, kMipsLw, r_A0,
+        offsetof(InterpState, jitToInterpEntries.dvmJitToInterpNormal),
+        rGLUE);
 #endif
-    newLIR1(cUnit, kThumbBlxR, r0);
+    newLIR2(cUnit, kMipsJalr, r_RA, r_A0);
     addWordData(cUnit, (int) (cUnit->method->insns + offset), true);
 }
 

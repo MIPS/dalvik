@@ -24,6 +24,6 @@
 
     # Bail to interpreter - no chain [note - rPC still contains dPC]
 #if defined(JIT_STATS)
-    mov     a0, #kHeavyweightMonitor
+    li      a0, kHeavyweightMonitor
 #endif
     jr      a2
