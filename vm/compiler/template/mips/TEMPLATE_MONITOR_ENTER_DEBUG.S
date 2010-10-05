@@ -27,7 +27,7 @@
 1:
     # Bail to interpreter - no chain [note - rPC still contains dPC]
 #if defined(JIT_STATS)
-    mov    a0, #kHeavyweightMonitor
+    li     a0, kHeavyweightMonitor
 #endif
     la     a2, .LdvmJitToInterpNoChain
     lw     a2, (a2)
