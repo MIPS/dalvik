@@ -68,7 +68,7 @@ static void introduceBranchDelaySlot(CompilationUnit *cUnit)
     for (thisLIR = (MipsLIR *) cUnit->firstLIRInsn;
          thisLIR != (MipsLIR *) cUnit->lastLIRInsn;
          thisLIR = NEXT_LIR(thisLIR)) {
-        if (thisLIR->isNop)
+        if (isPseudoOpCode(thisLIR->opCode) || thisLIR->isNop)
             continue;
             
         if (EncodingMap[thisLIR->opCode].flags & IS_BRANCH &&
@@ -81,7 +81,8 @@ static void introduceBranchDelaySlot(CompilationUnit *cUnit)
         }
     }
 
-    if (EncodingMap[thisLIR->opCode].flags & IS_BRANCH) {
+    if (!isPseudoOpCode(thisLIR->opCode) && 
+        EncodingMap[thisLIR->opCode].flags & IS_BRANCH) {
         MipsLIR *nopLIR = dvmCompilerNew(sizeof(MipsLIR), true);
         nopLIR->opCode = kMipsNop;
         nopLIR->defMask = 0;
