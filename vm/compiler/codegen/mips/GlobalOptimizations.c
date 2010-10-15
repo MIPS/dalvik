@@ -56,38 +56,96 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
 }
 
 /*
+ * Traverse the instruction trace backwards from the branch looking for an 
+ * instruction to move into the branch delay slot.  The attempt is currently 
+ * not as aggressive as possible, and it may be possible to tune and improve 
+ * a bit if performance studies suggest a worthwhile cost/benefit.
+ */
+static MipsLIR *delaySlotLIR(MipsLIR *firstLIR, MipsLIR *branchLIR)
+{
+    int isLoad;
+    int loadVisited = 0;
+    int isStore;
+    int storeVisited = 0;
+    u8 useMask = branchLIR->useMask;
+    u8 defMask = branchLIR->defMask;
+    MipsLIR *thisLIR;
+    MipsLIR *newLIR = dvmCompilerNew(sizeof(MipsLIR), true);
+
+    for (thisLIR = PREV_LIR(branchLIR);
+         thisLIR != firstLIR;
+         thisLIR = PREV_LIR(thisLIR)) {
+        if (thisLIR->isNop)
+            continue;
+
+        /* give up and insert a NOP */
+        if (isPseudoOpCode(thisLIR->opCode) ||
+            thisLIR->opCode == kMipsNop ||
+            thisLIR->opCode == kMips32BitData ||
+            EncodingMap[thisLIR->opCode].flags & IS_BRANCH)
+            break;
+
+        /* don't reorder loads/stores (the alias info could
+           possibly be used to allow as a future enhancement) */
+        isLoad = EncodingMap[thisLIR->opCode].flags & IS_LOAD;
+        isStore = EncodingMap[thisLIR->opCode].flags & IS_STORE;
+
+        if (!(thisLIR->useMask & defMask) &&
+            !(thisLIR->defMask & useMask) &&
+            !(thisLIR->defMask & defMask) &&
+            !(isLoad && storeVisited) &&
+            !(isStore && loadVisited) &&
+            !(isStore && storeVisited)) {
+            *newLIR = *thisLIR;
+            thisLIR->isNop = true;
+            return newLIR; /* move into delay slot succeeded */
+        }
+
+        loadVisited |= isLoad;
+        storeVisited |= isStore;
+
+        /* accumulate def/use constraints */
+        useMask |= thisLIR->useMask;
+        defMask |= thisLIR->defMask;
+    }
+
+    newLIR->opCode = kMipsNop;
+    return newLIR;
+}
+
+/*
  * The branch delay slot has been ignored thus far.  This is the point where
  * a useful instruction is moved into it or a nop is inserted.  Leave existing
  * NOPs alone -- these came from sparse and packed switch ops and are needed
- * to maintain the proper offset to the jump table.
+ * to maintain the proper offset to the jump table.  
  */
 static void introduceBranchDelaySlot(CompilationUnit *cUnit)
 {
     MipsLIR *thisLIR;
-
-    for (thisLIR = (MipsLIR *) cUnit->firstLIRInsn;
-         thisLIR != (MipsLIR *) cUnit->lastLIRInsn;
-         thisLIR = NEXT_LIR(thisLIR)) {
-        if (isPseudoOpCode(thisLIR->opCode) || thisLIR->isNop)
+    MipsLIR *firstLIR =(MipsLIR *) cUnit->firstLIRInsn; 
+    MipsLIR *lastLIR =(MipsLIR *) cUnit->lastLIRInsn; 
+   
+    for (thisLIR = lastLIR; thisLIR != firstLIR; thisLIR = PREV_LIR(thisLIR)) {
+        if (thisLIR->isNop ||
+            isPseudoOpCode(thisLIR->opCode) ||
+            !(EncodingMap[thisLIR->opCode].flags & IS_BRANCH)) {
             continue;
-            
-        if (EncodingMap[thisLIR->opCode].flags & IS_BRANCH &&
-            NEXT_LIR(thisLIR)->opCode != kMipsNop) {
-            MipsLIR *nopLIR = dvmCompilerNew(sizeof(MipsLIR), true);
-            nopLIR->opCode = kMipsNop;
-            nopLIR->defMask = 0;
-            nopLIR->useMask = 0;
-            dvmCompilerInsertLIRAfter((LIR *) thisLIR, (LIR *) nopLIR);
+        } else if (thisLIR == lastLIR) {
+            dvmCompilerAppendLIR(cUnit,
+                (LIR *) delaySlotLIR(firstLIR, thisLIR));
+        } else if (NEXT_LIR(thisLIR)->opCode != kMipsNop) {
+            dvmCompilerInsertLIRAfter((LIR *) thisLIR,
+                (LIR *) delaySlotLIR(firstLIR, thisLIR));
         }
     }
 
-    if (!isPseudoOpCode(thisLIR->opCode) && 
+    if (!thisLIR->isNop &&
+        !isPseudoOpCode(thisLIR->opCode) &&
         EncodingMap[thisLIR->opCode].flags & IS_BRANCH) {
+        /* nothing available to move, so insert nop */
         MipsLIR *nopLIR = dvmCompilerNew(sizeof(MipsLIR), true);
         nopLIR->opCode = kMipsNop;
-        nopLIR->defMask = 0;
-        nopLIR->useMask = 0;
-        dvmCompilerAppendLIR(cUnit, (LIR *) nopLIR);
+        dvmCompilerInsertLIRAfter((LIR *) thisLIR, (LIR *) nopLIR);
     }
 }
 
