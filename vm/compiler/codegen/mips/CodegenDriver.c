@@ -1209,32 +1209,26 @@ static MipsLIR *genCheckPredictedChain(CompilationUnit *cUnit,
     /* a3 now contains this->clazz */
     loadWordDisp(cUnit, r_A0, offsetof(Object, clazz), r_A3);
 
-    /*
-     * a2 now contains predicted class. The starting offset of the
-     * cached value is 8 bytes into the chaining cell.
-     */
+    /* a2 now contains start of the predicted chaining cell */
     MipsLIR *getPredictedClass = newLIR2(cUnit, kMipsLahi, r_A2, 0);
     getPredictedClass->generic.target = (LIR *) predChainingCell;
     getPredictedClass = newLIR3(cUnit, kMipsLalo, r_A2, r_A2, 0);
     getPredictedClass->generic.target = (LIR *) predChainingCell;
-    newLIR3(cUnit, kMipsAddiu, r_A2, r_A2, offsetof(PredictedChainingCell, clazz));
                                             
     /*
      * r_A0 now contains predicted method. The starting offset of the
      * cached value is 12 bytes into the chaining cell.
      */
-    MipsLIR *getPredictedMethod = newLIR2(cUnit, kMipsLahi, r_A0, 0);
-    getPredictedMethod->generic.target = (LIR *) predChainingCell;
-    getPredictedMethod = newLIR3(cUnit, kMipsLalo, r_A0, r_A0, 0);
-    getPredictedMethod->generic.target = (LIR *) predChainingCell;
-    newLIR3(cUnit, kMipsAddiu, r_A0, r_A0, offsetof(PredictedChainingCell, method));
+    newLIR3(cUnit, kMipsAddiu, r_A0, r_A2, offsetof(PredictedChainingCell, method));
 
     /* Load the stats counter to see if it is time to unchain and refresh */
-    MipsLIR *getRechainingRequestCount = newLIR2(cUnit, kMipsLahi, r_S4, 0);
-    getRechainingRequestCount->generic.target = (LIR *) predChainingCell;
-    getRechainingRequestCount = newLIR3(cUnit, kMipsLalo, r_S4, r_S4, 0);
-    getRechainingRequestCount->generic.target = (LIR *) predChainingCell;
-    newLIR3(cUnit, kMipsAddiu, r_S4, r_S4, offsetof(PredictedChainingCell, counter));
+    newLIR3(cUnit, kMipsAddiu, r_S4, r_A2, offsetof(PredictedChainingCell, counter));
+
+    /*
+     * a2 now contains predicted class.  The starting offset of the
+     * cached value is 8 bytes into the chaining cell.
+     */
+    newLIR3(cUnit, kMipsAddiu, r_A2, r_A2, offsetof(PredictedChainingCell, clazz));
 
     /* r4PC = dalvikCallsite */
     loadConstant(cUnit, r4PC,
@@ -2880,7 +2874,7 @@ static bool handleFmt35c_3rc(CompilationUnit *cUnit, MIR *mir, BasicBlock *bb,
 
             dvmCompilerClobberCallRegs(cUnit);
             /* generate a branch over if the interface method is resolved */
-            MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_A0, r_ZERO);
+            MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBne, r_V0, r_ZERO);
             /*
              * calleeMethod == NULL -> throw
              */
@@ -2896,7 +2890,7 @@ static bool handleFmt35c_3rc(CompilationUnit *cUnit, MIR *mir, BasicBlock *bb,
             genRegCopy(cUnit, r_A1, r_S5);
 
             /* Check if rechain limit is reached */
-            MipsLIR *bypassRechaining = opCondBranchMips(cUnit, kMipsBgtz, r_A1, -1);
+            MipsLIR *bypassRechaining = opCondBranchMips(cUnit, kMipsBgtz, r_S5, -1);
 
             loadWordDisp(cUnit, rGLUE, offsetof(InterpState,
                          jitToInterpEntries.dvmJitToPatchPredictedChain), r_T9);
