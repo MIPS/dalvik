@@ -147,14 +147,22 @@ void dvmCompilerInitializeRegAlloc(CompilationUnit *cUnit)
     pool->numCoreTemps = numTemps;
     pool->coreTemps =
             dvmCompilerNew(numTemps * sizeof(*pool->coreTemps), true);
-    pool->numFPTemps = 0;
-    pool->FPTemps = NULL;
     pool->numCoreRegs = 0;
     pool->coreRegs = NULL;
     pool->numFPRegs = 0;
     pool->FPRegs = NULL;
     dvmCompilerInitPool(pool->coreTemps, coreTemps, pool->numCoreTemps);
+#ifdef __mips_hard_float
+    int numFPTemps = sizeof(fpTemps)/sizeof(int);
+    pool->numFPTemps = numFPTemps;
+    pool->FPTemps =
+            dvmCompilerNew(numFPTemps * sizeof(*pool->FPTemps), true);
+    dvmCompilerInitPool(pool->FPTemps, fpTemps, pool->numFPTemps);
+#else
+    pool->numFPTemps = 0;
+    pool->FPTemps = NULL;
     dvmCompilerInitPool(pool->FPTemps, NULL, 0);
+#endif
     dvmCompilerInitPool(pool->coreRegs, NULL, 0);
     dvmCompilerInitPool(pool->FPRegs, NULL, 0);
     pool->nullCheckedRegs =

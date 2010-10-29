@@ -62,13 +62,16 @@
  */
 
 /* Offset to distingish FP regs */
-#define FP_REG_OFFSET 64
+#define FP_REG_OFFSET 32
 /* Offset to distinguish DP FP regs */
-#define FP_DOUBLE 128
+#define FP_DOUBLE 64
+/* Offset to distingish the extra regs */
+#define EXTRA_REG_OFFSET 128
 /* Reg types */
 #define REGTYPE(x) (x & (FP_REG_OFFSET | FP_DOUBLE))
 #define FPREG(x) ((x & FP_REG_OFFSET) == FP_REG_OFFSET)
-#define LOWREG(x) ((x) <= r_PC)
+#define EXTRAREG(x) ((x & EXTRA_REG_OFFSET) == EXTRA_REG_OFFSET)
+#define LOWREG(x) ((x & 0x1f) == x)
 #define DOUBLEREG(x) ((x & FP_DOUBLE) == FP_DOUBLE)
 #define SINGLEREG(x) (FPREG(x) && !DOUBLEREG(x))
 /*
@@ -89,6 +92,8 @@
 /* RegisterLocation templates return values (r_V0, or r_V0/r_V1) */
 #define LOC_C_RETURN {kLocPhysReg, 0, 0, r_V0, 0, -1}
 #define LOC_C_RETURN_WIDE {kLocPhysReg, 1, 0, r_V0, r_V1, -1}
+#define LOC_C_RETURN_ALT {kLocPhysReg, 0, 1, r_F0, 0, -1}
+#define LOC_C_RETURN_WIDE_ALT {kLocPhysReg, 1, 1, r_F0, r_F1, -1}
 /* RegisterLocation templates for interpState->retVal; */
 #define LOC_DALVIK_RETURN_VAL {kLocRetval, 0, 0, 0, 0, -1}
 #define LOC_DALVIK_RETURN_VAL_WIDE {kLocRetval, 1, 0, 0, 0, -1}
@@ -129,10 +134,11 @@ typedef enum ResourceEncodingPos {
     kGPReg0     = 0,
     kRegSP      = 29,
     kRegLR      = 31,
-    kRegHI      = 32,
-    kRegLO      = 33,
-    kRegPC      = 34,
-    kFPReg0     = 35, /* pretend 16 fp regs -- not used currently */
+    kFPReg0     = 32, /* only 16 fp regs supported currently */
+    kFPRegEnd   = 48,
+    kRegHI      = kFPRegEnd,
+    kRegLO,
+    kRegPC,
     kRegEnd     = 51,
     kCCode      = kRegEnd,
     kFPStatus,
@@ -214,71 +220,6 @@ typedef enum OpKind {
 } OpKind;
 
 typedef enum NativeRegisterPool {
-    r0 = 0,
-    r1 = 1,
-    r2 = 2,
-    r3 = 3,
-    r4PC = 4,
-    rFP = 5,
-    rGLUE = 6,
-    r7 = 7,
-    r8 = 8,
-    r9 = 9,
-    r10 = 10,
-    r11 = 11,
-    r12 = 12,
-    r13 = 13,
-    rlr = 14,
-    rpc = 15,
-    fr0  =  0 + FP_REG_OFFSET,
-    fr1  =  1 + FP_REG_OFFSET,
-    fr2  =  2 + FP_REG_OFFSET,
-    fr3  =  3 + FP_REG_OFFSET,
-    fr4  =  4 + FP_REG_OFFSET,
-    fr5  =  5 + FP_REG_OFFSET,
-    fr6  =  6 + FP_REG_OFFSET,
-    fr7  =  7 + FP_REG_OFFSET,
-    fr8  =  8 + FP_REG_OFFSET,
-    fr9  =  9 + FP_REG_OFFSET,
-    fr10 = 10 + FP_REG_OFFSET,
-    fr11 = 11 + FP_REG_OFFSET,
-    fr12 = 12 + FP_REG_OFFSET,
-    fr13 = 13 + FP_REG_OFFSET,
-    fr14 = 14 + FP_REG_OFFSET,
-    fr15 = 15 + FP_REG_OFFSET,
-    fr16 = 16 + FP_REG_OFFSET,
-    fr17 = 17 + FP_REG_OFFSET,
-    fr18 = 18 + FP_REG_OFFSET,
-    fr19 = 19 + FP_REG_OFFSET,
-    fr20 = 20 + FP_REG_OFFSET,
-    fr21 = 21 + FP_REG_OFFSET,
-    fr22 = 22 + FP_REG_OFFSET,
-    fr23 = 23 + FP_REG_OFFSET,
-    fr24 = 24 + FP_REG_OFFSET,
-    fr25 = 25 + FP_REG_OFFSET,
-    fr26 = 26 + FP_REG_OFFSET,
-    fr27 = 27 + FP_REG_OFFSET,
-    fr28 = 28 + FP_REG_OFFSET,
-    fr29 = 29 + FP_REG_OFFSET,
-    fr30 = 30 + FP_REG_OFFSET,
-    fr31 = 31 + FP_REG_OFFSET,
-    dr0 = fr0 + FP_DOUBLE,
-    dr1 = fr2 + FP_DOUBLE,
-    dr2 = fr4 + FP_DOUBLE,
-    dr3 = fr6 + FP_DOUBLE,
-    dr4 = fr8 + FP_DOUBLE,
-    dr5 = fr10 + FP_DOUBLE,
-    dr6 = fr12 + FP_DOUBLE,
-    dr7 = fr14 + FP_DOUBLE,
-    dr8 = fr16 + FP_DOUBLE,
-    dr9 = fr18 + FP_DOUBLE,
-    dr10 = fr20 + FP_DOUBLE,
-    dr11 = fr22 + FP_DOUBLE,
-    dr12 = fr24 + FP_DOUBLE,
-    dr13 = fr26 + FP_DOUBLE,
-    dr14 = fr28 + FP_DOUBLE,
-    dr15 = fr30 + FP_DOUBLE,
-
     r_ZERO = 0,
     r_AT = 1,
     r_V0 = 2,
@@ -311,9 +252,6 @@ typedef enum NativeRegisterPool {
     r_SP = 29,
     r_FP = 30,
     r_RA = 31,
-    r_HI = 32,
-    r_LO = 33,
-    r_PC = 34,
 
     r_F0 = 0 + FP_REG_OFFSET,
     r_F1,
@@ -331,6 +269,7 @@ typedef enum NativeRegisterPool {
     r_F13,
     r_F14,
     r_F15,
+#if 0 /* only 16 fp regs supported currently */
     r_F16,
     r_F17,
     r_F18,
@@ -347,39 +286,28 @@ typedef enum NativeRegisterPool {
     r_F29,
     r_F30,
     r_F31,
-
+#endif
     r_DF0 = r_F0 + FP_DOUBLE,
-    r_DF1,
-    r_DF2,
-    r_DF3,
-    r_DF4,
-    r_DF5,
-    r_DF6,
-    r_DF7,
-    r_DF8,
-    r_DF9,
-    r_DF10,
-    r_DF11,
-    r_DF12,
-    r_DF13,
-    r_DF14,
-    r_DF15,
-    r_DF16,
-    r_DF17,
-    r_DF18,
-    r_DF19,
-    r_DF20,
-    r_DF21,
-    r_DF22,
-    r_DF23,
-    r_DF24,
-    r_DF25,
-    r_DF26,
-    r_DF27,
-    r_DF28,
-    r_DF29,
-    r_DF30,
-    r_DF31,
+    r_DF1 = r_F2 + FP_DOUBLE,
+    r_DF2 = r_F4 + FP_DOUBLE,
+    r_DF3 = r_F6 + FP_DOUBLE,
+    r_DF4 = r_F8 + FP_DOUBLE,
+    r_DF5 = r_F10 + FP_DOUBLE,
+    r_DF6 = r_F12 + FP_DOUBLE,
+    r_DF7 = r_F14 + FP_DOUBLE,
+#if 0 /* only 16 fp regs supported currently */
+    r_DF8 = r_F16 + FP_DOUBLE,
+    r_DF9 = r_F18 + FP_DOUBLE,
+    r_DF10 = r_F20 + FP_DOUBLE,
+    r_DF11 = r_F22 + FP_DOUBLE,
+    r_DF12 = r_F24 + FP_DOUBLE,
+    r_DF13 = r_F26 + FP_DOUBLE,
+    r_DF14 = r_F28 + FP_DOUBLE,
+    r_DF15 = r_F30 + FP_DOUBLE,
+#endif
+    r_HI = EXTRA_REG_OFFSET,
+    r_LO,
+    r_PC,
 } NativeRegisterPool;
 
 
@@ -507,6 +435,30 @@ typedef enum MipsOpCode {
     kMipsSw,      /* sw t,o(b) [101011] b[25..21] t[20..16] o[15..0] */
     kMipsXor,     /* xor d,s,t [000000] s[25..21] t[20..16] d[15..11] [00000100110] */
     kMipsXori,    /* xori t,s,imm16 [001110] s[25..21] t[20..16] imm16[15..0] */
+#ifdef __mips_hard_float
+    kMipsFadds,   /* add.s d,s,t [01000110000] t[20..16] s[15..11] d[10..6] [000000] */
+    kMipsFsubs,   /* sub.s d,s,t [01000110000] t[20..16] s[15..11] d[10..6] [000001] */
+    kMipsFmuls,   /* mul.s d,s,t [01000110000] t[20..16] s[15..11] d[10..6] [000010] */
+    kMipsFdivs,   /* div.s d,s,t [01000110000] t[20..16] s[15..11] d[10..6] [000011] */
+    kMipsFaddd,   /* add.d d,s,t [01000110001] t[20..16] s[15..11] d[10..6] [000000] */
+    kMipsFsubd,   /* sub.d d,s,t [01000110001] t[20..16] s[15..11] d[10..6] [000001] */
+    kMipsFmuld,   /* mul.d d,s,t [01000110001] t[20..16] s[15..11] d[10..6] [000010] */
+    kMipsFdivd,   /* div.d d,s,t [01000110001] t[20..16] s[15..11] d[10..6] [000011] */
+    kMipsFcvtsd,  /* cvt.s.d d,s [01000110001] [00000] s[15..11] d[10..6] [100000] */
+    kMipsFcvtsw,  /* cvt.s.w d,s [01000110100] [00000] s[15..11] d[10..6] [100000] */
+    kMipsFcvtds,  /* cvt.d.s d,s [01000110000] [00000] s[15..11] d[10..6] [100001] */
+    kMipsFcvtdw,  /* cvt.d.w d,s [01000110100] [00000] s[15..11] d[10..6] [100001] */
+    kMipsFcvtws,  /* cvt.w.d d,s [01000110000] [00000] s[15..11] d[10..6] [100100] */
+    kMipsFcvtwd,  /* cvt.w.d d,s [01000110001] [00000] s[15..11] d[10..6] [100100] */
+    kMipsFmovs,   /* mov.s d,s [01000110000] [00000] s[15..11] d[10..6] [000110] */
+    kMipsFmovd,   /* mov.d d,s [01000110001] [00000] s[15..11] d[10..6] [000110] */
+    kMipsFlwc1,   /* lwc1 t,o(b) [110001] b[25..21] t[20..16] o[15..0] */
+    kMipsFldc1,   /* ldc1 t,o(b) [110101] b[25..21] t[20..16] o[15..0] */
+    kMipsFswc1,   /* swc1 t,o(b) [111001] b[25..21] t[20..16] o[15..0] */
+    kMipsFsdc1,   /* sdc1 t,o(b) [111101] b[25..21] t[20..16] o[15..0] */
+    kMipsMfc1,    /* mfc1 t,s [01000100000] t[20..16] s[15..11] [00000000000] */
+    kMipsMtc1,    /* mtc1 t,s [01000100100] t[20..16] s[15..11] [00000000000] */
+#endif
     kMipsLast
 } MipsOpCode;
 

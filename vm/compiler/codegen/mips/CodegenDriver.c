@@ -34,26 +34,49 @@ static bool genConversionCall(CompilationUnit *cUnit, MIR *mir, void *funct,
     RegLocation rlSrc;
     RegLocation rlDest;
     dvmCompilerFlushAllRegs(cUnit);   /* Send everything to home location */
-    if (srcSize == 1) {
+
+#ifdef __mips_hard_float
+    int srcReg = (srcSize == kSingle || srcSize == kDouble) ? r_F12 : r_A0;
+    int srcRegHi = (srcSize == kDouble) ? r_F13 : r_A1;
+#else
+    int srcReg = r_A0;
+    int srcRegHi = r_A1;
+#endif
+
+    if (srcSize == kWord || srcSize == kSingle) {
         rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
-        loadValueDirectFixed(cUnit, rlSrc, r_A0);
+        loadValueDirectFixed(cUnit, rlSrc, srcReg);
     } else {
         rlSrc = dvmCompilerGetSrcWide(cUnit, mir, 0, 1);
-        loadValueDirectWideFixed(cUnit, rlSrc, r_A0, r_A1);
+        loadValueDirectWideFixed(cUnit, rlSrc, srcReg, srcRegHi);
     }
     LOAD_FUNC_ADDR(cUnit, r_T9, (int)funct);
     opReg(cUnit, kOpBlx, r_T9);
     newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
     dvmCompilerClobberCallRegs(cUnit);
-    if (tgtSize == 1) {
+    if (tgtSize == kWord || tgtSize == kSingle) {
         RegLocation rlResult;
         rlDest = dvmCompilerGetDest(cUnit, mir, 0);
+#ifdef __mips_hard_float
+        if (tgtSize == kSingle)
+            rlResult = dvmCompilerGetReturnAlt(cUnit);
+        else 
+            rlResult = dvmCompilerGetReturn(cUnit);
+#else
         rlResult = dvmCompilerGetReturn(cUnit);
+#endif
         storeValue(cUnit, rlDest, rlResult);
     } else {
         RegLocation rlResult;
         rlDest = dvmCompilerGetDestWide(cUnit, mir, 0, 1);
+#ifdef __mips_hard_float
+        if (tgtSize == kDouble) 
+            rlResult = dvmCompilerGetReturnWideAlt(cUnit);
+        else
+            rlResult = dvmCompilerGetReturnWide(cUnit);
+#else
         rlResult = dvmCompilerGetReturnWide(cUnit);
+#endif
         storeValueWide(cUnit, rlDest, rlResult);
     }
     return false;
@@ -161,25 +184,25 @@ static bool genConversionPortable(CompilationUnit *cUnit, MIR *mir)
 
     switch (opCode) {
         case OP_INT_TO_FLOAT:
-            return genConversionCall(cUnit, mir, (void*)__floatsisf, 1, 1);
+            return genConversionCall(cUnit, mir, (void*)__floatsisf, kWord, kSingle);
         case OP_FLOAT_TO_INT:
-            return genConversionCall(cUnit, mir, (void*)__fixsfsi, 1, 1);
+            return genConversionCall(cUnit, mir, (void*)__fixsfsi, kSingle, kWord);
         case OP_DOUBLE_TO_FLOAT:
-            return genConversionCall(cUnit, mir, (void*)__truncdfsf2, 2, 1);
+            return genConversionCall(cUnit, mir, (void*)__truncdfsf2, kDouble, kSingle);
         case OP_FLOAT_TO_DOUBLE:
-            return genConversionCall(cUnit, mir, (void*)__extendsfdf2, 1, 2);
+            return genConversionCall(cUnit, mir, (void*)__extendsfdf2, kSingle, kDouble);
         case OP_INT_TO_DOUBLE:
-            return genConversionCall(cUnit, mir, (void*)__floatsidf, 1, 2);
+            return genConversionCall(cUnit, mir, (void*)__floatsidf, kWord, kDouble);
         case OP_DOUBLE_TO_INT:
-            return genConversionCall(cUnit, mir, (void*)__fixdfsi, 2, 1);
+            return genConversionCall(cUnit, mir, (void*)__fixdfsi, kDouble, kWord);
         case OP_FLOAT_TO_LONG:
-            return genConversionCall(cUnit, mir, (void*)dvmJitf2l, 1, 2);
+            return genConversionCall(cUnit, mir, (void*)__fixsfdi, kSingle, kLong);
         case OP_LONG_TO_FLOAT:
-            return genConversionCall(cUnit, mir, (void*)__floatdisf, 2, 1);
+            return genConversionCall(cUnit, mir, (void*)__floatdisf, kLong, kSingle);
         case OP_DOUBLE_TO_LONG:
-            return genConversionCall(cUnit, mir, (void*)dvmJitd2l, 2, 2);
+            return genConversionCall(cUnit, mir, (void*)__fixdfdi, kDouble, kLong);
         case OP_LONG_TO_DOUBLE:
-            return genConversionCall(cUnit, mir, (void*)__floatdidf, 2, 2);
+            return genConversionCall(cUnit, mir, (void*)__floatdidf, kLong, kDouble);
         default:
             return true;
     }
@@ -293,13 +316,12 @@ static void genIPutWide(CompilationUnit *cUnit, MIR *mir, int fieldOffset)
 static void genIGet(CompilationUnit *cUnit, MIR *mir, OpSize size,
                     int fieldOffset)
 {
-    int regPtr;
     RegLocation rlResult;
-    DecodedInstruction *dInsn = &mir->dalvikInsn;
+    RegisterClass regClass = dvmCompilerRegClassBySize(size);
     RegLocation rlObj = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlDest = dvmCompilerGetDest(cUnit, mir, 0);
     rlObj = loadValue(cUnit, rlObj, kCoreReg);
-    rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kAnyReg, true);
+    rlResult = dvmCompilerEvalLoc(cUnit, rlDest, regClass, true);
     genNullCheck(cUnit, rlObj.sRegLow, rlObj.lowReg, mir->offset,
                  NULL);/* null object? */
 
@@ -318,12 +340,11 @@ static void genIGet(CompilationUnit *cUnit, MIR *mir, OpSize size,
 static void genIPut(CompilationUnit *cUnit, MIR *mir, OpSize size,
                     int fieldOffset)
 {
-    DecodedInstruction *dInsn = &mir->dalvikInsn;
+    RegisterClass regClass = dvmCompilerRegClassBySize(size);
     RegLocation rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlObj = dvmCompilerGetSrc(cUnit, mir, 1);
     rlObj = loadValue(cUnit, rlObj, kCoreReg);
-    rlSrc = loadValue(cUnit, rlSrc, kAnyReg);
-    int regPtr;
+    rlSrc = loadValue(cUnit, rlSrc, regClass);
     genNullCheck(cUnit, rlObj.sRegLow, rlObj.lowReg, mir->offset,
                  NULL);/* null object? */
 
@@ -340,6 +361,7 @@ static void genArrayGet(CompilationUnit *cUnit, MIR *mir, OpSize size,
                         RegLocation rlArray, RegLocation rlIndex,
                         RegLocation rlDest, int scale)
 {
+    RegisterClass regClass = dvmCompilerRegClassBySize(size);
     int lenOffset = offsetof(ArrayObject, length);
     int dataOffset = offsetof(ArrayObject, contents);
     RegLocation rlResult;
@@ -379,7 +401,7 @@ static void genArrayGet(CompilationUnit *cUnit, MIR *mir, OpSize size,
         } else {
             opRegReg(cUnit, kOpAdd, regPtr, rlIndex.lowReg);
         }
-        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kAnyReg, true);
+        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, regClass, true);
 
         HEAP_ACCESS_SHADOW(true);
         loadPair(cUnit, regPtr, rlResult.lowReg, rlResult.highReg);
@@ -388,7 +410,7 @@ static void genArrayGet(CompilationUnit *cUnit, MIR *mir, OpSize size,
         dvmCompilerFreeTemp(cUnit, regPtr);
         storeValueWide(cUnit, rlDest, rlResult);
     } else {
-        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kAnyReg, true);
+        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, regClass, true);
 
         HEAP_ACCESS_SHADOW(true);
         loadBaseIndexed(cUnit, regPtr, rlIndex.lowReg, rlResult.lowReg,
@@ -408,6 +430,7 @@ static void genArrayPut(CompilationUnit *cUnit, MIR *mir, OpSize size,
                         RegLocation rlArray, RegLocation rlIndex,
                         RegLocation rlSrc, int scale)
 {
+    RegisterClass regClass = dvmCompilerRegClassBySize(size);
     int lenOffset = offsetof(ArrayObject, length);
     int dataOffset = offsetof(ArrayObject, contents);
 
@@ -456,7 +479,7 @@ static void genArrayPut(CompilationUnit *cUnit, MIR *mir, OpSize size,
         } else {
             opRegReg(cUnit, kOpAdd, regPtr, rlIndex.lowReg);
         }
-        rlSrc = loadValueWide(cUnit, rlSrc, kAnyReg);
+        rlSrc = loadValueWide(cUnit, rlSrc, regClass);
 
         HEAP_ACCESS_SHADOW(true);
         storePair(cUnit, regPtr, rlSrc.lowReg, rlSrc.highReg);
@@ -464,7 +487,7 @@ static void genArrayPut(CompilationUnit *cUnit, MIR *mir, OpSize size,
 
         dvmCompilerFreeTemp(cUnit, regPtr);
     } else {
-        rlSrc = loadValue(cUnit, rlSrc, kAnyReg);
+        rlSrc = loadValue(cUnit, rlSrc, regClass);
 
         HEAP_ACCESS_SHADOW(true);
         storeBaseIndexed(cUnit, regPtr, rlIndex.lowReg, rlSrc.lowReg,
