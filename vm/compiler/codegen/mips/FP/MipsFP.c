@@ -64,6 +64,47 @@ static bool genArithOpFloat(CompilationUnit *cUnit, MIR *mir,
                             RegLocation rlDest, RegLocation rlSrc1,
                             RegLocation rlSrc2)
 {
+#ifdef __mips_hard_float
+    int op = kMipsNop;
+    RegLocation rlResult;
+
+    /*
+     * Don't attempt to optimize register usage since these opcodes call out to
+     * the handlers.
+     */
+    switch (mir->dalvikInsn.opCode) {
+        case OP_ADD_FLOAT_2ADDR:
+        case OP_ADD_FLOAT:
+            op = kMipsFadds;
+            break;
+        case OP_SUB_FLOAT_2ADDR:
+        case OP_SUB_FLOAT:
+            op = kMipsFsubs;
+            break;
+        case OP_DIV_FLOAT_2ADDR:
+        case OP_DIV_FLOAT:
+            op = kMipsFdivs;
+            break;
+        case OP_MUL_FLOAT_2ADDR:
+        case OP_MUL_FLOAT:
+            op = kMipsFmuls;
+            break;
+        case OP_REM_FLOAT_2ADDR:
+        case OP_REM_FLOAT:
+        case OP_NEG_FLOAT: {
+            return genArithOpFloatPortable(cUnit, mir, rlDest, rlSrc1, rlSrc2);
+        }
+        default:
+            return true;
+    }
+    rlSrc1 = loadValue(cUnit, rlSrc1, kFPReg);
+    rlSrc2 = loadValue(cUnit, rlSrc2, kFPReg);
+    rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kFPReg, true);
+    newLIR3(cUnit, op, rlResult.lowReg, rlSrc1.lowReg, rlSrc2.lowReg);
+    storeValue(cUnit, rlDest, rlResult);
+
+    return false;
+#else
     TemplateOpCode opCode;
 
     /*
@@ -106,12 +147,55 @@ static bool genArithOpFloat(CompilationUnit *cUnit, MIR *mir,
         dvmCompilerClobber(cUnit, rlDest.lowReg);
     }
     return false;
+#endif
 }
 
 static bool genArithOpDouble(CompilationUnit *cUnit, MIR *mir,
                              RegLocation rlDest, RegLocation rlSrc1,
                              RegLocation rlSrc2)
 {
+#ifdef __mips_hard_float
+    int op = kMipsNop;
+    RegLocation rlResult;
+
+    switch (mir->dalvikInsn.opCode) {
+        case OP_ADD_DOUBLE_2ADDR:
+        case OP_ADD_DOUBLE:
+            op = kMipsFaddd;
+            break;
+        case OP_SUB_DOUBLE_2ADDR:
+        case OP_SUB_DOUBLE:
+            op = kMipsFsubd;
+            break;
+        case OP_DIV_DOUBLE_2ADDR:
+        case OP_DIV_DOUBLE:
+            op = kMipsFdivd;
+            break;
+        case OP_MUL_DOUBLE_2ADDR:
+        case OP_MUL_DOUBLE:
+            op = kMipsFmuld;
+            break;
+        case OP_REM_DOUBLE_2ADDR:
+        case OP_REM_DOUBLE:
+        case OP_NEG_DOUBLE: {
+            return genArithOpDoublePortable(cUnit, mir, rlDest, rlSrc1, rlSrc2);
+        }
+        default:
+            return true;
+    }
+    rlSrc1 = loadValueWide(cUnit, rlSrc1, kFPReg);
+    assert(rlSrc1.wide);
+    rlSrc2 = loadValueWide(cUnit, rlSrc2, kFPReg);
+    assert(rlSrc2.wide);
+    rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kFPReg, true);
+    assert(rlDest.wide);
+    assert(rlResult.wide);
+    newLIR3(cUnit, op, S2D(rlResult.lowReg, rlResult.highReg),
+            S2D(rlSrc1.lowReg, rlSrc1.highReg),
+            S2D(rlSrc2.lowReg, rlSrc2.highReg));
+    storeValueWide(cUnit, rlDest, rlResult);
+    return false;
+#else
     TemplateOpCode opCode;
 
     switch (mir->dalvikInsn.opCode) {
@@ -152,6 +236,7 @@ static bool genArithOpDouble(CompilationUnit *cUnit, MIR *mir,
         dvmCompilerClobber(cUnit, rlDest.highReg);
     }
     return false;
+#endif
 }
 
 static bool genConversion(CompilationUnit *cUnit, MIR *mir)
@@ -161,6 +246,64 @@ static bool genConversion(CompilationUnit *cUnit, MIR *mir)
     bool longDest = false;
     RegLocation rlSrc;
     RegLocation rlDest;
+#ifdef __mips_hard_float
+    int op = kMipsNop;
+    int srcReg;
+    RegLocation rlResult;
+
+    switch (opCode) {
+        case OP_INT_TO_FLOAT:
+            longSrc = false;
+            longDest = false;
+            op = kMipsFcvtsw;
+            break;
+        case OP_DOUBLE_TO_FLOAT:
+            longSrc = true;
+            longDest = false;
+            op = kMipsFcvtsd;
+            break;
+        case OP_FLOAT_TO_DOUBLE:
+            longSrc = false;
+            longDest = true;
+            op = kMipsFcvtds;
+            break;
+        case OP_INT_TO_DOUBLE:
+            longSrc = false;
+            longDest = true;
+            op = kMipsFcvtdw;
+            break;
+        case OP_FLOAT_TO_INT:
+        case OP_DOUBLE_TO_INT:
+        case OP_LONG_TO_DOUBLE:
+        case OP_FLOAT_TO_LONG:
+        case OP_LONG_TO_FLOAT:
+        case OP_DOUBLE_TO_LONG:
+            return genConversionPortable(cUnit, mir);
+        default:
+            return true;
+    }
+    if (longSrc) {
+        rlSrc = dvmCompilerGetSrcWide(cUnit, mir, 0, 1);
+        rlSrc = loadValueWide(cUnit, rlSrc, kFPReg);
+        srcReg = S2D(rlSrc.lowReg, rlSrc.highReg);
+    } else {
+        rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
+        rlSrc = loadValue(cUnit, rlSrc, kFPReg);
+        srcReg = rlSrc.lowReg;
+    }
+    if (longDest) {
+        rlDest = dvmCompilerGetDestWide(cUnit, mir, 0, 1);
+        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kFPReg, true);
+        newLIR2(cUnit, op, S2D(rlResult.lowReg, rlResult.highReg), srcReg);
+        storeValueWide(cUnit, rlDest, rlResult);
+    } else {
+        rlDest = dvmCompilerGetDest(cUnit, mir, 0);
+        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, kFPReg, true);
+        newLIR2(cUnit, op, rlResult.lowReg, srcReg);
+        storeValue(cUnit, rlDest, rlResult);
+    }
+    return false;
+#else
     TemplateOpCode template;
     switch (opCode) {
         case OP_INT_TO_FLOAT:
@@ -213,9 +356,9 @@ static bool genConversion(CompilationUnit *cUnit, MIR *mir)
     } else {
         rlDest = dvmCompilerGetDest(cUnit, mir, 0);
     }
-    loadValueAddress(cUnit, rlDest, r0);
-    dvmCompilerClobber(cUnit, r0);
-    loadValueAddress(cUnit, rlSrc, r1);
+    loadValueAddress(cUnit, rlDest, r_A0);
+    dvmCompilerClobber(cUnit, r_A0);
+    loadValueAddress(cUnit, rlSrc, r_A1);
     genDispatchToHandler(cUnit, template);
     if (rlDest.wide) {
         rlDest = dvmCompilerUpdateLocWide(cUnit, rlDest);
@@ -225,6 +368,7 @@ static bool genConversion(CompilationUnit *cUnit, MIR *mir)
     }
     dvmCompilerClobber(cUnit, rlDest.lowReg);
     return false;
+#endif
 }
 
 static bool genCmpFP(CompilationUnit *cUnit, MIR *mir, RegLocation rlDest,

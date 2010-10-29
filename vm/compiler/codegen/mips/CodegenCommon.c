@@ -90,18 +90,30 @@ static void annotateDalvikRegAccess(MipsLIR *lir, int regId, bool isLoad)
  */
 static inline void setupRegMask(u8 *mask, int reg)
 {
-    /* MIPSTODO simplify setupRegMask() */
     u8 seed;
     int shift;
-    int regId = reg & 0x3f;
-    assert(regId <= r_PC); /* MIPSTODO fp not supported currently */
+    int regId = reg & 0x1f;
 
     /*
      * Each double register is equal to a pair of single-precision FP registers
      */
-    seed = 1; // DOUBLEREG(reg) ? 3 : 1;
-    /* FP register starts at bit position 35 */
-    shift = FPREG(reg) ? kFPReg0 : 0;
+    if (!DOUBLEREG(reg)) {
+        seed = 1;
+    } else {
+        assert((regId & 1) == 0); /* double registers must be even */
+        seed = 3;
+    }
+
+    if (FPREG(reg)) {
+       assert(regId < 16); /* only 16 fp regs */
+       shift = kFPReg0;
+    } else if (EXTRAREG(reg)) {
+       assert(regId < 3); /* only 3 extra regs */
+       shift = kFPRegEnd;
+    } else {
+       shift = 0;
+    }
+
     /* Expand the double register id into single offset */
     shift += regId;
     *mask |= seed << shift;

@@ -499,6 +499,22 @@ extern void dvmCompilerClobberCallRegs(CompilationUnit *cUnit)
     dvmCompilerClobber(cUnit, r_RA);
     dvmCompilerClobber(cUnit, r_HI);
     dvmCompilerClobber(cUnit, r_LO);
+    dvmCompilerClobber(cUnit, r_F0);
+    dvmCompilerClobber(cUnit, r_F1);
+    dvmCompilerClobber(cUnit, r_F2);
+    dvmCompilerClobber(cUnit, r_F3);
+    dvmCompilerClobber(cUnit, r_F4);
+    dvmCompilerClobber(cUnit, r_F5);
+    dvmCompilerClobber(cUnit, r_F6);
+    dvmCompilerClobber(cUnit, r_F7);
+    dvmCompilerClobber(cUnit, r_F8);
+    dvmCompilerClobber(cUnit, r_F9);
+    dvmCompilerClobber(cUnit, r_F10);
+    dvmCompilerClobber(cUnit, r_F11);
+    dvmCompilerClobber(cUnit, r_F12);
+    dvmCompilerClobber(cUnit, r_F13);
+    dvmCompilerClobber(cUnit, r_F14);
+    dvmCompilerClobber(cUnit, r_F15);
 }
 
 /* Clobber all of the temps that might be used by a handler. */
@@ -1000,6 +1016,25 @@ extern RegLocation dvmCompilerGetReturn(CompilationUnit *cUnit)
     RegLocation res = LOC_C_RETURN;
     dvmCompilerClobber(cUnit, r_V0);
     dvmCompilerMarkInUse(cUnit, r_V0);
+    return res;
+}
+
+extern RegLocation dvmCompilerGetReturnWideAlt(CompilationUnit *cUnit)
+{
+    RegLocation res = LOC_C_RETURN_WIDE_ALT;
+    dvmCompilerClobber(cUnit, r_F0);
+    dvmCompilerClobber(cUnit, r_F1);
+    dvmCompilerMarkInUse(cUnit, r_F0);
+    dvmCompilerMarkInUse(cUnit, r_F1);
+    dvmCompilerMarkPair(cUnit, res.lowReg, res.highReg);
+    return res;
+}
+
+extern RegLocation dvmCompilerGetReturnAlt(CompilationUnit *cUnit)
+{
+    RegLocation res = LOC_C_RETURN_ALT;
+    dvmCompilerClobber(cUnit, r_F0);
+    dvmCompilerMarkInUse(cUnit, r_F0);
     return res;
 }
 

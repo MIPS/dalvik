@@ -60,10 +60,10 @@ static void buildInsnString(char *fmt, MipsLIR *lir, char* buf,
                        }
                        break;
                    case 's':
-                       sprintf(tbuf,"s%d",operand & FP_REG_MASK);
+                       sprintf(tbuf,"f%d",operand & FP_REG_MASK);
                        break;
                    case 'S':
-                       sprintf(tbuf,"d%d",(operand & FP_REG_MASK) >> 1);
+                       sprintf(tbuf,"df%d",(operand & FP_REG_MASK) >> 1);
                        break;
                    case 'h':
                        sprintf(tbuf,"%04x", operand);
@@ -137,10 +137,7 @@ static void buildInsnString(char *fmt, MipsLIR *lir, char* buf,
                        strcpy(tbuf, "see above");
                        break;
                    case 'r':
-                       if (operand < 0 || operand > MIPS_REG_COUNT) {
-                           LOGD("bad mips operand (%d) in insn buf: %s", operand, buf);
-                           assert(operand >= 0 && operand < MIPS_REG_COUNT);
-                       }
+                       assert(operand >= 0 && operand < MIPS_REG_COUNT);
                        strcpy(tbuf, mipsRegName[operand]);
                        break;
                    default:

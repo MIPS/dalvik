@@ -32,6 +32,16 @@ int dvmCompilerAllocTypedTempPair(CompilationUnit *cUnit, bool fpHint,
     int highReg;
     int lowReg;
     int res = 0;
+
+#ifdef __mips_hard_float
+    if (((regClass == kAnyReg) && fpHint) || (regClass == kFPReg)) {
+        lowReg = dvmCompilerAllocTempDouble(cUnit);
+        highReg = lowReg + 1;
+        res = (lowReg & 0xff) | ((highReg & 0xff) << 8);
+        return res;
+    }
+#endif
+
     lowReg = dvmCompilerAllocTemp(cUnit);
     highReg = dvmCompilerAllocTemp(cUnit);
     res = (lowReg & 0xff) | ((highReg & 0xff) << 8);
@@ -40,5 +50,11 @@ int dvmCompilerAllocTypedTempPair(CompilationUnit *cUnit, bool fpHint,
 
 int dvmCompilerAllocTypedTemp(CompilationUnit *cUnit, bool fpHint, int regClass)
 {
+#ifdef __mips_hard_float
+    if (((regClass == kAnyReg) && fpHint) || (regClass == kFPReg))
+{
+        return dvmCompilerAllocTempFloat(cUnit);
+}
+#endif
     return dvmCompilerAllocTemp(cUnit);
 }

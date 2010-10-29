@@ -22,7 +22,12 @@
  *
  */
 
-static int coreTemps[] = {r_V0, r_V1, r_A0, r_A1, r_A2, r_A3, r_T0, r_T1, r_T2, r_T3, r_T4, r_T5, r_T6, r_T7, r_T8, r_T9, r_S0, r_S4};
+static int coreTemps[] = {r_V0, r_V1, r_A0, r_A1, r_A2, r_A3, r_T0, r_T1, r_T2,
+                          r_T3, r_T4, r_T5, r_T6, r_T7, r_T8, r_T9, r_S0, r_S4};
+#ifdef __mips_hard_float
+static int fpTemps[] = {r_F0, r_F1, r_F2, r_F3, r_F4, r_F5, r_F6, r_F7,
+                        r_F8, r_F9, r_F10, r_F11, r_F12, r_F13, r_F14, r_F15};
+#endif
 static int corePreserved[] = {};
 
 static void storePair(CompilationUnit *cUnit, int base, int lowReg,
@@ -36,7 +41,41 @@ static MipsLIR *genRegRegCheck(CompilationUnit *cUnit,
                               MipsConditionCode cond,
                               int reg1, int reg2, int dOffset,
                               MipsLIR *pcrLabel);
+static MipsLIR *loadConstant(CompilationUnit *cUnit, int rDest, int value);
 
+#ifdef __mips_hard_float
+static MipsLIR *fpRegCopy(CompilationUnit *cUnit, int rDest, int rSrc)
+{
+    MipsLIR* res = dvmCompilerNew(sizeof(MipsLIR), true);
+    res->operands[0] = rDest;
+    res->operands[1] = rSrc;
+    if (rDest == rSrc) {
+        res->isNop = true;
+    } else {
+        /* must be both DOUBLE or both not DOUBLE */
+        assert(DOUBLEREG(rDest) == DOUBLEREG(rSrc));
+        if (DOUBLEREG(rDest)) {
+            res->opCode = kMipsFmovd;
+        } else {
+            if (SINGLEREG(rDest)) {
+                if (SINGLEREG(rSrc)) {
+                    res->opCode = kMipsFmovs;
+                } else {
+                    /* note the operands are swapped for the mtc1 instr */
+                    res->opCode = kMipsMtc1;
+                    res->operands[0] = rSrc;
+                    res->operands[1] = rDest;
+                }
+            } else {
+                assert(SINGLEREG(rSrc));
+                res->opCode = kMipsMfc1;
+            }
+        }
+    }
+    setupResourceMasks(res);
+    return res;
+}
+#endif
 
 /*
  * Load a immediate using a shortcut if possible; otherwise
@@ -52,6 +91,15 @@ static MipsLIR *loadConstantNoClobber(CompilationUnit *cUnit, int rDest,
 {
     MipsLIR *res;
 
+#ifdef __mips_hard_float
+    int rDestSave = rDest;
+    int isFpReg = FPREG(rDest);
+    if (isFpReg) {
+        assert(SINGLEREG(rDest));
+        rDest = dvmCompilerAllocTemp(cUnit);
+    }
+#endif
+
     /* See if the value can be constructed cheaply */
     if ((value >= 0) && (value <= 65535)) {
         res = newLIR3(cUnit, kMipsOri, rDest, r_ZERO, value); 
@@ -61,6 +109,14 @@ static MipsLIR *loadConstantNoClobber(CompilationUnit *cUnit, int rDest,
         res = newLIR2(cUnit, kMipsLui, rDest, value>>16);
         newLIR3(cUnit, kMipsOri, rDest, rDest, value); 
     }
+
+#ifdef __mips_hard_float
+    if (isFpReg) {
+        newLIR2(cUnit, kMipsMtc1, rDest, rDestSave);
+        dvmCompilerFreeTemp(cUnit, rDest);
+    }
+#endif
+
     return res; 
 }
 
@@ -116,8 +172,7 @@ static MipsLIR *opReg(CompilationUnit *cUnit, OpKind op, int rDestSrc)
             opCode = kMipsJalr;
             break;
         default:
-            LOGE("Jit: bad case in opReg");
-            dvmCompilerAbort(cUnit);
+            assert(0);
     }
     return newLIR2(cUnit, opCode, r_RA, rDestSrc);
 }
@@ -340,6 +395,17 @@ static MipsLIR *loadBaseIndexed(CompilationUnit *cUnit, int rBase,
     MipsOpCode opCode = kMipsNop;
     int tReg = dvmCompilerAllocTemp(cUnit);
 
+#ifdef __mips_hard_float
+    if (FPREG(rDest)) {
+        assert(SINGLEREG(rDest));
+        assert((size == kWord) || (size == kSingle));
+        size = kSingle;
+    } else {
+        if (size == kSingle)
+            size = kWord;
+    }
+#endif
+
     if (!scale) {
         first = newLIR3(cUnit, kMipsAddu, tReg , rBase, rIndex);
     } else {
@@ -348,6 +414,11 @@ static MipsLIR *loadBaseIndexed(CompilationUnit *cUnit, int rBase,
     }
 
     switch (size) {
+#ifdef __mips_hard_float
+        case kSingle:
+            opCode = kMipsFlwc1;
+            break;
+#endif
         case kWord:
             opCode = kMipsLw;
             break;
@@ -387,6 +458,17 @@ static MipsLIR *storeBaseIndexed(CompilationUnit *cUnit, int rBase,
     int rNewIndex = rIndex;
     int tReg = dvmCompilerAllocTemp(cUnit);
 
+#ifdef __mips_hard_float
+    if (FPREG(rSrc)) {
+        assert(SINGLEREG(rSrc));
+        assert((size == kWord) || (size == kSingle));
+        size = kSingle;
+    } else {
+        if (size == kSingle)
+            size = kWord;
+    }
+#endif
+
     if (!scale) {
         first = newLIR3(cUnit, kMipsAddu, tReg , rBase, rIndex);
     } else {
@@ -395,6 +477,11 @@ static MipsLIR *storeBaseIndexed(CompilationUnit *cUnit, int rBase,
     }
 
     switch (size) {
+#ifdef __mips_hard_float
+        case kSingle:
+            opCode = kMipsFswc1;
+            break;
+#endif
         case kWord:
             opCode = kMipsSw;
             break;
@@ -495,11 +582,30 @@ static MipsLIR *loadBaseDispBody(CompilationUnit *cUnit, MIR *mir, int rBase,
         case kDouble:
             pair = true;
             opCode = kMipsLw;
+#ifdef __mips_hard_float
+            if (FPREG(rDest)) {
+                opCode = kMipsFlwc1;
+                if (DOUBLEREG(rDest)) {
+                    rDest = rDest - FP_DOUBLE;
+                } else {
+                    assert(FPREG(rDestHi));
+                    assert(rDest == (rDestHi - 1));
+                }
+                rDestHi = rDest + 1;
+            }
+#endif
             shortForm = IS_SIMM16_2WORD(displacement);
             assert((displacement & 0x3) == 0);
             break;
         case kWord:
+        case kSingle:
             opCode = kMipsLw;
+#ifdef __mips_hard_float
+            if (FPREG(rDest)) {
+                opCode = kMipsFlwc1;
+                assert(SINGLEREG(rDest));
+            }
+#endif
             assert((displacement & 0x3) == 0);
             break;
         case kUnsignedHalf:
@@ -592,11 +698,30 @@ static MipsLIR *storeBaseDispBody(CompilationUnit *cUnit, int rBase,
         case kDouble:
             pair = true;
             opCode = kMipsSw;
+#ifdef __mips_hard_float
+            if (FPREG(rSrc)) {
+                opCode = kMipsFswc1;
+                if (DOUBLEREG(rSrc)) {
+                    rSrc = rSrc - FP_DOUBLE;
+                } else {
+                    assert(FPREG(rSrcHi));
+                    assert(rSrc == (rSrcHi - 1));
+                }
+                rSrcHi = rSrc + 1;
+            }
+#endif
             shortForm = IS_SIMM16_2WORD(displacement);
             assert((displacement & 0x3) == 0);
             break;
         case kWord:
+        case kSingle:
             opCode = kMipsSw;
+#ifdef __mips_hard_float
+            if (FPREG(rSrc)) {
+                opCode = kMipsFswc1;
+                assert(SINGLEREG(rSrc));
+            }
+#endif
             assert((displacement & 0x3) == 0);
             break;
         case kUnsignedHalf:
@@ -674,6 +799,10 @@ static MipsLIR* genRegCopyNoInsert(CompilationUnit *cUnit, int rDest, int rSrc)
 {
     MipsLIR* res;
     MipsOpCode opCode;
+#ifdef __mips_hard_float
+    if (FPREG(rDest) || FPREG(rSrc))
+        return fpRegCopy(cUnit, rDest, rSrc);
+#endif
     res = dvmCompilerNew(sizeof(MipsLIR), true);
     opCode = kMipsMove;
     assert(LOWREG(rDest) && LOWREG(rSrc));
@@ -697,6 +826,35 @@ static MipsLIR* genRegCopy(CompilationUnit *cUnit, int rDest, int rSrc)
 static void genRegCopyWide(CompilationUnit *cUnit, int destLo, int destHi,
                            int srcLo, int srcHi)
 {
+#ifdef __mips_hard_float
+    bool destFP = FPREG(destLo) && FPREG(destHi);
+    bool srcFP = FPREG(srcLo) && FPREG(srcHi);
+    assert(FPREG(srcLo) == FPREG(srcHi));
+    assert(FPREG(destLo) == FPREG(destHi));
+    if (destFP) {
+        if (srcFP) {
+            genRegCopy(cUnit, S2D(destLo, destHi), S2D(srcLo, srcHi));
+        } else {
+           /* note the operands are swapped for the mtc1 instr */
+            newLIR2(cUnit, kMipsMtc1, srcLo, destLo);
+            newLIR2(cUnit, kMipsMtc1, srcHi, destHi);
+        }
+    } else {
+        if (srcFP) {
+            newLIR2(cUnit, kMipsMfc1, destLo, srcLo);
+            newLIR2(cUnit, kMipsMfc1, destHi, srcHi);
+        } else {
+            // Handle overlap
+            if (srcHi == destLo) {
+                genRegCopy(cUnit, destHi, srcHi);
+                genRegCopy(cUnit, destLo, srcLo);
+            } else {
+                genRegCopy(cUnit, destLo, srcLo);
+                genRegCopy(cUnit, destHi, srcHi);
+            }
+        }
+    }
+#else
     // Handle overlap
     if (srcHi == destLo) {
         genRegCopy(cUnit, destHi, srcHi);
@@ -705,6 +863,7 @@ static void genRegCopyWide(CompilationUnit *cUnit, int destLo, int destHi,
         genRegCopy(cUnit, destLo, srcLo);
         genRegCopy(cUnit, destHi, srcHi);
     }
+#endif
 }
 
 static inline MipsLIR *genRegImmCheck(CompilationUnit *cUnit,
