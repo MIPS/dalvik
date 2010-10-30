@@ -290,6 +290,96 @@ MipsEncodingMap EncodingMap[kMipsLast] = {
                  kFmtBitBlt, 20, 16, kFmtBitBlt, 25, 21, kFmtBitBlt, 15, 0,
                  kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE1,
                  "xori", "!0r,!1r,0x!2h(!2d)", 2),
+#ifdef __mips_hard_float
+    ENCODING_MAP(kMipsFadds, 0x46000000,
+                 kFmtSfp, 10, 6, kFmtSfp, 15, 11, kFmtSfp, 20, 16,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE12,
+                 "add.s", "!0s,!1s,!2s", 2),
+    ENCODING_MAP(kMipsFsubs, 0x46000001,
+                 kFmtSfp, 10, 6, kFmtSfp, 15, 11, kFmtSfp, 20, 16,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE12,
+                 "sub.s", "!0s,!1s,!2s", 2),
+    ENCODING_MAP(kMipsFmuls, 0x46000002,
+                 kFmtSfp, 10, 6, kFmtSfp, 15, 11, kFmtSfp, 20, 16,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE12,
+                 "mul.s", "!0s,!1s,!2s", 2),
+    ENCODING_MAP(kMipsFdivs, 0x46000003,
+                 kFmtSfp, 10, 6, kFmtSfp, 15, 11, kFmtSfp, 20, 16,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE12,
+                 "div.s", "!0s,!1s,!2s", 2),
+    ENCODING_MAP(kMipsFaddd, 0x46200000,
+                 kFmtDfp, 10, 6, kFmtDfp, 15, 11, kFmtDfp, 20, 16,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE12,
+                 "add.d", "!0S,!1S,!2S", 2),
+    ENCODING_MAP(kMipsFsubd, 0x46200001,
+                 kFmtDfp, 10, 6, kFmtDfp, 15, 11, kFmtDfp, 20, 16,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE12,
+                 "sub.d", "!0S,!1S,!2S", 2),
+    ENCODING_MAP(kMipsFmuld, 0x46200002,
+                 kFmtDfp, 10, 6, kFmtDfp, 15, 11, kFmtDfp, 20, 16,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE12,
+                 "mul.d", "!0S,!1S,!2S", 2),
+    ENCODING_MAP(kMipsFdivd, 0x46200003,
+                 kFmtDfp, 10, 6, kFmtDfp, 15, 11, kFmtDfp, 20, 16,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE12,
+                 "div.d", "!0S,!1S,!2S", 2),
+    ENCODING_MAP(kMipsFcvtsd, 0x46200020,
+                 kFmtSfp, 10, 6, kFmtDfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "cvt.s.d", "!0s,!1S", 2),
+    ENCODING_MAP(kMipsFcvtsw, 0x46800020,
+                 kFmtSfp, 10, 6, kFmtSfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "cvt.s.w", "!0s,!1s", 2),
+    ENCODING_MAP(kMipsFcvtds, 0x46000021,
+                 kFmtDfp, 10, 6, kFmtSfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "cvt.d.s", "!0S,!1s", 2),
+    ENCODING_MAP(kMipsFcvtdw, 0x46800021,
+                 kFmtDfp, 10, 6, kFmtSfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "cvt.d.w", "!0S,!1s", 2),
+    ENCODING_MAP(kMipsFcvtws, 0x46000024,
+                 kFmtSfp, 10, 6, kFmtSfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "cvt.w.s", "!0s,!1s", 2),
+    ENCODING_MAP(kMipsFcvtwd, 0x46200024,
+                 kFmtSfp, 10, 6, kFmtDfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "cvt.w.d", "!0s,!1S", 2),
+    ENCODING_MAP(kMipsFmovs, 0x46000006,
+                 kFmtSfp, 10, 6, kFmtSfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "mov.s", "!0s,!1s", 2),
+    ENCODING_MAP(kMipsFmovd, 0x46200006,
+                 kFmtDfp, 10, 6, kFmtDfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "mov.d", "!0S,!1S", 2),
+    ENCODING_MAP(kMipsFlwc1, 0xC4000000,
+                 kFmtSfp, 20, 16, kFmtBitBlt, 15, 0, kFmtBitBlt, 25, 21,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE2 | IS_LOAD,
+                 "lwc1", "!0s,!1d(!2r)", 2),
+    ENCODING_MAP(kMipsFldc1, 0xD4000000,
+                 kFmtDfp, 20, 16, kFmtBitBlt, 15, 0, kFmtBitBlt, 25, 21,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_DEF0_USE2 | IS_LOAD,
+                 "ldc1", "!0S,!1d(!2r)", 2),
+    ENCODING_MAP(kMipsFswc1, 0xE4000000,
+                 kFmtSfp, 20, 16, kFmtBitBlt, 15, 0, kFmtBitBlt, 25, 21,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_USE02 | IS_STORE,
+                 "swc1", "!0s,!1d(!2r)", 2),
+    ENCODING_MAP(kMipsFsdc1, 0xF4000000,
+                 kFmtDfp, 20, 16, kFmtBitBlt, 15, 0, kFmtBitBlt, 25, 21,
+                 kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_USE02 | IS_STORE,
+                 "sdc1", "!0S,!1d(!2r)", 2),
+    ENCODING_MAP(kMipsMfc1, 0x44000000,
+                 kFmtBitBlt, 20, 16, kFmtSfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
+                 "mfc1", "!0r,!1s", 2),
+    ENCODING_MAP(kMipsMtc1, 0x44800000,
+                 kFmtBitBlt, 20, 16, kFmtSfp, 15, 11, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_BINARY_OP | REG_USE0 | REG_DEF1,
+                 "mtc1", "!0r,!1s", 2),
+#endif
 };
 
 /*
@@ -465,24 +555,15 @@ static bool assembleInstructions(CompilationUnit *cUnit, intptr_t startAddr)
                 case kFmtDfp: {
                     assert(DOUBLEREG(operand));
                     assert((operand & 0x1) == 0);
-                    int regName = (operand & FP_REG_MASK) >> 1;
-                    /* Snag the 1-bit slice and position it */
-                    value = ((regName & 0x10) >> 4) <<
-                            encoder->fieldLoc[i].end;
-                    /* Extract and position the 4-bit slice */
-                    value |= (regName & 0x0f) <<
-                            encoder->fieldLoc[i].start;
+                    value = ((operand & FP_REG_MASK) << encoder->fieldLoc[i].start) &
+                            ((1 << (encoder->fieldLoc[i].end + 1)) - 1);
                     bits |= value;
                     break;
                 }
                 case kFmtSfp:
                     assert(SINGLEREG(operand));
-                    /* Snag the 1-bit slice and position it */
-                    value = (operand & 0x1) <<
-                            encoder->fieldLoc[i].end;
-                    /* Extract and position the 4-bit slice */
-                    value |= ((operand & 0x1e) >> 1) <<
-                            encoder->fieldLoc[i].start;
+                    value = ((operand & FP_REG_MASK) << encoder->fieldLoc[i].start) &
+                            ((1 << (encoder->fieldLoc[i].end + 1)) - 1);
                     bits |= value;
                     break;
                 case kFmtImm12:

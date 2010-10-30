@@ -37,10 +37,10 @@ float __truncdfsf2(double op1);         // OP_DOUBLE_TO_FLOAT
 double __extendsfdf2(float op1);        // OP_FLOAT_TO_DOUBLE
 double __floatsidf(int op1);            // OP_INT_TO_DOUBLE
 int __fixdfsi(double op1);              // OP_DOUBLE_TO_INT
-float __floatdisf(long op1);            // OP_LONG_TO_FLOAT
-double __floatdidf(long op1);           // OP_LONG_TO_DOUBLE
-s8 dvmJitf2l(float op1);                // OP_FLOAT_TO_LONG
-s8 dvmJitd2l(double op1);               // OP_DOUBLE_TO_LONG
+float __floatdisf(long long op1);       // OP_LONG_TO_FLOAT
+double __floatdidf(long long op1);      // OP_LONG_TO_DOUBLE
+long long __fixsfdi(float op1);         // OP_FLOAT_TO_LONG
+long long __fixdfdi(double op1);        // OP_DOUBLE_TO_LONG
 
 /* Single-precision FP arithmetics */
 float __addsf3(float a, float b);   // OP_ADD_FLOAT[_2ADDR]
