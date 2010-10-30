@@ -114,7 +114,7 @@ Please notice that argc in dvmPlatformInvoke does NOT include pEnv and clazz/thi
 dvmPlatformInvoke:
 
 	/*  Do we have arg padding flags in "argInfo"? Check bit 31 */
-	bltz	$a1,.Lno_arginfo
+	bltz	$a2,.Lno_arginfo
 
 	/* Fast path. We have hints. */
 	/* save fp and ra to stack */
