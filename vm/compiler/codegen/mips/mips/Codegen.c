@@ -30,17 +30,17 @@
 #include "../CodegenCommon.c"
 
 /* Architectural independent building blocks */
-#include "../Mips/Factory.c"
+#include "../Mips32/Factory.c"
 /* Factory utilities dependent on arch-specific features */
 #include "../CodegenFactory.c"
 
 /* Thumb-specific codegen routines */
-#include "../Mips/Gen.c"
+#include "../Mips32/Gen.c"
 /* Thumb+Portable FP codegen routines */
 #include "../FP/MipsFP.c"
 
 /* Thumb-specific register allocation */
-#include "../Mips/Ralloc.c"
+#include "../Mips32/Ralloc.c"
 
 /* MIR2LIR dispatcher and architectural independent codegen routines */
 #include "../CodegenDriver.c"
