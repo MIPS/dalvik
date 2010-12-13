@@ -630,16 +630,18 @@ static MipsLIR *loadBaseDispBody(CompilationUnit *cUnit, MIR *mir, int rBase,
     }
 
     if (shortForm) {
-        load = res = newLIR3(cUnit, opCode, rDest, displacement, rBase);
-        if (pair) {
-            load2 = newLIR3(cUnit, opCode, rDestHi, displacement+4, rBase);
+        if (!pair) {
+            load = res = newLIR3(cUnit, opCode, rDest, displacement, rBase);
+        } else {
+            load = res = newLIR3(cUnit, opCode, rDest, displacement + LOWORD_OFFSET, rBase);
+            load2 = newLIR3(cUnit, opCode, rDestHi, displacement + HIWORD_OFFSET, rBase);
         }
     } else {
         if (pair) {
             int rTmp = dvmCompilerAllocFreeTemp(cUnit);
             res = opRegRegImm(cUnit, kOpAdd, rTmp, rBase, displacement);
-            load = newLIR3(cUnit, opCode, rDest, 0, rTmp);
-            load2 = newLIR3(cUnit, opCode, rDestHi, 4, rTmp);
+            load = newLIR3(cUnit, opCode, rDest, LOWORD_OFFSET, rTmp);
+            load2 = newLIR3(cUnit, opCode, rDestHi, HIWORD_OFFSET, rTmp);
             dvmCompilerFreeTemp(cUnit, rTmp);
         } else {
             int rTmp = (rBase == rDest) ? dvmCompilerAllocFreeTemp(cUnit)
@@ -653,10 +655,10 @@ static MipsLIR *loadBaseDispBody(CompilationUnit *cUnit, MIR *mir, int rBase,
 
     if (rBase == rFP) {
         if (load != NULL)
-            annotateDalvikRegAccess(load, displacement >> 2,
+            annotateDalvikRegAccess(load, (displacement + (pair ? LOWORD_OFFSET : 0)) >> 2,
                                     true /* isLoad */);
         if (load2 != NULL)
-            annotateDalvikRegAccess(load2, (displacement >> 2) + 1,
+            annotateDalvikRegAccess(load2, (displacement + HIWORD_OFFSET) >> 2,
                                     true /* isLoad */);
     }
 #if defined(WITH_SELF_VERIFICATION)
@@ -741,26 +743,30 @@ static MipsLIR *storeBaseDispBody(CompilationUnit *cUnit, int rBase,
     }
 
     if (shortForm) {
-        store = res = newLIR3(cUnit, opCode, rSrc, displacement, rBase);
-        if (pair) {
-            store2 = newLIR3(cUnit, opCode, rSrcHi, displacement+4, rBase);
+        if (!pair) {
+            store = res = newLIR3(cUnit, opCode, rSrc, displacement, rBase);
+        } else {
+            store = res = newLIR3(cUnit, opCode, rSrc, displacement + LOWORD_OFFSET, rBase);
+            store2 = newLIR3(cUnit, opCode, rSrcHi, displacement + HIWORD_OFFSET, rBase);
         }
     } else {
         int rScratch = dvmCompilerAllocTemp(cUnit);
         res = opRegRegImm(cUnit, kOpAdd, rScratch, rBase, displacement);
-        store =  newLIR3(cUnit, opCode, rSrc, 0, rScratch);
-        if (pair) {
-            store2 = newLIR3(cUnit, opCode, rSrcHi, 4, rScratch);
+        if (!pair) {
+            store =  newLIR3(cUnit, opCode, rSrc, 0, rScratch);
+        } else {
+            store =  newLIR3(cUnit, opCode, rSrc, LOWORD_OFFSET, rScratch);
+            store2 = newLIR3(cUnit, opCode, rSrcHi, HIWORD_OFFSET, rScratch);
         }
         dvmCompilerFreeTemp(cUnit, rScratch);
     }
 
     if (rBase == rFP) {
         if (store != NULL)
-            annotateDalvikRegAccess(store, displacement >> 2,
+            annotateDalvikRegAccess(store, (displacement + (pair ? LOWORD_OFFSET : 0)) >> 2,
                                     false /* isLoad */);
         if (store2 != NULL)
-            annotateDalvikRegAccess(store2, (displacement >> 2) + 1,
+            annotateDalvikRegAccess(store2, (displacement + HIWORD_OFFSET) >> 2,
                                     false /* isLoad */);
     }
 
@@ -787,14 +793,14 @@ static MipsLIR *storeBaseDispWide(CompilationUnit *cUnit, int rBase,
 
 static void storePair(CompilationUnit *cUnit, int base, int lowReg, int highReg)
 {
-    storeWordDisp(cUnit, base, 0, lowReg);
-    storeWordDisp(cUnit, base, 4, highReg);
+    storeWordDisp(cUnit, base, LOWORD_OFFSET, lowReg);
+    storeWordDisp(cUnit, base, HIWORD_OFFSET, highReg);
 }
 
 static void loadPair(CompilationUnit *cUnit, int base, int lowReg, int highReg)
 {
-    loadWordDisp(cUnit, base, 0 , lowReg);
-    loadWordDisp(cUnit, base, 4 , highReg);
+    loadWordDisp(cUnit, base, LOWORD_OFFSET , lowReg);
+    loadWordDisp(cUnit, base, HIWORD_OFFSET , highReg);
 }
 
 static MipsLIR* genRegCopyNoInsert(CompilationUnit *cUnit, int rDest, int rSrc)

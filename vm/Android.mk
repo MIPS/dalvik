@@ -36,12 +36,6 @@ ifeq ($(TARGET_ARCH_VARIANT),armv5te)
     WITH_JIT := false
 endif
 
-ifeq ($(TARGET_ARCH),mips)
-  ifeq ($(ARCH_HAS_BIGENDIAN),true)
-    WITH_JIT := false
-  endif
-endif
-
 # Build the installed version (libdvm.so) first
 include $(LOCAL_PATH)/ReconfigureDvm.mk
 
