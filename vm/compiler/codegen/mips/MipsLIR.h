@@ -89,11 +89,39 @@
 /* non-existant physical register */
 #define rNone   (-1)
 
+#ifdef HAVE_LITTLE_ENDIAN
+#define LOWORD_OFFSET 0
+#define HIWORD_OFFSET 4
+#define r_ARG0 r_A0
+#define r_ARG1 r_A1
+#define r_ARG2 r_A2
+#define r_ARG3 r_A3
+#define r_RESULT0 r_V0
+#define r_RESULT1 r_V1
+#define r_FARG0 r_F12
+#define r_FARG1 r_F13
+#define r_FRESULT0 r_F0
+#define r_FRESULT1 r_F1
+#else
+#define LOWORD_OFFSET 4
+#define HIWORD_OFFSET 0
+#define r_ARG0 r_A1
+#define r_ARG1 r_A0
+#define r_ARG2 r_A3
+#define r_ARG3 r_A2
+#define r_RESULT0 r_V1
+#define r_RESULT1 r_V0
+#define r_FARG0 r_F13
+#define r_FARG1 r_F12
+#define r_FRESULT0 r_F1
+#define r_FRESULT1 r_F0
+#endif
+
 /* RegisterLocation templates return values (r_V0, or r_V0/r_V1) */
 #define LOC_C_RETURN {kLocPhysReg, 0, 0, r_V0, 0, -1}
-#define LOC_C_RETURN_WIDE {kLocPhysReg, 1, 0, r_V0, r_V1, -1}
+#define LOC_C_RETURN_WIDE {kLocPhysReg, 1, 0, r_RESULT0, r_RESULT1, -1}
 #define LOC_C_RETURN_ALT {kLocPhysReg, 0, 1, r_F0, 0, -1}
-#define LOC_C_RETURN_WIDE_ALT {kLocPhysReg, 1, 1, r_F0, r_F1, -1}
+#define LOC_C_RETURN_WIDE_ALT {kLocPhysReg, 1, 1, r_FRESULT0, r_FRESULT1, -1}
 /* RegisterLocation templates for interpState->retVal; */
 #define LOC_DALVIK_RETURN_VAL {kLocRetval, 0, 0, 0, 0, -1}
 #define LOC_DALVIK_RETURN_VAL_WIDE {kLocRetval, 1, 0, 0, 0, -1}
@@ -314,11 +342,7 @@ typedef enum NativeRegisterPool {
 /* must match gp offset used mterp/mips files */
 #define STACK_OFFSET_GP 84
 
-/* MIPSTODO: properly remap arm regs (r0-r3, dPC, dFP, dGLUE) and remove these mappings */
-#define r0 r_A0
-#define r1 r_A1
-#define r2 r_A2
-#define r3 r_A3
+/* MIPSTODO: properly remap arm regs (dPC, dFP, dGLUE) and remove these mappings */
 #define r4PC r_S0
 #define rFP r_S1
 #define rGLUE r_S2

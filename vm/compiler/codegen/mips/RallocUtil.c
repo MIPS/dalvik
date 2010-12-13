@@ -614,6 +614,12 @@ extern RegLocation dvmCompilerWideToNarrow(CompilationUnit *cUnit,
         infoHi->defStart = NULL;
         infoHi->defEnd = NULL;
     }
+#ifndef HAVE_LITTLE_ENDIAN
+    else if (rl.location == kLocDalvikFrame) {
+        rl.sRegLow = dvmCompilerSRegHi(rl.sRegLow);
+    }
+#endif
+
     rl.wide = false;
     return rl;
 }

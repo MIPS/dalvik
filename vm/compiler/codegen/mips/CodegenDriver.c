@@ -33,15 +33,33 @@ static bool genConversionCall(CompilationUnit *cUnit, MIR *mir, void *funct,
      */
     RegLocation rlSrc;
     RegLocation rlDest;
+    int srcReg = 0;
+    int srcRegHi = 0;
     dvmCompilerFlushAllRegs(cUnit);   /* Send everything to home location */
 
+    if (srcSize == kWord) {
+        srcReg = r_A0;
+    } else if (srcSize == kSingle) {
 #ifdef __mips_hard_float
-    int srcReg = (srcSize == kSingle || srcSize == kDouble) ? r_F12 : r_A0;
-    int srcRegHi = (srcSize == kDouble) ? r_F13 : r_A1;
+        srcReg = r_F12;
 #else
-    int srcReg = r_A0;
-    int srcRegHi = r_A1;
+        srcReg = r_A0;
 #endif
+    } else if (srcSize == kLong) {
+        srcReg = r_ARG0;
+        srcRegHi = r_ARG1;
+    } else if (srcSize == kDouble) {
+#ifdef __mips_hard_float
+        srcReg = r_FARG0;
+        srcRegHi = r_FARG1;
+#else
+        srcReg = r_ARG0;
+        srcRegHi = r_ARG1;
+#endif
+    }
+    else {
+        assert(0);
+    }
 
     if (srcSize == kWord || srcSize == kSingle) {
         rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
@@ -168,8 +186,8 @@ static bool genArithOpDoublePortable(CompilationUnit *cUnit, MIR *mir,
     }
     dvmCompilerFlushAllRegs(cUnit);   /* Send everything to home location */
     LOAD_FUNC_ADDR(cUnit, r_T9, (int)funct);
-    loadValueDirectWideFixed(cUnit, rlSrc1, r_A0, r_A1);
-    loadValueDirectWideFixed(cUnit, rlSrc2, r_A2, r_A3);
+    loadValueDirectWideFixed(cUnit, rlSrc1, r_ARG0, r_ARG1);
+    loadValueDirectWideFixed(cUnit, rlSrc2, r_ARG2, r_ARG3);
     opReg(cUnit, kOpBlx, r_T9);
     newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
     dvmCompilerClobberCallRegs(cUnit);
@@ -581,7 +599,7 @@ static bool genShiftOpLong(CompilationUnit *cUnit, MIR *mir,
      */
     RegLocation rlResult;
 
-    loadValueDirectWideFixed(cUnit, rlSrc1, r_A0, r_A1);
+    loadValueDirectWideFixed(cUnit, rlSrc1, r_ARG0, r_ARG1);
     loadValueDirect(cUnit, rlShift, r_A2);
     switch( mir->dalvikInsn.opCode) {
         case OP_SHL_LONG:
@@ -683,9 +701,9 @@ static bool genArithOpLong(CompilationUnit *cUnit, MIR *mir,
         genLong3Addr(cUnit, mir, firstOp, secondOp, rlDest, rlSrc1, rlSrc2);
     } else {
         dvmCompilerFlushAllRegs(cUnit);   /* Send everything to home location */
-        loadValueDirectWideFixed(cUnit, rlSrc1, r_A0, r_A1);
+        loadValueDirectWideFixed(cUnit, rlSrc1, r_ARG0, r_ARG1);
         LOAD_FUNC_ADDR(cUnit, r_T9, (int) callTgt);
-        loadValueDirectWideFixed(cUnit, rlSrc2, r_A2, r_A3);
+        loadValueDirectWideFixed(cUnit, rlSrc2, r_ARG2, r_ARG3);
         opReg(cUnit, kOpBlx, r_T9);
         newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
         dvmCompilerClobberCallRegs(cUnit);
@@ -2268,7 +2286,7 @@ static bool handleFmt22t(CompilationUnit *cUnit, MIR *mir, BasicBlock *bb,
 {
     OpCode dalvikOpCode = mir->dalvikInsn.opCode;
     MipsConditionCode cond;
-    MipsOpCode opc;
+    MipsOpCode opc = kMipsNop;
     MipsLIR * test = NULL;
     RegLocation rlSrc1 = dvmCompilerGetSrc(cUnit, mir, 0);
     RegLocation rlSrc2 = dvmCompilerGetSrc(cUnit, mir, 1);
@@ -2446,9 +2464,9 @@ static bool handleFmt23x(CompilationUnit *cUnit, MIR *mir)
  * Find the matching case.
  *
  * return values:
- * r_A0 (low 32-bit): pc of the chaining cell corresponding to the resolved case,
+ * r_RESULT0 (low 32-bit): pc of the chaining cell corresponding to the resolved case,
  *    including default which is placed at MIN(size, MAX_CHAINED_SWITCH_CASES).
- * r_A1 (high 32-bit): the branch offset of the matching case (only for indexes
+ * r_RESULT1 (high 32-bit): the branch offset of the matching case (only for indexes
  *    above MAX_CHAINED_SWITCH_CASES).
  *
  * Instructions around the call are:
@@ -2506,7 +2524,11 @@ static s8 findPackedSwitchIndex(const u2* switchData, int testVal)
     /* Jump to the non-chaining exit point */
     } else if (index >= MAX_CHAINED_SWITCH_CASES) {
         jumpIndex = MAX_CHAINED_SWITCH_CASES + 1;
+#ifdef HAVE_LITTLE_ENDIAN
         caseDPCOffset = entries[index];
+#else
+        caseDPCOffset = (unsigned int)entries[index] >> 16 | entries[index] << 16;
+#endif
     /* Jump to the inline chaining cell */
     } else {
         jumpIndex = index;
@@ -2556,12 +2578,22 @@ static s8 findSparseSwitchIndex(const u2* switchData, int testVal)
      * search here is probably not useful.
      */
     for (i = 0; i < size; i++) {
+#ifdef HAVE_LITTLE_ENDIAN
         int k = keys[i];
         if (k == testVal) {
             /* MAX_CHAINED_SWITCH_CASES + 1 is the start of the overflow case */
             int jumpIndex = (i < MAX_CHAINED_SWITCH_CASES) ?
                            i : MAX_CHAINED_SWITCH_CASES + 1;
             return (((s8) entries[i]) << 32) | (u8) (jumpIndex * 16 + 20);
+#else
+        int k = (unsigned int)keys[i] >> 16 | keys[i] << 16;
+        if (k == testVal) {
+            /* MAX_CHAINED_SWITCH_CASES + 1 is the start of the overflow case */
+            int jumpIndex = (i < MAX_CHAINED_SWITCH_CASES) ?
+                           i : MAX_CHAINED_SWITCH_CASES + 1;
+            int temp = (unsigned int)entries[i] >> 16 | entries[i] << 16;
+            return (((s8) temp) << 32) | (u8) (jumpIndex * 16 + 20);
+#endif
         } else if (k > testVal) {
             break;
         }
@@ -2622,8 +2654,8 @@ static bool handleFmt31t(CompilationUnit *cUnit, MIR *mir)
             newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
             dvmCompilerClobberCallRegs(cUnit);
             /* pc <- computed goto target using value in RA */
-            newLIR3(cUnit, kMipsAddu, r_A0, r_RA, r_V0); 
-            newLIR2(cUnit, kMipsMove, r_A1, r_V1);
+            newLIR3(cUnit, kMipsAddu, r_A0, r_RA, r_RESULT0);
+            newLIR2(cUnit, kMipsMove, r_A1, r_RESULT1);
             newLIR1(cUnit, kMipsJr, r_A0);
             newLIR0(cUnit, kMipsNop); /* for maintaining 20 byte offset */
             break;

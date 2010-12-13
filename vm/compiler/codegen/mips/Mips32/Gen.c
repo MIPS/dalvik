@@ -53,8 +53,8 @@ static void genMulLong(CompilationUnit *cUnit, RegLocation rlDest,
                        RegLocation rlSrc1, RegLocation rlSrc2)
 {
     RegLocation rlResult;
-    loadValueDirectWideFixed(cUnit, rlSrc1, r_A0, r_A1);
-    loadValueDirectWideFixed(cUnit, rlSrc2, r_A2, r_A3);
+    loadValueDirectWideFixed(cUnit, rlSrc1, r_ARG0, r_ARG1);
+    loadValueDirectWideFixed(cUnit, rlSrc2, r_ARG2, r_ARG3);
     genDispatchToHandler(cUnit, TEMPLATE_MUL_LONG);
     rlResult = dvmCompilerGetReturnWide(cUnit);
     storeValueWide(cUnit, rlDest, rlResult);
@@ -191,8 +191,8 @@ static void genCmpLong(CompilationUnit *cUnit, MIR *mir, RegLocation rlDest,
                        RegLocation rlSrc1, RegLocation rlSrc2)
 {
     RegLocation rlResult;
-    loadValueDirectWideFixed(cUnit, rlSrc1, r0, r1);
-    loadValueDirectWideFixed(cUnit, rlSrc2, r2, r3);
+    loadValueDirectWideFixed(cUnit, rlSrc1, r_ARG0, r_ARG1);
+    loadValueDirectWideFixed(cUnit, rlSrc2, r_ARG2, r_ARG3);
     genDispatchToHandler(cUnit, TEMPLATE_CMP_LONG);
     rlResult = dvmCompilerGetReturn(cUnit);
     storeValue(cUnit, rlDest, rlResult);
@@ -217,9 +217,9 @@ static bool genInlinedAbsDouble(CompilationUnit *cUnit, MIR *mir)
     RegLocation regSrc = loadValueWide(cUnit, rlSrc, kCoreReg);
     int reglo = regSrc.lowReg;
     int reghi = regSrc.highReg;
-    storeWordDisp(cUnit, rGLUE, offset, reglo);
+    storeWordDisp(cUnit, rGLUE, offset + LOWORD_OFFSET, reglo);
     newLIR4(cUnit, kMipsExt, reghi, reghi, 0, 31-1 /* size-1 */);
-    storeWordDisp(cUnit, rGLUE, offset + 4, reghi);
+    storeWordDisp(cUnit, rGLUE, offset + HIWORD_OFFSET, reghi);
     //TUNING: rewrite this to not clobber
     dvmCompilerClobber(cUnit, reghi);
     return true;

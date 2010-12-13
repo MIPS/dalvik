@@ -6778,7 +6778,7 @@ dalvik_inst:
     FETCH_ADVANCE_INST(1)			# advance rPC, load rINST
 
     					# optional op
-    JAL(__divdi3)					# result<- op, a0-a3 changed
+    JAL(__moddi3)					# result<- op, a0-a3 changed
     GET_INST_OPCODE(t0)				# extract opcode from rINST
     STORE64(v1, v0, rOBJ)		# vAA/vAA+1<- v1/v0
     GOTO_OPCODE(t0)				# jump to next instruction
