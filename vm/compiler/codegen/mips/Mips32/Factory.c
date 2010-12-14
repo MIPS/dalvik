@@ -153,7 +153,7 @@ static MipsLIR *opCondBranchMips(CompilationUnit *cUnit, MipsOpCode opc, int rs,
 {
     MipsLIR *res;
     if (rt < 0) {
-      assert(opc >= kMipsBeqz && opc <= kMipsBltzal);
+      assert(opc >= kMipsBeqz && opc <= kMipsBltz);
       res = newLIR1(cUnit, opc, rs);
     } else  {
       assert(opc == kMipsBeq || opc == kMipsBne);

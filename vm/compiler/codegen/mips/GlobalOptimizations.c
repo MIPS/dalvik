@@ -31,7 +31,7 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
          thisLIR = NEXT_LIR(thisLIR)) {
 
         /* Branch to the next instruction */
-        if (thisLIR->opCode == kMipsB) {
+        if (!thisLIR->isNop && thisLIR->opCode == kMipsB) {
             MipsLIR *nextLIR = thisLIR;
 
             while (true) {
@@ -56,10 +56,10 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
 }
 
 /*
- * Traverse the instruction trace backwards from the branch looking for an 
- * instruction to move into the branch delay slot.  The attempt is currently 
- * not as aggressive as possible, and it may be possible to tune and improve 
- * a bit if performance studies suggest a worthwhile cost/benefit.
+ * Look back first and then ahead to try to find an instruction to move into
+ * the branch delay slot.  If the analysis can be done cheaply enough, it may be
+ * be possible to tune this routine to be more beneficial (e.g., being more 
+ * particular about what instruction is speculated).
  */
 static MipsLIR *delaySlotLIR(MipsLIR *firstLIR, MipsLIR *branchLIR)
 {
@@ -78,9 +78,16 @@ static MipsLIR *delaySlotLIR(MipsLIR *firstLIR, MipsLIR *branchLIR)
         if (thisLIR->isNop)
             continue;
 
-        /* give up and insert a NOP */
-        if (isPseudoOpCode(thisLIR->opCode) ||
-            thisLIR->opCode == kMipsNop ||
+        if (isPseudoOpCode(thisLIR->opCode)) {
+            if (thisLIR->opCode == kMipsPseudoDalvikByteCodeBoundary ||
+                thisLIR->opCode == kMipsPseudoExtended ||
+                thisLIR->opCode == kMipsPseudoSSARep)
+                continue;  /* ok to move across these pseudos */
+            break; /* don't move across all other pseudos */
+        }
+
+        /* give up on moving previous instruction down into slot */
+        if (thisLIR->opCode == kMipsNop ||
             thisLIR->opCode == kMips32BitData ||
             EncodingMap[thisLIR->opCode].flags & IS_BRANCH)
             break;
@@ -97,6 +104,8 @@ static MipsLIR *delaySlotLIR(MipsLIR *firstLIR, MipsLIR *branchLIR)
             !(isStore && loadVisited) &&
             !(isStore && storeVisited)) {
             *newLIR = *thisLIR;
+            newLIR->defMask = thisLIR->defMask;
+            newLIR->useMask = thisLIR->useMask;
             thisLIR->isNop = true;
             return newLIR; /* move into delay slot succeeded */
         }
@@ -109,6 +118,63 @@ static MipsLIR *delaySlotLIR(MipsLIR *firstLIR, MipsLIR *branchLIR)
         defMask |= thisLIR->defMask;
     }
 
+    /* for unconditional branches try to copy the instruction at the
+       branch target up into the delay slot and adjust the branch */
+    if (branchLIR->opCode == kMipsB) {
+        MipsLIR *targetLIR;  
+        for (targetLIR = (MipsLIR *) branchLIR->generic.target;
+             targetLIR;
+             targetLIR = NEXT_LIR(targetLIR)) {
+            if (!targetLIR->isNop &&
+                (!isPseudoOpCode(targetLIR->opCode) || /* can't pull predicted up */
+                 targetLIR->opCode == kMipsPseudoChainingCellInvokePredicted))
+                break; /* try to get to next real op at branch target */
+        }
+        if (targetLIR && !isPseudoOpCode(targetLIR->opCode) &&
+            !(EncodingMap[targetLIR->opCode].flags & IS_BRANCH)) {
+            *newLIR = *targetLIR;
+            branchLIR->generic.target = (LIR *) NEXT_LIR(targetLIR);
+            return newLIR;
+        }
+    } else if (branchLIR->opCode >= kMipsBeq && branchLIR->opCode <= kMipsBne) {
+        /* for conditional branches try to fill branch delay slot
+           via speculative execution when safe */
+        MipsLIR *targetLIR;  
+        for (targetLIR = (MipsLIR *) branchLIR->generic.target;
+             targetLIR;
+             targetLIR = NEXT_LIR(targetLIR)) {
+            if (!targetLIR->isNop && !isPseudoOpCode(targetLIR->opCode))
+                break; /* try to get to next real op at branch target */
+        }
+
+        MipsLIR *nextLIR;  
+        for (nextLIR = NEXT_LIR(branchLIR);
+             nextLIR;
+             nextLIR = NEXT_LIR(nextLIR)) {
+            if (!nextLIR->isNop && !isPseudoOpCode(nextLIR->opCode))
+                break; /* try to get to next real op for fall thru */
+        }
+
+        if (nextLIR && targetLIR) {
+            int flags = EncodingMap[nextLIR->opCode].flags;
+            int isLoad = flags & IS_LOAD;
+
+            /* common branch and fall thru to normal chaining cells case */
+            if (isLoad && nextLIR->opCode == targetLIR->opCode &&
+                nextLIR->operands[0] == targetLIR->operands[0]) {
+                *newLIR = *targetLIR;
+                newLIR->defMask = targetLIR->defMask;
+                newLIR->useMask = targetLIR->useMask;
+                branchLIR->generic.target = (LIR *) NEXT_LIR(targetLIR);
+                return newLIR;
+            }
+
+            /* might try prefetching or speculating other safe instructions along
+               the trace here (e.g., dalvik frame load is common and may be safe) */
+        }
+    }
+
+    /* couldn't find a useful instruction to move into the delay slot */
     newLIR->opCode = kMipsNop;
     return newLIR;
 }

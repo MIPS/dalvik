@@ -387,13 +387,14 @@ typedef enum MipsOpCode {
     kMipsAndi,    /* andi t,s,imm16 [001100] s[25..21] t[20..16] imm16[15..0] */
     kMipsB,       /* b o   [0001000000000000] o[15..0] */
     kMipsBal,     /* bal o [0000010000010001] o[15..0] */
+    /* NOTE: the code tests the range kMipsBeq thru kMipsBne, so
+             adding an instruction in this range may require updates */
     kMipsBeq,     /* beq s,t,o [000100] s[25..21] t[20..16] o[15..0] */
     kMipsBeqz,    /* beqz s,o [000100] s[25..21] [00000] o[15..0] */
     kMipsBgez,    /* bgez s,o [000001] s[25..21] [00001] o[15..0] */
     kMipsBgtz,    /* bgtz s,o [000111] s[25..21] [00000] o[15..0] */
     kMipsBlez,    /* blez s,o [000110] s[25..21] [00000] o[15..0] */
     kMipsBltz,    /* bltz s,o [000001] s[25..21] [00000] o[15..0] */
-    kMipsBltzal,  /* bltzal s,o [000001] s[25..21] [10000] o[15..0] */
     kMipsBne,     /* bne s,t,o [000101] s[25..21] t[20..16] o[15..0] */
     kMipsDiv,     /* div s,t [000000] s[25..21] t[20..16] [0000000000011010] */
     kMipsExt,     /* ext t,s,p,z [011111] s[25..21] t[20..16] z[15..11] p[10..6] [000000] */
