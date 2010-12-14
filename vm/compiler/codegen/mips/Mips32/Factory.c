@@ -101,7 +101,9 @@ static MipsLIR *loadConstantNoClobber(CompilationUnit *cUnit, int rDest,
 #endif
 
     /* See if the value can be constructed cheaply */
-    if ((value >= 0) && (value <= 65535)) {
+    if (value == 0) {
+        res = newLIR2(cUnit, kMipsMove, rDest, r_ZERO);
+    } else if ((value > 0) && (value <= 65535)) {
         res = newLIR3(cUnit, kMipsOri, rDest, r_ZERO, value); 
     } else if ((value < 0) && (value >= -32768)) {
         res = newLIR3(cUnit, kMipsAddiu, rDest, r_ZERO, value); 
