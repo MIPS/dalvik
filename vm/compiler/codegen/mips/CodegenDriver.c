@@ -379,44 +379,39 @@ static void genArrayGet(CompilationUnit *cUnit, MIR *mir, OpSize size,
 
     regPtr = dvmCompilerAllocTemp(cUnit);
 
+    assert(IS_SIMM16(dataOffset));
+    if (scale) {
+        opRegRegImm(cUnit, kOpLsl, regPtr, rlIndex.lowReg, scale);
+    }
+
     if (!(mir->OptimizationFlags & MIR_IGNORE_RANGE_CHECK)) {
         int regLen = dvmCompilerAllocTemp(cUnit);
         /* Get len */
         loadWordDisp(cUnit, rlArray.lowReg, lenOffset, regLen);
-        /* regPtr -> array data */
-        opRegRegImm(cUnit, kOpAdd, regPtr, rlArray.lowReg, dataOffset);
         genBoundsCheck(cUnit, rlIndex.lowReg, regLen, mir->offset,
                        pcrLabel);
         dvmCompilerFreeTemp(cUnit, regLen);
-    } else {
-        /* regPtr -> array data */
-        opRegRegImm(cUnit, kOpAdd, regPtr, rlArray.lowReg, dataOffset);
     }
+
+    if (scale) {
+        opRegReg(cUnit, kOpAdd, regPtr, rlArray.lowReg);
+    } else {
+        opRegRegReg(cUnit, kOpAdd, regPtr, rlArray.lowReg, rlIndex.lowReg);
+    }
+
+    rlResult = dvmCompilerEvalLoc(cUnit, rlDest, regClass, true);
     if ((size == kLong) || (size == kDouble)) {
-        if (scale) {
-            int rNewIndex = dvmCompilerAllocTemp(cUnit);
-            opRegRegImm(cUnit, kOpLsl, rNewIndex, rlIndex.lowReg, scale);
-            opRegReg(cUnit, kOpAdd, regPtr, rNewIndex);
-            dvmCompilerFreeTemp(cUnit, rNewIndex);
-        } else {
-            opRegReg(cUnit, kOpAdd, regPtr, rlIndex.lowReg);
-        }
-        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, regClass, true);
-
         HEAP_ACCESS_SHADOW(true);
-        loadPair(cUnit, regPtr, rlResult.lowReg, rlResult.highReg);
+        loadBaseDispWide(cUnit, mir, regPtr, dataOffset, rlResult.lowReg,
+                         rlResult.highReg, INVALID_SREG);
         HEAP_ACCESS_SHADOW(false);
-
         dvmCompilerFreeTemp(cUnit, regPtr);
         storeValueWide(cUnit, rlDest, rlResult);
     } else {
-        rlResult = dvmCompilerEvalLoc(cUnit, rlDest, regClass, true);
-
         HEAP_ACCESS_SHADOW(true);
-        loadBaseIndexed(cUnit, regPtr, rlIndex.lowReg, rlResult.lowReg,
-                        scale, size);
+        loadBaseDisp(cUnit, mir, regPtr, dataOffset, rlResult.lowReg,
+                     size, INVALID_SREG);
         HEAP_ACCESS_SHADOW(false);
-
         dvmCompilerFreeTemp(cUnit, regPtr);
         storeValue(cUnit, rlDest, rlResult);
     }
@@ -454,44 +449,41 @@ static void genArrayPut(CompilationUnit *cUnit, MIR *mir, OpSize size,
                                 mir->offset, NULL);
     }
 
+    assert(IS_SIMM16(dataOffset));
+    int tReg = dvmCompilerAllocTemp(cUnit);
+    if (scale) {
+        opRegRegImm(cUnit, kOpLsl, tReg, rlIndex.lowReg, scale);
+    }
+
     if (!(mir->OptimizationFlags & MIR_IGNORE_RANGE_CHECK)) {
         int regLen = dvmCompilerAllocTemp(cUnit);
         //NOTE: max live temps(4) here.
         /* Get len */
         loadWordDisp(cUnit, rlArray.lowReg, lenOffset, regLen);
-        /* regPtr -> array data */
-        opRegImm(cUnit, kOpAdd, regPtr, dataOffset);
         genBoundsCheck(cUnit, rlIndex.lowReg, regLen, mir->offset,
                        pcrLabel);
         dvmCompilerFreeTemp(cUnit, regLen);
-    } else {
-        /* regPtr -> array data */
-        opRegImm(cUnit, kOpAdd, regPtr, dataOffset);
     }
-    /* at this point, regPtr points to array, 2 live temps */
+
+    if (scale) {
+        opRegReg(cUnit, kOpAdd, tReg, rlArray.lowReg);
+    } else {
+        opRegRegReg(cUnit, kOpAdd, tReg, rlArray.lowReg, rlIndex.lowReg);
+    }
+
+    /* at this point, tReg points to array, 2 live temps */
     if ((size == kLong) || (size == kDouble)) {
-        //TODO: need specific wide routine that can handle fp regs
-        if (scale) {
-            int rNewIndex = dvmCompilerAllocTemp(cUnit);
-            opRegRegImm(cUnit, kOpLsl, rNewIndex, rlIndex.lowReg, scale);
-            opRegReg(cUnit, kOpAdd, regPtr, rNewIndex);
-            dvmCompilerFreeTemp(cUnit, rNewIndex);
-        } else {
-            opRegReg(cUnit, kOpAdd, regPtr, rlIndex.lowReg);
-        }
         rlSrc = loadValueWide(cUnit, rlSrc, regClass);
-
         HEAP_ACCESS_SHADOW(true);
-        storePair(cUnit, regPtr, rlSrc.lowReg, rlSrc.highReg);
+        storeBaseDispWide(cUnit, tReg, dataOffset, rlSrc.lowReg, rlSrc.highReg)
         HEAP_ACCESS_SHADOW(false);
-
+        dvmCompilerFreeTemp(cUnit, tReg);
         dvmCompilerFreeTemp(cUnit, regPtr);
     } else {
         rlSrc = loadValue(cUnit, rlSrc, regClass);
-
         HEAP_ACCESS_SHADOW(true);
-        storeBaseIndexed(cUnit, regPtr, rlIndex.lowReg, rlSrc.lowReg,
-                         scale, size);
+        storeBaseDisp(cUnit, tReg, dataOffset, rlSrc.lowReg, size);
+        dvmCompilerFreeTemp(cUnit, tReg);
         HEAP_ACCESS_SHADOW(false);
     }
 }
