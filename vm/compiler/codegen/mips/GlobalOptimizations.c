@@ -56,6 +56,118 @@ static void applyRedundantBranchElimination(CompilationUnit *cUnit)
 }
 
 /*
+ * Do simple a form of copy propagation and elimination.
+ */
+static void applyCopyPropagation(CompilationUnit *cUnit)
+{
+    MipsLIR *thisLIR;
+
+    /* look for copies to possibly eliminate */
+    for (thisLIR = (MipsLIR *) cUnit->firstLIRInsn;
+         thisLIR != (MipsLIR *) cUnit->lastLIRInsn;
+         thisLIR = NEXT_LIR(thisLIR)) {
+
+        if (thisLIR->isNop || thisLIR->opCode != kMipsMove)
+            continue;
+
+        const int max_insns = 10;
+        MipsLIR *savedLIR[max_insns];
+        int srcRedefined = 0;
+        int insnCount = 0;
+        MipsLIR *nextLIR;
+
+        /* look for and record all uses of reg defined by the copy */
+        for (nextLIR = (MipsLIR *) NEXT_LIR(thisLIR);
+             nextLIR != (MipsLIR *) cUnit->lastLIRInsn;
+             nextLIR = NEXT_LIR(nextLIR)) {
+
+            if (nextLIR->isNop || nextLIR->opCode == kMips32BitData)
+                continue;
+
+            if (isPseudoOpCode(nextLIR->opCode)) {
+                if (nextLIR->opCode == kMipsPseudoDalvikByteCodeBoundary ||
+                    nextLIR->opCode == kMipsPseudoBarrier ||
+                    nextLIR->opCode == kMipsPseudoExtended ||
+                    nextLIR->opCode == kMipsPseudoSSARep)
+                    continue; /* these pseudos don't pose problems */
+                else if (nextLIR->opCode == kMipsPseudoTargetLabel || 
+                         nextLIR->opCode == kMipsPseudoEntryBlock ||
+                         nextLIR->opCode == kMipsPseudoExitBlock)
+                    insnCount = 0;  /* give up for these pseudos */
+                break; /* reached end for copy propagation */
+            }
+
+            /* copy def reg used here, so record insn for copy propagation */
+            if (thisLIR->defMask & nextLIR->useMask) {
+                if (insnCount == max_insns || srcRedefined) {
+                    insnCount = 0;
+                    break; /* just give up if too many or not possible */
+                }
+                savedLIR[insnCount++] = nextLIR;
+            }
+
+            if (thisLIR->defMask & nextLIR->defMask) {
+                break;
+            }
+
+            /* copy src reg redefined here, so can't propagate further */
+            if (thisLIR->useMask & nextLIR->defMask) {
+                if (insnCount == 0)
+                    break; /* nothing to propagate */
+                srcRedefined = 1;
+            }
+
+            /* don't propagate across branch/jump and link case 
+               or jump via register */
+            if (EncodingMap[nextLIR->opCode].flags & REG_DEF_LR || 
+                nextLIR->opCode == kMipsJalr ||
+                nextLIR->opCode == kMipsJr) {
+                insnCount = 0;
+                break;
+            }
+
+            /* branches with certain targets ok while others aren't */
+            if (EncodingMap[nextLIR->opCode].flags & IS_BRANCH) {
+                MipsLIR *targetLIR =  (MipsLIR *) nextLIR->generic.target;
+                if (targetLIR->opCode != kMipsPseudoEHBlockLabel &&
+                    targetLIR->opCode != kMipsPseudoChainingCellHot &&
+                    targetLIR->opCode != kMipsPseudoChainingCellNormal &&
+                    targetLIR->opCode != kMipsPseudoChainingCellInvokePredicted &&
+                    targetLIR->opCode != kMipsPseudoChainingCellInvokeSingleton &&
+                    targetLIR->opCode != kMipsPseudoPCReconstructionBlockLabel &&
+                    targetLIR->opCode != kMipsPseudoPCReconstructionCell) {
+                    insnCount = 0;
+                    break;
+                }
+            }
+       }
+       
+        /* conditions allow propagation and copy elimination */
+        if (insnCount) {
+            int i;
+            for (i = 0; i < insnCount; i++) {
+                int flags = EncodingMap[savedLIR[i]->opCode].flags;
+                savedLIR[i]->useMask &= ~(1 << thisLIR->operands[0]);
+                savedLIR[i]->useMask |= 1 << thisLIR->operands[1];
+                if ((flags & REG_USE0) &&
+                    savedLIR[i]->operands[0] == thisLIR->operands[0])
+                    savedLIR[i]->operands[0] = thisLIR->operands[1];
+                if ((flags & REG_USE1) &&
+                    savedLIR[i]->operands[1] == thisLIR->operands[0])
+                    savedLIR[i]->operands[1] = thisLIR->operands[1];
+                if ((flags & REG_USE2) &&
+                    savedLIR[i]->operands[2] == thisLIR->operands[0])
+                    savedLIR[i]->operands[2] = thisLIR->operands[1];
+                if ((flags & REG_USE3) &&
+                    savedLIR[i]->operands[3] == thisLIR->operands[0])
+                    savedLIR[i]->operands[3] = thisLIR->operands[1];
+            }
+            thisLIR->isNop = true;
+        }
+    }
+}
+
+/*
  * Look back first and then ahead to try to find an instruction to move into
  * the branch delay slot.  If the analysis can be done cheaply enough, it may be
  * be possible to tune this routine to be more beneficial (e.g., being more 
@@ -218,5 +330,6 @@ static void introduceBranchDelaySlot(CompilationUnit *cUnit)
 void dvmCompilerApplyGlobalOptimizations(CompilationUnit *cUnit)
 {
     applyRedundantBranchElimination(cUnit);
+    applyCopyPropagation(cUnit);
     introduceBranchDelaySlot(cUnit);
 }
