@@ -216,8 +216,6 @@ static MipsLIR *delaySlotLIR(MipsLIR *firstLIR, MipsLIR *branchLIR)
             !(isStore && loadVisited) &&
             !(isStore && storeVisited)) {
             *newLIR = *thisLIR;
-            newLIR->defMask = thisLIR->defMask;
-            newLIR->useMask = thisLIR->useMask;
             thisLIR->isNop = true;
             return newLIR; /* move into delay slot succeeded */
         }
@@ -273,16 +271,26 @@ static MipsLIR *delaySlotLIR(MipsLIR *firstLIR, MipsLIR *branchLIR)
 
             /* common branch and fall thru to normal chaining cells case */
             if (isLoad && nextLIR->opCode == targetLIR->opCode &&
-                nextLIR->operands[0] == targetLIR->operands[0]) {
+                nextLIR->operands[0] == targetLIR->operands[0] &&
+                nextLIR->operands[1] == targetLIR->operands[1] &&
+                nextLIR->operands[2] == targetLIR->operands[2]) {
                 *newLIR = *targetLIR;
-                newLIR->defMask = targetLIR->defMask;
-                newLIR->useMask = targetLIR->useMask;
                 branchLIR->generic.target = (LIR *) NEXT_LIR(targetLIR);
                 return newLIR;
             }
 
-            /* might try prefetching or speculating other safe instructions along
-               the trace here (e.g., dalvik frame load is common and may be safe) */
+            /* try prefetching (maybe try speculating instructions along the
+               trace like dalvik frame load which is common and may be safe) */
+            int isStore = flags & IS_STORE;
+            if (isLoad || isStore) {
+                newLIR->opCode = kMipsPref;
+                newLIR->operands[0] = isLoad ? 0 : 1;
+                newLIR->operands[1] = nextLIR->operands[1];
+                newLIR->operands[2] = nextLIR->operands[2];
+                newLIR->defMask = nextLIR->defMask;
+                newLIR->useMask = nextLIR->useMask;
+                return newLIR;
+            }
         }
     }
 
