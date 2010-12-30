@@ -1941,7 +1941,11 @@ dvmCompiler_TEMPLATE_SQRT_DOUBLE_VFP:
      * On exit:
      *     v0,v1 = res
      */
+#ifdef HARD_FLOAT
+    LOAD64_F(fa0, fa0f, a2)         # fa0/fa1<- vBB/vBB+1
+#else
     LOAD64(rARG0, rARG1, a2)        # a0/a1<- vBB/vBB+1
+#endif
     JAL(sqrt)
     RETURN
 
