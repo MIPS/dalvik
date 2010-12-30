@@ -44,7 +44,11 @@ static void loadValueAddress(CompilationUnit *cUnit, RegLocation rlSrc,
 static bool genInlineSqrt(CompilationUnit *cUnit, MIR *mir)
 {
     RegLocation rlSrc = dvmCompilerGetSrcWide(cUnit, mir, 0, 1);
+#ifdef __mips_hard_float
+    RegLocation rlResult = LOC_C_RETURN_WIDE_ALT;
+#else
     RegLocation rlResult = LOC_C_RETURN_WIDE;
+#endif
     RegLocation rlDest = LOC_DALVIK_RETURN_VAL_WIDE;
     loadValueAddress(cUnit, rlSrc, r_A2);
     genDispatchToHandler(cUnit, TEMPLATE_SQRT_DOUBLE_VFP);
