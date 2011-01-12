@@ -189,6 +189,11 @@ Big Endian mode */
 #define LOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, off(rbase);	\
 					        lw	rhi, (off+4)(rbase)
 
+#define vSTORE64_off(rlo,rhi,rbase,off)	        sw	rlo, off(rbase);	\
+					        sw	rhi, (off+4)(rbase)
+#define vLOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, off(rbase);	\
+					        lw	rhi, (off+4)(rbase)
+
 #define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, off(rbase);	\
 						s.s	rhi, (off+4)(rbase)
 #define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, off(rbase);	\
@@ -199,6 +204,10 @@ Big Endian mode */
 					        sw	rhi, (off)(rbase)
 #define LOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, (off+4)(rbase);	\
 					        lw	rhi, (off)(rbase)
+#define vSTORE64_off(rlo,rhi,rbase,off)	        sw	rlo, (off+4)(rbase);	\
+					        sw	rhi, (off)(rbase)
+#define vLOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, (off+4)(rbase);	\
+					        lw	rhi, (off)(rbase)
 #define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, (off+4)(rbase);	\
 						s.s	rhi, (off)(rbase)
 #define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, (off+4)(rbase);	\
@@ -207,6 +216,8 @@ Big Endian mode */
 
 #define STORE64(rlo,rhi,rbase)		STORE64_off(rlo,rhi,rbase,0)
 #define LOAD64(rlo,rhi,rbase)		LOAD64_off(rlo,rhi,rbase,0)
+#define vSTORE64(rlo,rhi,rbase)		vSTORE64_off(rlo,rhi,rbase,0)
+#define vLOAD64(rlo,rhi,rbase)		vLOAD64_off(rlo,rhi,rbase,0)
 
 #define STORE64_F(rlo,rhi,rbase)	STORE64_off_F(rlo,rhi,rbase,0)
 #define LOAD64_F(rlo,rhi,rbase)		LOAD64_off_F(rlo,rhi,rbase,0)
@@ -307,6 +318,14 @@ Big Endian mode */
 				STACK_LOAD(fp, 120);	\
 				STACK_LOAD(ra, 124);	\
 				DELETE_STACK(STACK_SIZE)
+
+.macro  SMP_DMB
+#if ANDROID_SMP != 0
+	sync
+#else
+	/* not SMP */
+#endif
+.endm
 
 #if defined(WITH_JIT)
 #include "../common/jit-config.h"
@@ -3052,6 +3071,7 @@ dalvik_inst:
 
 1:
     LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    # no-op                                     # acquiring load
     GET_OPA(a2)			                # a2<- AA
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -3084,7 +3104,11 @@ dalvik_inst:
 
 1:
     GET_OPA(a1)					# a1<- AA
+    .if 0
+    vLOAD64_off(a2, a3, a0, offStaticField_value) # a2/a3<- field value (aligned)
+    .else
     LOAD64_off(a2, a3, a0, offStaticField_value) # a2/a3<- field value (aligned)
+    .endif
     FETCH_ADVANCE_INST(2)		 	# advance rPC, load rINST
     EAS2(a1, rFP, a1)			   	# a1<- &fp[AA]
     STORE64(a2, a3, a1)		                # vAA/vAA+1<- a2/a3
@@ -3121,6 +3145,7 @@ dalvik_inst:
 
 1:
     LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    # no-op                                     # acquiring load
     GET_OPA(a2)			                # a2<- AA
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -3158,6 +3183,7 @@ dalvik_inst:
 
 1:
     LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    # no-op                                     # acquiring load
     GET_OPA(a2)			                # a2<- AA
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -3195,6 +3221,7 @@ dalvik_inst:
 
 1:
     LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    # no-op                                     # acquiring load
     GET_OPA(a2)			                # a2<- AA
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -3232,6 +3259,7 @@ dalvik_inst:
 
 1:
     LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    # no-op                                     # acquiring load
     GET_OPA(a2)			                # a2<- AA
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -3269,6 +3297,7 @@ dalvik_inst:
 
 1:
     LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    # no-op                                     # acquiring load
     GET_OPA(a2)			                # a2<- AA
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -3307,6 +3336,7 @@ dalvik_inst:
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    # no-op                                     # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     GOTO_OPCODE(t0)				# jump to next instruction
 
@@ -3342,7 +3372,11 @@ dalvik_inst:
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     LOAD64(a2, a3, rOBJ)			# a2/a3<- vAA/vAA+1
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    .if 0
+    vSTORE64_off(a2, a3, a0, offStaticField_value) # field<- vAA/vAA+1
+    .else
     STORE64_off(a2, a3, a0, offStaticField_value) # field<- vAA/vAA+1
+    .endif
     GOTO_OPCODE(t0)				# jump to next instruction
 
 /* ------------------------------ */
@@ -3375,6 +3409,7 @@ dalvik_inst:
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    # no-op                                     # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     GOTO_OPCODE(t0)				# jump to next instruction
 
@@ -3409,6 +3444,7 @@ dalvik_inst:
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    # no-op                                     # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     GOTO_OPCODE(t0)				# jump to next instruction
 
@@ -3443,6 +3479,7 @@ dalvik_inst:
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    # no-op                                     # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     GOTO_OPCODE(t0)				# jump to next instruction
 
@@ -3477,6 +3514,7 @@ dalvik_inst:
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    # no-op                                     # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     GOTO_OPCODE(t0)				# jump to next instruction
 
@@ -3511,6 +3549,7 @@ dalvik_inst:
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    # no-op                                     # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     GOTO_OPCODE(t0)				# jump to next instruction
 
@@ -8231,83 +8270,293 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E3: /* 0xe3 */
-/* File: mips/OP_UNUSED_E3.S */
-/* File: mips/unused.S */
-    b      common_abort
+.L_OP_IGET_VOLATILE: /* 0xe3 */
+/* File: mips/OP_IGET_VOLATILE.S */
+/* File: mips/OP_IGET.S */
+    /*
+     * General 32-bit instance field get.
+     *
+     * for: iget, iget-object, iget-boolean, iget-byte, iget-char, iget-short
+     */
+    /* op vA, vB, field        #CCCC */
+    GET_OPB(a0)	                                # a0<- B
+    LOAD_rGLUE_methodClassDex(a3)		# a3<- DvmDex
+    FETCH(a1, 1)                                # a1<- field ref CCCC
+    LOAD_base_offDvmDex_pResFields(a2,a3)	# a2<- pDvmDex->pResFields
+    GET_VREG(rOBJ, a0)                          # rOBJ<- fp[B], the object pointer
+    LOAD_eas2(a0, a2, a1)		        # a0<- resolved InstField ptr
+                                                # is resolved entry null?
+    bnez    a0, .LOP_IGET_VOLATILE_finish              # no, already resolved
+    LOAD_rGLUE_method(a2)		        # a2<- current method
+    EXPORT_PC()                                 # resolve() could throw
+    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
+    JAL(dvmResolveInstField)			# v0<- resolved InstField ptr
+                                                # test results
+    move    a0, v0
+    bnez    v0, .LOP_IGET_VOLATILE_finish
+    b       common_exceptionThrown
+
+
+/* ------------------------------ */
+    .balign 128
+.L_OP_IPUT_VOLATILE: /* 0xe4 */
+/* File: mips/OP_IPUT_VOLATILE.S */
+/* File: mips/OP_IPUT.S */
+    /*
+     * General 32-bit instance field put.
+     *
+     * for: iput, iput-object, iput-boolean, iput-byte, iput-char, iput-short
+     */
+    /* op vA, vB, field#CCCC */
+    GET_OPB(a0)			                  # a0<- B
+    LOAD_rGLUE_methodClassDex(a3)		  # a3<- DvmDex
+    FETCH(a1, 1)                                  # a1<- field ref CCCC
+    LOAD_base_offDvmDex_pResFields(a2,a3)	  # a2<- pDvmDex->pResFields
+    GET_VREG(rOBJ, a0)                              # rOBJ<- fp[B], the object pointer
+    LOAD_eas2(a0, a2, a1)		          # a0<- resolved InstField ptr
+                                                  # is resolved entry null?
+    bnez     a0, .LOP_IPUT_VOLATILE_finish               # no, already resolved
+    LOAD_rGLUE_method(a2)		          # a2<- current method
+    EXPORT_PC()                                   # resolve() could throw
+    LOAD_base_offMethod_clazz(a0,a2)		  # a0<- method->clazz
+    JAL(dvmResolveInstField)			  # v0<- resolved InstField ptr
+                                                  # success?
+    move     a0, v0
+    bnez     v0, .LOP_IPUT_VOLATILE_finish               # yes, finish up
+    b       common_exceptionThrown
+
+
+/* ------------------------------ */
+    .balign 128
+.L_OP_SGET_VOLATILE: /* 0xe5 */
+/* File: mips/OP_SGET_VOLATILE.S */
+/* File: mips/OP_SGET.S */
+    /*
+     * General 32-bit SGET handler.
+     *
+     * for: sget, sget-object, sget-boolean, sget-byte, sget-char, sget-short
+     */
+    /* op vAA, field  #BBBB */
+    LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
+    FETCH(a1, 1)                                # a1<- field ref BBBB
+    LOAD_base_offDvmDex_pResFields(a2, a2)	# a2<- dvmDex->pResFields
+    LOAD_eas2(a0, a2, a1)		        # a0<- resolved StaticField ptr
+                                                # is resolved entry !null?
+    bnez    a0, 1f
+
+    LOAD_rGLUE_method(a2)		        # a2<- current method
+    EXPORT_PC()                                 # resolve() could throw, so export now
+    LOAD_base_offMethod_clazz(a0, a2)		# a0<- method->clazz
+    JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
+    move    a0, v0
+                                                # success?
+    beqz    v0, common_exceptionThrown          # no, handle exception
+
+1:
+    LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    SMP_DMB                                    # acquiring load
+    GET_OPA(a2)			                # a2<- AA
+    FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
+    GET_INST_OPCODE(t0)                         # extract opcode from rINST
+    SET_VREG_GOTO(a1, a2, t0)                   # fp[AA]<- a1
+
+
 
 
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E4: /* 0xe4 */
-/* File: mips/OP_UNUSED_E4.S */
-/* File: mips/unused.S */
-    b      common_abort
+.L_OP_SPUT_VOLATILE: /* 0xe6 */
+/* File: mips/OP_SPUT_VOLATILE.S */
+/* File: mips/OP_SPUT.S */
+    /*
+     * General 32-bit SPUT handler.
+     *
+     * for: sput, sput-object, sput-boolean, sput-byte, sput-char, sput-short
+     */
+    /* op vAA, field #BBBB */
+    LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
+    FETCH(a1, 1)				# a1<- field ref BBBB
+    LOAD_base_offDvmDex_pResFields(a2,a2)	# a2<- dvmDex->pResFields
+    LOAD_eas2(a0, a2, a1)			# a0<- resolved StaticField ptr
+    bnez   a0, 1f				# is resolved entry null?
+    /*
+     *  a1: BBBB field ref
+     */
+    LOAD_rGLUE_method(a2)			# a2<- current method
+    EXPORT_PC()					# resolve() may throw, so export now
+    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
+    JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
+    move    a0, v0
+    beqz    v0, common_exceptionThrown		# success? no, handle exception
+1:						# field ptr in a0
+    GET_OPA(a2)					# a2<- AA
+    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
+    GET_VREG(a1, a2)				# a1<- fp[AA]
+    GET_INST_OPCODE(t0)				# extract opcode from rINST
+    SMP_DMB                                    # releasing store
+    sw    a1, offStaticField_value(a0)		# field<- vAA
+    GOTO_OPCODE(t0)				# jump to next instruction
+
+
+/* ------------------------------ */
+    .balign 128
+.L_OP_IGET_OBJECT_VOLATILE: /* 0xe7 */
+/* File: mips/OP_IGET_OBJECT_VOLATILE.S */
+/* File: mips/OP_IGET.S */
+    /*
+     * General 32-bit instance field get.
+     *
+     * for: iget, iget-object, iget-boolean, iget-byte, iget-char, iget-short
+     */
+    /* op vA, vB, field        #CCCC */
+    GET_OPB(a0)	                                # a0<- B
+    LOAD_rGLUE_methodClassDex(a3)		# a3<- DvmDex
+    FETCH(a1, 1)                                # a1<- field ref CCCC
+    LOAD_base_offDvmDex_pResFields(a2,a3)	# a2<- pDvmDex->pResFields
+    GET_VREG(rOBJ, a0)                          # rOBJ<- fp[B], the object pointer
+    LOAD_eas2(a0, a2, a1)		        # a0<- resolved InstField ptr
+                                                # is resolved entry null?
+    bnez    a0, .LOP_IGET_OBJECT_VOLATILE_finish              # no, already resolved
+    LOAD_rGLUE_method(a2)		        # a2<- current method
+    EXPORT_PC()                                 # resolve() could throw
+    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
+    JAL(dvmResolveInstField)			# v0<- resolved InstField ptr
+                                                # test results
+    move    a0, v0
+    bnez    v0, .LOP_IGET_OBJECT_VOLATILE_finish
+    b       common_exceptionThrown
+
+
+/* ------------------------------ */
+    .balign 128
+.L_OP_IGET_WIDE_VOLATILE: /* 0xe8 */
+/* File: mips/OP_IGET_WIDE_VOLATILE.S */
+/* File: mips/OP_IGET_WIDE.S */
+    /*
+     * Wide 32-bit instance field get.
+     */
+    /* iget-wide vA, vB, field#CCCC */
+    GET_OPB(a0)			                # a0<- B
+    LOAD_rGLUE_methodClassDex(a3)	        # a3<- DvmDex
+    FETCH(a1, 1)                                # a1<- field ref CCCC
+    LOAD_base_offDvmDex_pResFields(a2,a3)	# a2<- pResFields
+    GET_VREG(rOBJ, a0)                          # rOBJ<- fp[B], the object pointer
+    LOAD_eas2(a0, a2, a1)		        # a0<- resolved InstField ptr
+                                                # is resolved entry null?
+    bnez     a0, .LOP_IGET_WIDE_VOLATILE_finish             # no, already resolved
+    LOAD_rGLUE_method(a2)		        # a2<- current method
+    EXPORT_PC()                                 # resolve() could throw
+    LOAD_base_offMethod_clazz(a0, a2)		# a0<- method->clazz
+    JAL(dvmResolveInstField)			# v0<- resolved InstField ptr
+                                                # test return code
+    move     a0, v0
+    bnez     v0, .LOP_IGET_WIDE_VOLATILE_finish
+    b       common_exceptionThrown
+
+
+/* ------------------------------ */
+    .balign 128
+.L_OP_IPUT_WIDE_VOLATILE: /* 0xe9 */
+/* File: mips/OP_IPUT_WIDE_VOLATILE.S */
+/* File: mips/OP_IPUT_WIDE.S */
+    /* iput-wide vA, vB, field#CCCC */
+    GET_OPB(a0)			                # a0<- B
+    LOAD_rGLUE_methodClassDex(a3)		# a3<- DvmDex
+    FETCH(a1, 1)                                # a1<- field ref CCCC
+    LOAD_base_offDvmDex_pResFields(a2,a3)	# a2<- pResFields
+    GET_VREG(rOBJ, a0)                          # rOBJ<- fp[B], the object pointer
+    LOAD_eas2(a0, a2, a1)		        # a0<- resolved InstField ptr
+                                                # is resolved entry null?
+    bnez    a0, .LOP_IPUT_WIDE_VOLATILE_finish              # no, already resolved
+    LOAD_rGLUE_method(a2)		        # a2<- current method
+    EXPORT_PC()                                 # resolve() could throw
+    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
+    JAL(dvmResolveInstField)		# v0<- resolved InstField ptr
+                                                # success?
+    move    a0, v0
+    bnez    v0,.LOP_IPUT_WIDE_VOLATILE_finish               # yes, finish up
+    b       common_exceptionThrown
+
+
+/* ------------------------------ */
+    .balign 128
+.L_OP_SGET_WIDE_VOLATILE: /* 0xea */
+/* File: mips/OP_SGET_WIDE_VOLATILE.S */
+/* File: mips/OP_SGET_WIDE.S */
+    /*
+     * 64-bit SGET handler.
+     */
+    /* sget-wide vAA, field#BBBB */
+    LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
+    FETCH(a1, 1)				# a1<- field ref BBBB
+    LOAD_base_offDvmDex_pResFields(a2,a2)	# a2<- dvmDex->pResFields
+    LOAD_eas2(a0, a2, a1)			# a0<- resolved StaticField ptr
+						# is resolved entry null?
+    bnez    a0, 1f
+    LOAD_rGLUE_method(a2)			# a2<- current method
+    EXPORT_PC()				 	# resolve() could throw, so export now
+    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
+    JAL(dvmResolveStaticField)			# a0<- resolved StaticField ptr
+    move    a0, v0
+						# success?
+    beqz    v0, common_exceptionThrown	      	# no, handle exception
+
+1:
+    GET_OPA(a1)					# a1<- AA
+    .if 1
+    vLOAD64_off(a2, a3, a0, offStaticField_value) # a2/a3<- field value (aligned)
+    .else
+    LOAD64_off(a2, a3, a0, offStaticField_value) # a2/a3<- field value (aligned)
+    .endif
+    FETCH_ADVANCE_INST(2)		 	# advance rPC, load rINST
+    EAS2(a1, rFP, a1)			   	# a1<- &fp[AA]
+    STORE64(a2, a3, a1)		                # vAA/vAA+1<- a2/a3
+    GET_INST_OPCODE(t0)			 	# extract opcode from rINST
+    GOTO_OPCODE(t0)				# jump to next instruction
+
 
 
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_E5: /* 0xe5 */
-/* File: mips/OP_UNUSED_E5.S */
-/* File: mips/unused.S */
-    b      common_abort
+.L_OP_SPUT_WIDE_VOLATILE: /* 0xeb */
+/* File: mips/OP_SPUT_WIDE_VOLATILE.S */
+/* File: mips/OP_SPUT_WIDE.S */
+    /*
+     * 64-bit SPUT handler.
+     */
+    /* sput-wide vAA, field#BBBB */
+    LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
+    FETCH(a1, 1)				# a1<- field ref BBBB
+    LOAD_base_offDvmDex_pResFields(a2, a2)	# a2<- dvmDex->pResFields
+    GET_OPA(t0)					# t0<- AA
+    LOAD_eas2(a0, a2, a1)			# a0<- resolved StaticField ptr
+    EAS2(rOBJ, rFP, t0)				# rOBJ- &fp[AA]
+						# is resolved entry null?
+    bnez    a0, 1f				# no, do the move
 
+    /*
+     *  a1: BBBB field ref
+     *  rOBJ &fp[AA]
+     */
+    LOAD_rGLUE_method(a2)			# a2<- current method
+    EXPORT_PC()					# resolve() could throw, so export now
+    LOAD_base_offMethod_clazz(a0, a2)		# a0<- method->clazz
+    JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
+    move    a0, v0
+    beqz    v0, common_exceptionThrown		# success? no, handle exception
 
-
-/* ------------------------------ */
-    .balign 128
-.L_OP_UNUSED_E6: /* 0xe6 */
-/* File: mips/OP_UNUSED_E6.S */
-/* File: mips/unused.S */
-    b      common_abort
-
-
-
-/* ------------------------------ */
-    .balign 128
-.L_OP_UNUSED_E7: /* 0xe7 */
-/* File: mips/OP_UNUSED_E7.S */
-/* File: mips/unused.S */
-    b      common_abort
-
-
-
-/* ------------------------------ */
-    .balign 128
-.L_OP_UNUSED_E8: /* 0xe8 */
-/* File: mips/OP_UNUSED_E8.S */
-/* File: mips/unused.S */
-    b      common_abort
-
-
-
-/* ------------------------------ */
-    .balign 128
-.L_OP_UNUSED_E9: /* 0xe9 */
-/* File: mips/OP_UNUSED_E9.S */
-/* File: mips/unused.S */
-    b      common_abort
-
-
-
-/* ------------------------------ */
-    .balign 128
-.L_OP_UNUSED_EA: /* 0xea */
-/* File: mips/OP_UNUSED_EA.S */
-/* File: mips/unused.S */
-    b      common_abort
-
-
-
-/* ------------------------------ */
-    .balign 128
-.L_OP_UNUSED_EB: /* 0xeb */
-/* File: mips/OP_UNUSED_EB.S */
-/* File: mips/unused.S */
-    b      common_abort
-
+1:						# field ptr in a0, AA in rOBJ
+    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
+    LOAD64(a2, a3, rOBJ)			# a2/a3<- vAA/vAA+1
+    GET_INST_OPCODE(t0)				# extract opcode from rINST
+    .if 1
+    vSTORE64_off(a2, a3, a0, offStaticField_value) # field<- vAA/vAA+1
+    .else
+    STORE64_off(a2, a3, a0, offStaticField_value) # field<- vAA/vAA+1
+    .endif
+    GOTO_OPCODE(t0)				# jump to next instruction
 
 
 /* ------------------------------ */
@@ -8633,29 +8882,104 @@ dalvik_inst:
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_FC: /* 0xfc */
-/* File: mips/OP_UNUSED_FC.S */
-/* File: mips/unused.S */
-    b      common_abort
+.L_OP_IPUT_OBJECT_VOLATILE: /* 0xfc */
+/* File: mips/OP_IPUT_OBJECT_VOLATILE.S */
+/* File: mips/OP_IPUT.S */
+    /*
+     * General 32-bit instance field put.
+     *
+     * for: iput, iput-object, iput-boolean, iput-byte, iput-char, iput-short
+     */
+    /* op vA, vB, field#CCCC */
+    GET_OPB(a0)			                  # a0<- B
+    LOAD_rGLUE_methodClassDex(a3)		  # a3<- DvmDex
+    FETCH(a1, 1)                                  # a1<- field ref CCCC
+    LOAD_base_offDvmDex_pResFields(a2,a3)	  # a2<- pDvmDex->pResFields
+    GET_VREG(rOBJ, a0)                              # rOBJ<- fp[B], the object pointer
+    LOAD_eas2(a0, a2, a1)		          # a0<- resolved InstField ptr
+                                                  # is resolved entry null?
+    bnez     a0, .LOP_IPUT_OBJECT_VOLATILE_finish               # no, already resolved
+    LOAD_rGLUE_method(a2)		          # a2<- current method
+    EXPORT_PC()                                   # resolve() could throw
+    LOAD_base_offMethod_clazz(a0,a2)		  # a0<- method->clazz
+    JAL(dvmResolveInstField)			  # v0<- resolved InstField ptr
+                                                  # success?
+    move     a0, v0
+    bnez     v0, .LOP_IPUT_OBJECT_VOLATILE_finish               # yes, finish up
+    b       common_exceptionThrown
+
+
+/* ------------------------------ */
+    .balign 128
+.L_OP_SGET_OBJECT_VOLATILE: /* 0xfd */
+/* File: mips/OP_SGET_OBJECT_VOLATILE.S */
+/* File: mips/OP_SGET.S */
+    /*
+     * General 32-bit SGET handler.
+     *
+     * for: sget, sget-object, sget-boolean, sget-byte, sget-char, sget-short
+     */
+    /* op vAA, field  #BBBB */
+    LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
+    FETCH(a1, 1)                                # a1<- field ref BBBB
+    LOAD_base_offDvmDex_pResFields(a2, a2)	# a2<- dvmDex->pResFields
+    LOAD_eas2(a0, a2, a1)		        # a0<- resolved StaticField ptr
+                                                # is resolved entry !null?
+    bnez    a0, 1f
+
+    LOAD_rGLUE_method(a2)		        # a2<- current method
+    EXPORT_PC()                                 # resolve() could throw, so export now
+    LOAD_base_offMethod_clazz(a0, a2)		# a0<- method->clazz
+    JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
+    move    a0, v0
+                                                # success?
+    beqz    v0, common_exceptionThrown          # no, handle exception
+
+1:
+    LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    SMP_DMB                                    # acquiring load
+    GET_OPA(a2)			                # a2<- AA
+    FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
+    GET_INST_OPCODE(t0)                         # extract opcode from rINST
+    SET_VREG_GOTO(a1, a2, t0)                   # fp[AA]<- a1
+
+
 
 
 
 /* ------------------------------ */
     .balign 128
-.L_OP_UNUSED_FD: /* 0xfd */
-/* File: mips/OP_UNUSED_FD.S */
-/* File: mips/unused.S */
-    b      common_abort
-
-
-
-/* ------------------------------ */
-    .balign 128
-.L_OP_UNUSED_FE: /* 0xfe */
-/* File: mips/OP_UNUSED_FE.S */
-/* File: mips/unused.S */
-    b      common_abort
-
+.L_OP_SPUT_OBJECT_VOLATILE: /* 0xfe */
+/* File: mips/OP_SPUT_OBJECT_VOLATILE.S */
+/* File: mips/OP_SPUT.S */
+    /*
+     * General 32-bit SPUT handler.
+     *
+     * for: sput, sput-object, sput-boolean, sput-byte, sput-char, sput-short
+     */
+    /* op vAA, field #BBBB */
+    LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
+    FETCH(a1, 1)				# a1<- field ref BBBB
+    LOAD_base_offDvmDex_pResFields(a2,a2)	# a2<- dvmDex->pResFields
+    LOAD_eas2(a0, a2, a1)			# a0<- resolved StaticField ptr
+    bnez   a0, 1f				# is resolved entry null?
+    /*
+     *  a1: BBBB field ref
+     */
+    LOAD_rGLUE_method(a2)			# a2<- current method
+    EXPORT_PC()					# resolve() may throw, so export now
+    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
+    JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
+    move    a0, v0
+    beqz    v0, common_exceptionThrown		# success? no, handle exception
+1:						# field ptr in a0
+    GET_OPA(a2)					# a2<- AA
+    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
+    GET_VREG(a1, a2)				# a1<- fp[AA]
+    GET_INST_OPCODE(t0)				# extract opcode from rINST
+    SMP_DMB                                    # releasing store
+    sw    a1, offStaticField_value(a0)		# field<- vAA
+    GOTO_OPCODE(t0)				# jump to next instruction
 
 
 /* ------------------------------ */
@@ -9108,6 +9432,7 @@ OP_CMPG_DOUBLE_finish:
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
     lw   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    #noop				        # acquiring load
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9127,7 +9452,11 @@ OP_CMPG_DOUBLE_finish:
     beqz    rOBJ, common_errNullObject          # object was null
     GET_OPA4(a2)			        # a2<- A+
     addu   rOBJ, rOBJ, a3                       # form address
+    .if     0
+    vLOAD64(a0, a1, rOBJ)                       # a0/a1<- obj.field (64-bit align ok)
+    .else
     LOAD64(a0, a1, rOBJ)                        # a0/a1<- obj.field (64-bit align ok)
+    .endif
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     EAS2(a3, rFP, a2)                           # a3<- &fp[A]
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9149,6 +9478,7 @@ OP_CMPG_DOUBLE_finish:
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
     lw   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    #noop				        # acquiring load
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9170,6 +9500,7 @@ OP_CMPG_DOUBLE_finish:
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
     lbu   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    #noop				        # acquiring load
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9191,6 +9522,7 @@ OP_CMPG_DOUBLE_finish:
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
     lb   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    #noop				        # acquiring load
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9212,6 +9544,7 @@ OP_CMPG_DOUBLE_finish:
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
     lhu   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    #noop				        # acquiring load
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9233,6 +9566,7 @@ OP_CMPG_DOUBLE_finish:
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
     lh   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    #noop				        # acquiring load
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9257,6 +9591,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
+    # noop                                      # releasing store
     sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
@@ -9278,7 +9613,11 @@ OP_CMPG_DOUBLE_finish:
     LOAD64(a0, a1, a2)		# a0/a1<- fp[A]
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                      # form address
-    STORE64(a0, a1, rOBJ)		# obj.field (64 bits, aligned)<- a0 a1
+    .if     0
+    vSTORE64(a0, a1, rOBJ)		        # obj.field (64 bits, aligned)<- a0 a1
+    .else
+    STORE64(a0, a1, rOBJ)		        # obj.field (64 bits, aligned)<- a0 a1
+    .endif
     GOTO_OPCODE(t0)                             # jump to next instruction
 
 
@@ -9299,6 +9638,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
+    # noop                                      # releasing store
     sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
@@ -9320,6 +9660,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
+    # noop                                      # releasing store
     sb  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
@@ -9341,6 +9682,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
+    # noop                                      # releasing store
     sb  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
@@ -9362,6 +9704,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
+    # noop                                      # releasing store
     sh  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
@@ -9383,6 +9726,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
+    # noop                                      # releasing store
     sh  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
@@ -9776,6 +10120,121 @@ d2l_doconv:
     GOTO_OPCODE(t0)			# jump to next instruction
 
 
+/* continuation for OP_IGET_VOLATILE */
+
+    /*
+     * Currently:
+     *  v0 holds resolved field
+     *  rOBJ holds object (caller saved)
+     */
+.LOP_IGET_VOLATILE_finish:
+    #BAL(common_squeak0)
+    LOAD_base_offInstField_byteOffset(a3, a0)	# a3<- byte offset of field
+                                                # check object for null
+    beqz    rOBJ, common_errNullObject          # object was null
+    addu    a3, a3, rOBJ                        # form address
+    lw   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    SMP_DMB				        # acquiring load
+    GET_OPA4(a2)		                # a2<- A+
+    FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
+    GET_INST_OPCODE(t0)                         # extract opcode from rINST
+    SET_VREG(a0, a2)                            # fp[A]<- a0
+    GOTO_OPCODE(t0)                             # jump to next instruction
+
+
+/* continuation for OP_IPUT_VOLATILE */
+
+    /*
+     * Currently:
+     *  a0 holds resolved field
+     *  rOBJ holds object
+     */
+.LOP_IPUT_VOLATILE_finish:
+    #BAL(common_squeak0)
+    GET_OPA4(a1)	                          # a1<- A+
+    LOAD_base_offInstField_byteOffset(a3, a0)     # a3<- byte offset of field
+    GET_VREG(a0, a1)                              # a0<- fp[A]
+                                                  # check object for null
+    beqz    rOBJ, common_errNullObject            # object was null
+    FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
+    GET_INST_OPCODE(t0)                           # extract opcode from rINST
+    addu    rOBJ, rOBJ, a3                        # form address
+    SMP_DMB                                      # releasing store
+    sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
+    GOTO_OPCODE(t0)                               # jump to next instruction
+
+
+/* continuation for OP_IGET_OBJECT_VOLATILE */
+
+    /*
+     * Currently:
+     *  v0 holds resolved field
+     *  rOBJ holds object (caller saved)
+     */
+.LOP_IGET_OBJECT_VOLATILE_finish:
+    #BAL(common_squeak0)
+    LOAD_base_offInstField_byteOffset(a3, a0)	# a3<- byte offset of field
+                                                # check object for null
+    beqz    rOBJ, common_errNullObject          # object was null
+    addu    a3, a3, rOBJ                        # form address
+    lw   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    SMP_DMB				        # acquiring load
+    GET_OPA4(a2)		                # a2<- A+
+    FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
+    GET_INST_OPCODE(t0)                         # extract opcode from rINST
+    SET_VREG(a0, a2)                            # fp[A]<- a0
+    GOTO_OPCODE(t0)                             # jump to next instruction
+
+
+/* continuation for OP_IGET_WIDE_VOLATILE */
+
+    /*
+     * Currently:
+     *  a0   holds resolved field
+     *  rOBJ holds object
+     */
+.LOP_IGET_WIDE_VOLATILE_finish:
+    LOAD_base_offInstField_byteOffset(a3, a0)   # a3<- byte offset of field
+    beqz    rOBJ, common_errNullObject          # object was null
+    GET_OPA4(a2)			        # a2<- A+
+    addu   rOBJ, rOBJ, a3                       # form address
+    .if     1
+    vLOAD64(a0, a1, rOBJ)                       # a0/a1<- obj.field (64-bit align ok)
+    .else
+    LOAD64(a0, a1, rOBJ)                        # a0/a1<- obj.field (64-bit align ok)
+    .endif
+    FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
+    EAS2(a3, rFP, a2)                           # a3<- &fp[A]
+    GET_INST_OPCODE(t0)                         # extract opcode from rINST
+    STORE64(a0, a1, a3)				# fp[A]<- a0/a1
+    GOTO_OPCODE(t0)                             # jump to next instruction
+
+
+/* continuation for OP_IPUT_WIDE_VOLATILE */
+
+    /*
+     * Currently:
+     *  a0   holds resolved field
+     *  rOBJ holds object
+     */
+.LOP_IPUT_WIDE_VOLATILE_finish:
+    GET_OPA4(a2)		                # a2<- A+
+    LOAD_base_offInstField_byteOffset(a3, a0)   # a3<- byte offset of field
+    EAS2(a2, rFP, a2)                           # a2<- &fp[A]
+                                                # check object for null
+    beqz    rOBJ, common_errNullObject          # object was null
+    FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
+    LOAD64(a0, a1, a2)		# a0/a1<- fp[A]
+    GET_INST_OPCODE(t0)                         # extract opcode from rINST
+    addu    rOBJ, rOBJ, a3                      # form address
+    .if     1
+    vSTORE64(a0, a1, rOBJ)		        # obj.field (64 bits, aligned)<- a0 a1
+    .else
+    STORE64(a0, a1, rOBJ)		        # obj.field (64 bits, aligned)<- a0 a1
+    .endif
+    GOTO_OPCODE(t0)                             # jump to next instruction
+
+
 /* continuation for OP_EXECUTE_INLINE */
 
     /*
@@ -9819,6 +10278,28 @@ d2l_doconv:
 
 .LOP_EXECUTE_INLINE_table:
     .word   gDvmInlineOpsTable
+
+
+/* continuation for OP_IPUT_OBJECT_VOLATILE */
+
+    /*
+     * Currently:
+     *  a0 holds resolved field
+     *  rOBJ holds object
+     */
+.LOP_IPUT_OBJECT_VOLATILE_finish:
+    #BAL(common_squeak0)
+    GET_OPA4(a1)	                          # a1<- A+
+    LOAD_base_offInstField_byteOffset(a3, a0)     # a3<- byte offset of field
+    GET_VREG(a0, a1)                              # a0<- fp[A]
+                                                  # check object for null
+    beqz    rOBJ, common_errNullObject            # object was null
+    FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
+    GET_INST_OPCODE(t0)                           # extract opcode from rINST
+    addu    rOBJ, rOBJ, a3                        # form address
+    SMP_DMB                                      # releasing store
+    sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
+    GOTO_OPCODE(t0)                               # jump to next instruction
 
 
     .size   dvmAsmSisterStart, .-dvmAsmSisterStart

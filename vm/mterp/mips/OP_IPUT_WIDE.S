@@ -1,3 +1,4 @@
+%default {"volatile":"0"}
 %verify "executed"
 %verify "null object"
 %verify "field already resolved"
@@ -37,6 +38,10 @@
     LOAD64(a0, a1, a2)		# a0/a1<- fp[A]
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                      # form address
-    STORE64(a0, a1, rOBJ)		# obj.field (64 bits, aligned)<- a0 a1
+    .if     $volatile
+    vSTORE64(a0, a1, rOBJ)		        # obj.field (64 bits, aligned)<- a0 a1
+    .else
+    STORE64(a0, a1, rOBJ)		        # obj.field (64 bits, aligned)<- a0 a1
+    .endif
     GOTO_OPCODE(t0)                             # jump to next instruction
 

@@ -1,3 +1,4 @@
+%default {"volatile":"0"}
 %verify "executed"
 %verify "field already resolved"
 %verify "field not yet resolved"
@@ -30,5 +31,9 @@
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     LOAD64(a2, a3, rOBJ)			# a2/a3<- vAA/vAA+1
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    .if $volatile
+    vSTORE64_off(a2, a3, a0, offStaticField_value) # field<- vAA/vAA+1
+    .else
     STORE64_off(a2, a3, a0, offStaticField_value) # field<- vAA/vAA+1
+    .endif
     GOTO_OPCODE(t0)				# jump to next instruction

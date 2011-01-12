@@ -1,4 +1,4 @@
-%default { "store":"sw", "sqnum":"0" }
+%default { "store":"sw", "barrier":"# noop", "sqnum":"0" }
 %verify "executed"
 %verify "null object"
 %verify "field already resolved"
@@ -43,6 +43,7 @@
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
+    $barrier                                      # releasing store
     $store  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 

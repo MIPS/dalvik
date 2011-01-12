@@ -1,4 +1,4 @@
-%default { "load":"lw", "sqnum":"0" }
+%default { "load":"lw", "barrier":"#noop", "sqnum":"0" }
 %verify "executed"
 %verify "null object"
 %verify "field already resolved"
@@ -40,6 +40,7 @@
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
     $load   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    $barrier				        # acquiring load
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST

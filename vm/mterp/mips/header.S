@@ -182,6 +182,11 @@ Big Endian mode */
 #define LOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, off(rbase);	\
 					        lw	rhi, (off+4)(rbase)
 
+#define vSTORE64_off(rlo,rhi,rbase,off)	        sw	rlo, off(rbase);	\
+					        sw	rhi, (off+4)(rbase)
+#define vLOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, off(rbase);	\
+					        lw	rhi, (off+4)(rbase)
+
 #define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, off(rbase);	\
 						s.s	rhi, (off+4)(rbase)
 #define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, off(rbase);	\
@@ -192,6 +197,10 @@ Big Endian mode */
 					        sw	rhi, (off)(rbase)
 #define LOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, (off+4)(rbase);	\
 					        lw	rhi, (off)(rbase)
+#define vSTORE64_off(rlo,rhi,rbase,off)	        sw	rlo, (off+4)(rbase);	\
+					        sw	rhi, (off)(rbase)
+#define vLOAD64_off(rlo,rhi,rbase,off)	        lw	rlo, (off+4)(rbase);	\
+					        lw	rhi, (off)(rbase)
 #define STORE64_off_F(rlo,rhi,rbase,off)	s.s	rlo, (off+4)(rbase);	\
 						s.s	rhi, (off)(rbase)
 #define LOAD64_off_F(rlo,rhi,rbase,off)		l.s	rlo, (off+4)(rbase);	\
@@ -200,6 +209,8 @@ Big Endian mode */
 
 #define STORE64(rlo,rhi,rbase)		STORE64_off(rlo,rhi,rbase,0)
 #define LOAD64(rlo,rhi,rbase)		LOAD64_off(rlo,rhi,rbase,0)
+#define vSTORE64(rlo,rhi,rbase)		vSTORE64_off(rlo,rhi,rbase,0)
+#define vLOAD64(rlo,rhi,rbase)		vLOAD64_off(rlo,rhi,rbase,0)
 
 #define STORE64_F(rlo,rhi,rbase)	STORE64_off_F(rlo,rhi,rbase,0)
 #define LOAD64_F(rlo,rhi,rbase)		LOAD64_off_F(rlo,rhi,rbase,0)
@@ -300,6 +311,14 @@ Big Endian mode */
 				STACK_LOAD(fp, 120);	\
 				STACK_LOAD(ra, 124);	\
 				DELETE_STACK(STACK_SIZE)
+
+.macro  SMP_DMB
+#if ANDROID_SMP != 0
+	sync
+#else
+	/* not SMP */
+#endif
+.endm
 
 #if defined(WITH_JIT)
 #include "../common/jit-config.h"

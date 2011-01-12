@@ -1,3 +1,4 @@
+%default {"volatile":"0"}
 %verify "executed"
 %verify "null object"
 %verify "field already resolved"
@@ -35,7 +36,11 @@
     beqz    rOBJ, common_errNullObject          # object was null
     GET_OPA4(a2)			        # a2<- A+
     addu   rOBJ, rOBJ, a3                       # form address
+    .if     $volatile
+    vLOAD64(a0, a1, rOBJ)                       # a0/a1<- obj.field (64-bit align ok)
+    .else
     LOAD64(a0, a1, rOBJ)                        # a0/a1<- obj.field (64-bit align ok)
+    .endif
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     EAS2(a3, rFP, a2)                           # a3<- &fp[A]
     GET_INST_OPCODE(t0)                         # extract opcode from rINST

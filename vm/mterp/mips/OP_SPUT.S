@@ -1,3 +1,4 @@
+%default { "barrier":"# no-op " }
 %verify "executed"
 %verify "field already resolved"
 %verify "field not yet resolved"
@@ -27,5 +28,6 @@
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
     GET_INST_OPCODE(t0)				# extract opcode from rINST
+    $barrier                                    # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     GOTO_OPCODE(t0)				# jump to next instruction

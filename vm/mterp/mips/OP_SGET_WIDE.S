@@ -1,3 +1,4 @@
+%default {"volatile":"0"}
 %verify "executed"
 %verify "field already resolved"
 %verify "field not yet resolved"
@@ -22,7 +23,11 @@
 
 1:
     GET_OPA(a1)					# a1<- AA
+    .if $volatile
+    vLOAD64_off(a2, a3, a0, offStaticField_value) # a2/a3<- field value (aligned)
+    .else
     LOAD64_off(a2, a3, a0, offStaticField_value) # a2/a3<- field value (aligned)
+    .endif
     FETCH_ADVANCE_INST(2)		 	# advance rPC, load rINST
     EAS2(a1, rFP, a1)			   	# a1<- &fp[AA]
     STORE64(a2, a3, a1)		                # vAA/vAA+1<- a2/a3

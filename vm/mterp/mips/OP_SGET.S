@@ -1,3 +1,4 @@
+%default { "barrier":"# no-op " }
 %verify "executed"
 %verify "field already resolved"
 %verify "field not yet resolved"
@@ -25,6 +26,7 @@
 
 1:
     LOAD_base_offStaticField_value(a1, a0)	# a1<- field value
+    $barrier                                    # acquiring load
     GET_OPA(a2)			                # a2<- AA
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
