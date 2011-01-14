@@ -1,5 +1,5 @@
 %verify "executed"
-%include "mips/unflopWide.S" {"instr":"b    d2l_doconv","st_result":"STORE64(v0, v1, rOBJ)"}
+%include "mips/unflopWide.S" {"instr":"b    d2l_doconv","st_result":"STORE64(rRESULT0, rRESULT1, rOBJ)"}
 %break
 
 d2l_doconv:
