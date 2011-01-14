@@ -98,10 +98,6 @@
 #define r_ARG3 r_A3
 #define r_RESULT0 r_V0
 #define r_RESULT1 r_V1
-#define r_FARG0 r_F12
-#define r_FARG1 r_F13
-#define r_FRESULT0 r_F0
-#define r_FRESULT1 r_F1
 #else
 #define LOWORD_OFFSET 4
 #define HIWORD_OFFSET 0
@@ -111,11 +107,13 @@
 #define r_ARG3 r_A2
 #define r_RESULT0 r_V1
 #define r_RESULT1 r_V0
-#define r_FARG0 r_F13
-#define r_FARG1 r_F12
-#define r_FRESULT0 r_F1
-#define r_FRESULT1 r_F0
 #endif
+
+/* These are the same for both big and little endian. */
+#define r_FARG0 r_F12
+#define r_FARG1 r_F13
+#define r_FRESULT0 r_F0
+#define r_FRESULT1 r_F1
 
 /* RegisterLocation templates return values (r_V0, or r_V0/r_V1) */
 #define LOC_C_RETURN {kLocPhysReg, 0, 0, r_V0, 0, -1}

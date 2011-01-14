@@ -221,14 +221,23 @@ dvmPlatformInvoke:
 	 * 2. if the return type is not DALVIK_JNI_RETURN_VOID then copy v0/v1
 	 *    to pReturn
 	 */
-	sltiu	$t2,$s2,3	/* set t2 if return type is void, float or double */
 	beqz	$s2,.Lend	/* don't set result if return type is void */
 	
 #ifdef __mips_hard_float
 	mfc1	$t0,$f0		/* Get float ($f0) or double ($f1$f0) result */
 	mfc1	$t1,$f1
+	sltiu	$t2,$s2,3	/* set t2 if return type is float or double */
+#ifdef HAVE_LITTLE_ENDIAN
+        /* Note: for little endian, the double result is in $v1:$v0 and float result is in $v0 */
 	movn	$v0,$t0,$t2	/* If the result type is float or double overwrite $v1/$v0 */
 	movn	$v1,$t1,$t2
+#else
+        /* Note: for big endian, the double result is in $v0:$v1 and float result is in $v0 */
+	movn	$v1,$t0,$t2	/* If the result type is float or double overwrite $v0/$v1 */
+	movn	$v0,$t1,$t2
+	sltiu	$t3,$s2,2	/* set t3 if return type is float */
+	movn	$v0,$t0,$t3	/* If the result type is float overwrite $v0 */
+#endif
 #endif
 
 	/* Store the result */

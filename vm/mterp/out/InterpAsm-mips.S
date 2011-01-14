@@ -4208,10 +4208,9 @@ dalvik_inst:
     GET_OPA4(rOBJ)                        # t1<- A+
     EAS2(a3, rFP, a3)                   # a3<- &fp[B]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
-    LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
+    LOAD64(rARG0, rARG1, a3)              # a0/a1<- vB/vB+1
 #else
-    LOAD64(a0, a1, a3)
+    LOAD64(rARG0, rARG1, a3)
 #endif
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
                                # optional op
@@ -4339,7 +4338,7 @@ dalvik_inst:
     b f2l_doconv
 
 .LOP_FLOAT_TO_LONG_set_vreg:
-    STORE64(v0, v1, rOBJ)				# vA/vA+1<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)				# vA/vA+1<- a0/a1
 #endif
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -4406,8 +4405,7 @@ dalvik_inst:
     GET_OPA4(rOBJ)                        # t1<- A+
     EAS2(a3, rFP, a3)                   # a3<- &fp[B]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
-    LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
+    LOAD64(rARG0, rARG1, a3)              # a0/a1<- vB/vB+1
 #else
     LOAD64_F(fa0, fa0f, a3)
 #endif
@@ -4467,7 +4465,7 @@ dalvik_inst:
 #ifdef	SOFT_FLOAT
     STORE64(rRESULT0, rRESULT1, rOBJ)              # vAA<- a0/a1
 #else
-    STORE64(v0, v1, rOBJ)                         # vAA<- a0/a1
+    STORE64(rRESULT0, rRESULT1, rOBJ)                         # vAA<- a0/a1
 #endif
     GET_INST_OPCODE(t0)                # extract opcode from rINST
     GOTO_OPCODE(t0)                    # jump to next instruction
@@ -4496,8 +4494,7 @@ dalvik_inst:
     GET_OPA4(rOBJ)                        # t1<- A+
     EAS2(a3, rFP, a3)                   # a3<- &fp[B]
 #ifdef	SOFT_FLOAT
-    LOAD64(a0, a1, a3)                    # a0/a1<- vB/vB+1
-    LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
+    LOAD64(rARG0, rARG1, a3)              # a0/a1<- vB/vB+1
 #else
     LOAD64_F(fa0, fa0f, a3)
 #endif
