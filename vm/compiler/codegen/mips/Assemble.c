@@ -822,7 +822,8 @@ void dvmCompilerAssembleLIR(CompilationUnit *cUnit, JitTranslationInfo *info)
     installDataContent(cUnit);
 
     /* Flush dcache and invalidate the icache to maintain coherence */
-    __clear_cache((char *) cUnit->baseAddr, (char *) cUnit->baseAddr + offset);
+    cacheflush((long)cUnit->baseAddr,
+               (long)((char *) cUnit->baseAddr + offset), 0);
 
     UPDATE_CODE_CACHE_PATCHES();
 
@@ -881,7 +882,7 @@ void* dvmJitChain(void* tgtAddr, u4* branchAddr)
         UNPROTECT_CODE_CACHE(branchAddr, sizeof(*branchAddr));
 
         *branchAddr = newInst;
-        __clear_cache((char *) branchAddr, (char *) branchAddr + 4);
+        cacheflush((long)branchAddr, (long)branchAddr + 4, 0);
         UPDATE_CODE_CACHE_PATCHES();
 
         PROTECT_CODE_CACHE(branchAddr, sizeof(*branchAddr));
@@ -922,8 +923,7 @@ static void inlineCachePatchEnqueue(PredictedChainingCell *cellAddr,
          */
         android_atomic_release_store((int32_t)newContent->clazz,
             (void*) &cellAddr->clazz);
-        __clear_cache((char *) cellAddr,
-                      (char *) cellAddr + sizeof(PredictedChainingCell));
+        cacheflush((long) cellAddr, (long) (cellAddr+1), 0);
         UPDATE_CODE_CACHE_PATCHES();
 
         PROTECT_CODE_CACHE(cellAddr, sizeof(*cellAddr));
@@ -1032,7 +1032,7 @@ const Method *dvmJitToPatchPredictedChain(const Method *method,
     int baseAddr = (int) cell + 4;   // PC is cur_addr + 4
     if ((baseAddr & 0xF0000000) != (tgtAddr & 0xF0000000)) {
         cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
-        __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
+       cacheflush((long) cell, (long) (cell+1), 0);
         COMPILER_TRACE_CHAINING(
             LOGD("Jit Runtime: predicted chain %p to distant target %s ignored",
                  cell, method->name));
