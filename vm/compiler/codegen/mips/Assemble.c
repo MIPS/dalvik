@@ -784,7 +784,8 @@ void dvmCompilerAssembleLIR(CompilationUnit *cUnit, JitTranslationInfo *info)
     installDataContent(cUnit);
 
     /* Flush dcache and invalidate the icache to maintain coherence */
-    __clear_cache((char *) cUnit->baseAddr, (char *) cUnit->baseAddr + offset);
+    cacheflush((long)cUnit->baseAddr,
+               (long)((char *) cUnit->baseAddr + offset), 0);
 
     /* Record code entry point and instruction set */
     info->codeAddress = (char*)cUnit->baseAddr + cUnit->headerSize;
@@ -836,7 +837,7 @@ void* dvmJitChain(void* tgtAddr, u4* branchAddr)
 
         newInst = assembleChainingBranch((int) tgtAddr & -2, 0);
         *branchAddr = newInst;
-        __clear_cache((char *) branchAddr, (char *) branchAddr + 4);
+        cacheflush((long)branchAddr, (long)branchAddr + 4, 0);
         gDvmJit.hasNewChain = true;
     }
 
@@ -872,8 +873,7 @@ static bool inlineCachePatchEnqueue(PredictedChainingCell *cellAddr,
          */
         MEM_BARRIER();
         cellAddr->clazz = newContent->clazz;
-        __clear_cache((char *) cellAddr, 
-                      (char *) cellAddr + sizeof(PredictedChainingCell));
+        cacheflush((long) cellAddr, (long) (cellAddr+1), 0);
 #if defined(WITH_JIT_TUNING)
         gDvmJit.icPatchFast++;
 #endif
@@ -929,13 +929,13 @@ const Method *dvmJitToPatchPredictedChain(const Method *method,
 #if defined(WITH_SELF_VERIFICATION)
     /* Disable chaining and prevent this from triggering again for a while */
     cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
-    __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
+    cacheflush((long) cell, (long) (cell+1), 0);
     goto done;
 #else
     /* Don't come back here for a long time if the method is native */
     if (dvmIsNativeMethod(method)) {
         cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
-        __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
+        cacheflush((long) cell, (long) (cell+1), 0);
         COMPILER_TRACE_CHAINING(
             LOGD("Jit Runtime: predicted chain %p to native method %s ignored",
                  cell, method->name));
@@ -945,7 +945,7 @@ const Method *dvmJitToPatchPredictedChain(const Method *method,
     int baseAddr = (int) cell + 4;   // PC is cur_addr + 4
     if ((baseAddr & 0xF0000000) != (tgtAddr & 0xF0000000)) {
         cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
-        __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
+        cacheflush((long) cell, (long) (cell+1), 0);
         COMPILER_TRACE_CHAINING(
             LOGD("Jit Runtime: predicted chain %p to distant target %s ignored",
                  cell, method->name));
@@ -962,7 +962,7 @@ const Method *dvmJitToPatchPredictedChain(const Method *method,
          * to setup the chain again.
          */
         cell->counter = PREDICTED_CHAIN_COUNTER_DELAY;
-        __clear_cache((char *) cell, (char *) cell + sizeof(PredictedChainingCell));
+        cacheflush((long) cell, (long) (cell+1), 0);
         COMPILER_TRACE_CHAINING(
             LOGD("Jit Runtime: predicted chain %p to method %s%s delayed",
                  cell, method->clazz->descriptor, method->name));
@@ -1049,7 +1049,7 @@ void dvmCompilerPatchInlineCache(void)
     }
 
     /* Then synchronize the I/D cache */
-    __clear_cache((char *) minAddr, (char *) (maxAddr+1));
+    cacheflush((long) minAddr, (long) (maxAddr+1), 0);
 
     gDvmJit.compilerICPatchIndex = 0;
     dvmUnlockMutex(&gDvmJit.compilerICPatchLock);
@@ -1184,7 +1184,7 @@ void dvmJitUnchainAll()
             }
         }
         if (lowAddress != NULL) {
-            __clear_cache((char *)lowAddress, (char *)(highAddress+1));
+            cacheflush((long)lowAddress, (long)(highAddress+1), 0);
         }
         dvmUnlockMutex(&gDvmJit.tableLock);
         gDvmJit.translationChains = 0;

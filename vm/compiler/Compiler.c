@@ -175,13 +175,8 @@ bool dvmCompilerSetupCodeCache(void)
     gDvmJit.codeCacheByteUsed = templateSize;
 
     /* Only flush the part in the code cache that is being used now */
-#ifdef __mips__
-    __clear_cache((char *) gDvmJit.codeCache,
-                  (char *) gDvmJit.codeCache + templateSize);
-#else
     cacheflush((intptr_t) gDvmJit.codeCache,
                (intptr_t) gDvmJit.codeCache + templateSize, 0);
-#endif
     return true;
 }
 
@@ -274,15 +269,13 @@ static void resetCodeCache(void)
     memset((char *) gDvmJit.codeCache + gDvmJit.templateSize,
            0x66, /* invalid opcode for mips */
            gDvmJit.codeCacheByteUsed - gDvmJit.templateSize);
-    __clear_cache((char *) gDvmJit.codeCache,
-                  (char *) gDvmJit.codeCache + gDvmJit.codeCacheByteUsed);
 #else
     memset((char *) gDvmJit.codeCache + gDvmJit.templateSize,
            0,
            gDvmJit.codeCacheByteUsed - gDvmJit.templateSize);
+#endif
     cacheflush((intptr_t) gDvmJit.codeCache,
                (intptr_t) gDvmJit.codeCache + gDvmJit.codeCacheByteUsed, 0);
-#endif
 
     /* Reset the current mark of used bytes to the end of template code */
     gDvmJit.codeCacheByteUsed = gDvmJit.templateSize;
