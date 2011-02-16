@@ -1,2 +1,2 @@
 %verify "executed"
-%include "mips/OP_IGET.S" { "load":"lbu", "sqnum":"1" }
+%include "mips/OP_IGET.S"
