@@ -9161,12 +9161,12 @@ OP_CMPG_DOUBLE_finish:
      *  rOBJ holds object (caller saved)
      */
 .LOP_IGET_BOOLEAN_finish:
-    #BAL(common_squeak1)
+    #BAL(common_squeak0)
     LOAD_base_offInstField_byteOffset(a3, a0)	# a3<- byte offset of field
                                                 # check object for null
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
-    lbu   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    lw   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9182,12 +9182,12 @@ OP_CMPG_DOUBLE_finish:
      *  rOBJ holds object (caller saved)
      */
 .LOP_IGET_BYTE_finish:
-    #BAL(common_squeak2)
+    #BAL(common_squeak0)
     LOAD_base_offInstField_byteOffset(a3, a0)	# a3<- byte offset of field
                                                 # check object for null
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
-    lb   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    lw   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9203,12 +9203,12 @@ OP_CMPG_DOUBLE_finish:
      *  rOBJ holds object (caller saved)
      */
 .LOP_IGET_CHAR_finish:
-    #BAL(common_squeak3)
+    #BAL(common_squeak0)
     LOAD_base_offInstField_byteOffset(a3, a0)	# a3<- byte offset of field
                                                 # check object for null
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
-    lhu   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    lw   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9224,12 +9224,12 @@ OP_CMPG_DOUBLE_finish:
      *  rOBJ holds object (caller saved)
      */
 .LOP_IGET_SHORT_finish:
-    #BAL(common_squeak4)
+    #BAL(common_squeak0)
     LOAD_base_offInstField_byteOffset(a3, a0)	# a3<- byte offset of field
                                                 # check object for null
     beqz    rOBJ, common_errNullObject          # object was null
     addu    a3, a3, rOBJ                        # form address
-    lh   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
+    lw   a0, (a3)                            # a0<- obj.field (8/16/32 bits)
     GET_OPA4(a2)		                # a2<- A+
     FETCH_ADVANCE_INST(2)                       # advance rPC, load rINST
     GET_INST_OPCODE(t0)                         # extract opcode from rINST
@@ -9308,7 +9308,7 @@ OP_CMPG_DOUBLE_finish:
      *  rOBJ holds object
      */
 .LOP_IPUT_BOOLEAN_finish:
-    #BAL(common_squeak1)
+    #BAL(common_squeak0)
     GET_OPA4(a1)	                          # a1<- A+
     LOAD_base_offInstField_byteOffset(a3, a0)     # a3<- byte offset of field
     GET_VREG(a0, a1)                              # a0<- fp[A]
@@ -9317,7 +9317,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
-    sb  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
+    sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
 
@@ -9329,7 +9329,7 @@ OP_CMPG_DOUBLE_finish:
      *  rOBJ holds object
      */
 .LOP_IPUT_BYTE_finish:
-    #BAL(common_squeak2)
+    #BAL(common_squeak0)
     GET_OPA4(a1)	                          # a1<- A+
     LOAD_base_offInstField_byteOffset(a3, a0)     # a3<- byte offset of field
     GET_VREG(a0, a1)                              # a0<- fp[A]
@@ -9338,7 +9338,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
-    sb  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
+    sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
 
@@ -9350,7 +9350,7 @@ OP_CMPG_DOUBLE_finish:
      *  rOBJ holds object
      */
 .LOP_IPUT_CHAR_finish:
-    #BAL(common_squeak3)
+    #BAL(common_squeak0)
     GET_OPA4(a1)	                          # a1<- A+
     LOAD_base_offInstField_byteOffset(a3, a0)     # a3<- byte offset of field
     GET_VREG(a0, a1)                              # a0<- fp[A]
@@ -9359,7 +9359,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
-    sh  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
+    sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
 
@@ -9371,7 +9371,7 @@ OP_CMPG_DOUBLE_finish:
      *  rOBJ holds object
      */
 .LOP_IPUT_SHORT_finish:
-    #BAL(common_squeak4)
+    #BAL(common_squeak0)
     GET_OPA4(a1)	                          # a1<- A+
     LOAD_base_offInstField_byteOffset(a3, a0)     # a3<- byte offset of field
     GET_VREG(a0, a1)                              # a0<- fp[A]
@@ -9380,7 +9380,7 @@ OP_CMPG_DOUBLE_finish:
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
     addu    rOBJ, rOBJ, a3                        # form address
-    sh  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
+    sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
 

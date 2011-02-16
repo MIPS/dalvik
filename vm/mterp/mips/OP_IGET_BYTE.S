@@ -1,3 +1,3 @@
 %verify "executed"
 %verify "negative value is sign-extended"
-%include "mips/OP_IGET.S" { "load":"lb", "sqnum":"2" }
+%include "mips/OP_IGET.S"

@@ -2223,16 +2223,16 @@ return false;
             genIGet(cUnit, mir, kWord, fieldOffset);
             break;
         case OP_IGET_BOOLEAN:
-            genIGet(cUnit, mir, kUnsignedByte, fieldOffset);
+            genIGet(cUnit, mir, kWord, fieldOffset);
             break;
         case OP_IGET_BYTE:
-            genIGet(cUnit, mir, kSignedByte, fieldOffset);
+            genIGet(cUnit, mir, kWord, fieldOffset);
             break;
         case OP_IGET_CHAR:
-            genIGet(cUnit, mir, kUnsignedHalf, fieldOffset);
+            genIGet(cUnit, mir, kWord, fieldOffset);
             break;
         case OP_IGET_SHORT:
-            genIGet(cUnit, mir, kSignedHalf, fieldOffset);
+            genIGet(cUnit, mir, kWord, fieldOffset);
             break;
         case OP_IPUT_WIDE:
             genIPutWide(cUnit, mir, fieldOffset);
@@ -2243,11 +2243,11 @@ return false;
             break;
         case OP_IPUT_SHORT:
         case OP_IPUT_CHAR:
-            genIPut(cUnit, mir, kUnsignedHalf, fieldOffset);
+            genIPut(cUnit, mir, kWord, fieldOffset);
             break;
         case OP_IPUT_BYTE:
         case OP_IPUT_BOOLEAN:
-            genIPut(cUnit, mir, kUnsignedByte, fieldOffset);
+            genIPut(cUnit, mir, kWord, fieldOffset);
             break;
         default:
             return true;

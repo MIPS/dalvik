@@ -1,2 +1,2 @@
 %verify "executed"
-%include "mips/OP_IPUT.S" { "store":"sb", "sqnum":"1" }
+%include "mips/OP_IPUT.S"
