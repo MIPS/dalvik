@@ -259,13 +259,12 @@ extern int dvmCompilerAllocTempDouble(CompilationUnit *cUnit)
 {
     RegisterInfo *p = cUnit->regPool->FPTemps;
     int numTemps = cUnit->regPool->numFPTemps;
-    int next = cUnit->regPool->nextFPTemp;
+    /* Cleanup - not all targets need aligned regs */
+    int start = cUnit->regPool->nextFPTemp + (cUnit->regPool->nextFPTemp & 1);
+    int next = start;
     int i;
 
     for (i=0; i < numTemps; i+=2) {
-        /* Cleanup - not all targets need aligned regs */
-        if (next & 1)
-            next++;
         if (next >= numTemps)
             next = 0;
         if ((!p[next].inUse && !p[next].live) &&
@@ -281,7 +280,7 @@ extern int dvmCompilerAllocTempDouble(CompilationUnit *cUnit)
         }
         next += 2;
     }
-    next = cUnit->regPool->nextFPTemp;
+    next = start;
     for (i=0; i < numTemps; i+=2) {
         if (next >= numTemps)
             next = 0;
