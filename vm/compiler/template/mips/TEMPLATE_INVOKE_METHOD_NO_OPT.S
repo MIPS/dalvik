@@ -58,7 +58,7 @@
 
 
     # Start executing the callee
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li     a0, kInlineCacheMiss
 #endif
     jr     t0                                     # dvmJitToInterpTraceSelectNoChain

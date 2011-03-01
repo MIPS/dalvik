@@ -53,7 +53,7 @@
     lw     a1, (a1)
     add    rPC, a0, 3*2                              # reconstruct new rPC
 
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li     a0, kCallsiteInterpreted
 #endif
     jr     a1
@@ -83,6 +83,8 @@
     .align  4
 .LdvmAsmInstructionStart:
     .word   dvmAsmInstructionStart
+.LdvmJitToInterpNoChainNoProfile:
+    .word   dvmJitToInterpNoChainNoProfile
 .LdvmJitToInterpTraceSelectNoChain:
     .word   dvmJitToInterpTraceSelectNoChain
 .LdvmJitToInterpNoChain:
@@ -93,6 +95,10 @@
     .word   dvmMterpCommonExceptionThrown
 .LdvmLockObject:
     .word   dvmLockObject
+#if defined(WITH_JIT_TUNING)
+.LdvmICHitCount:
+    .word   gDvmICHitCount
+#endif
 #if defined(WITH_SELF_VERIFICATION)
 .LdvmSelfVerificationMemOpDecode:
     .word   dvmSelfVerificationMemOpDecode

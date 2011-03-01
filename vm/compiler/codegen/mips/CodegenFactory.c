@@ -112,7 +112,6 @@ static void loadValueDirectWideFixed(CompilationUnit *cUnit, RegLocation rlSrc,
 static RegLocation loadValue(CompilationUnit *cUnit, RegLocation rlSrc,
                              RegisterClass opKind)
 {
-    RegisterInfo *pReg;
     rlSrc = dvmCompilerEvalLoc(cUnit, rlSrc, opKind, false);
     if (rlSrc.location == kLocDalvikFrame) {
         loadValueDirect(cUnit, rlSrc, rlSrc.lowReg);
@@ -129,7 +128,6 @@ static RegLocation loadValue(CompilationUnit *cUnit, RegLocation rlSrc,
 static void storeValue(CompilationUnit *cUnit, RegLocation rlDest,
                        RegLocation rlSrc)
 {
-    RegisterInfo *pRegLo;
     LIR *defStart;
     LIR *defEnd;
     assert(!rlDest.wide);
@@ -179,8 +177,6 @@ static void storeValue(CompilationUnit *cUnit, RegLocation rlDest,
 static RegLocation loadValueWide(CompilationUnit *cUnit, RegLocation rlSrc,
                                  RegisterClass opKind)
 {
-    RegisterInfo *pRegLo;
-    RegisterInfo *pRegHi;
     assert(rlSrc.wide);
     rlSrc = dvmCompilerEvalLoc(cUnit, rlSrc, opKind, false);
     if (rlSrc.location == kLocDalvikFrame) {
@@ -202,11 +198,8 @@ static RegLocation loadValueWide(CompilationUnit *cUnit, RegLocation rlSrc,
 static void storeValueWide(CompilationUnit *cUnit, RegLocation rlDest,
                        RegLocation rlSrc)
 {
-    RegisterInfo *pRegLo;
-    RegisterInfo *pRegHi;
     LIR *defStart;
     LIR *defEnd;
-    bool srcFP = FPREG(rlSrc.lowReg) && FPREG(rlSrc.highReg);
     assert(FPREG(rlSrc.lowReg)==FPREG(rlSrc.highReg));
     assert(rlDest.wide);
     assert(rlSrc.wide);
@@ -335,11 +328,11 @@ static void genDispatchToHandler(CompilationUnit *cUnit, TemplateOpCode opCode)
 {
     /*
      * We're jumping from a trace to a template. Using jal is preferable to jalr,
-     * but we need to ensure source and target addresses allow the use of jal.  
-     * This should almost always be the case, but if source and target are in 
+     * but we need to ensure source and target addresses allow the use of jal.
+     * This should almost always be the case, but if source and target are in
      * different 256mb regions then use jalr.  The test below is very conservative
-     * since we don't have a source address yet, but this is ok for now given that 
-     * we expect this case to be very rare. The test can be made less conservative 
+     * since we don't have a source address yet, but this is ok for now given that
+     * we expect this case to be very rare. The test can be made less conservative
      * as needed in the future in coordination with address assignment during
      * the assembly process.
      */

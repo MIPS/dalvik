@@ -34,16 +34,16 @@
 .L${opcode}_continue:
     LOAD_base_offClassObject_descriptor(a3, a0) # a3<- arrayClass->descriptor
     li      a2, ALLOC_DONT_TRACK                # a2<- alloc flags
-    lbu     a3, 1(a3)                           # a3<- descriptor[1]
+    lbu     rINST, 1(a3)                           # rINST<- descriptor[1]
     .if     $isrange
     move    a1, rOBJ                            # a1<- AA (length)
     .else
     srl     a1, rOBJ, 4		                # rOBJ<- B (length)
     .endif
-    seq     t0, a3, 'I'                         # array of ints?
-    seq	    t1, a3, 'L'                         # array of objects?
+    seq     t0, rINST, 'I'                         # array of ints?
+    seq	    t1, rINST, 'L'                         # array of objects?
     or      t0, t1
-    seq	    t1, a3, '['                         # array of arrays?
+    seq	    t1, rINST, '['                         # array of arrays?
     or      t0, t1
     move    rBIX, a1				# save length in rBIX
     beqz    t0, .L${opcode}_notimpl             # no, not handled yet
@@ -53,6 +53,7 @@
 
     FETCH(a1, 2)                                # a1<- FEDC or CCCC
     sw      v0, offGlue_retval(rGLUE)           # retval.l <- new array
+    sw      rINST, (offGlue_retval+4)(rGLUE)    # retval.h <- type
     addu    a0, v0, offArrayObject_contents     # a0<- newArray->contents
     subu    rBIX, rBIX, 1                       # length--, check for neg
     FETCH_ADVANCE_INST(3)                       # advance to next instr, load rINST
@@ -89,8 +90,19 @@
     .endif
 
 2:
-    GET_INST_OPCODE(t0)                         # t0<- opcode from rINST
-    GOTO_OPCODE(t0)                             # execute it
+    lw     a0, offGlue_retval(rGLUE)     		 # a0<- object
+    lw     a1, (offGlue_retval+4)(rGLUE)	     # a1<- type
+    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
+    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
+    seq     t1, a1, 'I'                         # Is int array?
+    bnez			t1, 3f
+    nop
+    srl     t3, a0, GC_CARD_SHIFT
+    addu    t2, a2, t3
+    sb     a2, (t2)
+3:
+    GOTO_OPCODE(t0)                          # execute it
+
 
     /*
      * Throw an exception indicating that we have not implemented this

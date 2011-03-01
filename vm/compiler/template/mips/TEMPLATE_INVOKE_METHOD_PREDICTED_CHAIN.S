@@ -23,13 +23,30 @@
      */
     # a0 = this, a1 = returnCell, a2 = predictedChainCell, rPC = dalvikCallsite
     lw      a3, offObject_clazz(a0)     # a3 <- this->class
-    lw      t0, 8(a2)                   # t0 <- predictedChainCell->clazz
+    lw      rIBASE, 8(a2)                   # t0 <- predictedChainCell->clazz
     lw      a0, 12(a2)                  # a0 <- predictedChainCell->method
-    lw      t1, 16(a2)                  # t1 <- predictedChainCell->counter
-    beq     a3, t0, .LinvokeChain       # branch if predicted chain is valid
+    lw      t1, offGlue_icRechainCount(rGLUE)    # t1 <- shared rechainCount
+
+#if defined(WITH_JIT_TUNING)
+    la      rINST, .LdvmICHitCount
+    #add     t2, t2, 1
+    bne    a3, rIBASE, 1f
+    nop
+    lw      t2, 0(rINST)
+    add     t2, t2, 1
+    sw      t2, 0(rINST)
+1:
+    #add     t2, t2, 1
+#endif
+    beq     a3, rIBASE, .LinvokeChain       # branch if predicted chain is valid
     lw      rINST, offClassObject_vtable(a3)     # rINST <- this->class->vtable
+    beqz    rIBASE, 2f                      # initialized class or not
     sub     a1, t1, 1                   # count--
-    sw      a1, 16(a2)                  # write back to predictedChainCell->counter
+    sw      a1, offGlue_icRechainCount(rGLUE)    #     write back to InterpState
+    b       3f
+2:
+    move    a1, zero
+3:
     add     ra, ra, 16                  # return to fully-resolve landing pad
     /*
      * a1 <- count

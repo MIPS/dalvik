@@ -25,7 +25,7 @@
     # DOUG: assume this does not return ???
 2:
 #endif
-    la      t4, .LdvmJitToInterpNoChain            # defined in footer.S
+    la      t4, .LdvmJitToInterpNoChainNoProfile   # defined in footer.S
     lw      a1, (t4)
     move    rFP, t0                                # publish new FP
     beq     a2, zero, 4f
@@ -45,11 +45,11 @@
     JALR(t2)                                       # jump to the chaining cell
     # DOUG: assume this does not return ???
 3:
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li      a0, kCallsiteInterpreted
 #endif
     j       a1                                     # callsite is interpreted
-1: 
+1:
     SAVE_PC_TO_GLUE()                              # SAVE_PC_FP_TO_GLUE()
     SAVE_FP_TO_GLUE()
     la      t4, .LdvmMterpStdBail                  # defined in footer.S

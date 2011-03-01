@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+ #define _CODEGEN_C
+
 #include "Dalvik.h"
 #include "interp/InterpDefs.h"
 #include "libdex/OpCode.h"
-#include "dexdump/OpCodeNames.h"
+#include "libdex/OpCodeNames.h"
 #include "compiler/CompilerInternals.h"
 #include "compiler/codegen/mips/MipsLIR.h"
 #include "mterp/common/FindInterface.h"

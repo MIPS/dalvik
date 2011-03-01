@@ -20,8 +20,8 @@
 #define MIPS32R2
 #endif
 
-/* MIPS definitions and declarations 
- 
+/* MIPS definitions and declarations
+
    reg	nick		purpose
    s0	rPC		interpreted program counter, used for fetching instructions
    s1	rFP		interpreted frame pointer, used for accessing locals and args
@@ -54,7 +54,7 @@ Big Endian mode */
 #define rRESULT0  v0
 #define rRESULT1  v1
 #else
-#define rARG0     a1 
+#define rARG0     a1
 #define rARG1     a0
 #define rARG2     a3
 #define rARG3     a2
@@ -103,7 +103,7 @@ Big Endian mode */
 #define GOTO_OPCODE(rd)			sll  rd, rd, 7;	\
 					addu rd, rIBASE, rd;	\
 					jr  rd
-				
+
 
 #define GET_VREG(rd, rix)		LOAD_eas2(rd,rFP,rix)
 
@@ -129,7 +129,7 @@ Big Endian mode */
 #ifndef		MIPS32R2
 #define GET_OPA4(rd)			GET_OPA(rd);  and  rd, 0xf
 #else
-#define GET_OPA4(rd)			ext	rd, rINST, 8, 4	
+#define GET_OPA4(rd)			ext	rd, rINST, 8, 4
 #endif
 #define GET_OPB(rd)			srl     rd, rINST, 12
 
@@ -332,7 +332,7 @@ Big Endian mode */
 #endif
 
 /* File: mips/entry.S */
-#entry.S 
+#entry.S
 
 #define ASSIST_DEBUGGER 1
 
@@ -348,7 +348,7 @@ dvmMterpStdRun:
 	STACK_STORE_FULL()
 /* This directive will make sure all subsequent jal restore gp at a known offset */
 	.cprestore STACK_OFFSET_GP
-	
+
 	addu		fp, sp, STACK_SIZE	# Move Frame Pointer to the base of frame
 	/* save stack pointer, add magic word for debuggerd */
 	sw		sp, offGlue_bailPtr(a0)	#Save SP
@@ -361,7 +361,7 @@ dvmMterpStdRun:
 	la		rIBASE, dvmAsmInstructionStart	#set rIBASE. GOT needed here.
 	li		t0, kInterpEntryInstr
 	bne		a1, t0, .Lnot_instr		# no, handle it
-		
+
 #if defined(WITH_JIT)
 entryInstr:
 	lw              t0, offGlue_self(rGLUE)
@@ -381,7 +381,7 @@ entryInstr:
 
 .Lnot_instr:		# were we returning from a method?
 	beq		a1, kInterpEntryReturn, common_returnFromMethod
-	
+
 .Lnot_return:		# were we throwing an exception?
 	beq             a1, kInterpEntryThrow, common_exceptionThrown
 
@@ -408,7 +408,7 @@ not_throw:
 	JAL(printf)
 	JAL(dvmAbort)
 
-	.end	dvmMterpStdRun	
+	.end	dvmMterpStdRun
 
 	.global dvmMterpStdBail
 	.ent	dvmMterpStdBail
@@ -421,7 +421,7 @@ dvmMterpStdBail:
 	move		v0, a1				# return the changeInterp value
 	STACK_LOAD_FULL()
 	jr		ra
-	
+
 	.end dvmMterpStdBail
 
 /*
@@ -442,7 +442,7 @@ dvmAsmInstructionStart = .L_OP_NOP
 .L_OP_NOP: /* 0x00 */
 /* File: mips/OP_NOP.S */
     FETCH_ADVANCE_INST(1)               # advance to next instr, load rINST
-    GET_INST_OPCODE(t0)                 
+    GET_INST_OPCODE(t0)
     GOTO_OPCODE(t0)                     # execute it
 
 #ifdef ASSIST_DEBUGGER
@@ -749,7 +749,7 @@ dalvik_inst:
     FETCH(a0, 1)                        # a0<- bbbb (low)
     FETCH(a1, 2)                        # a1<- BBBB (high)
     FETCH_ADVANCE_INST(3)               # advance rPC, load rINST
-    sll    a1, a1, 16          
+    sll    a1, a1, 16
     or     a0, a1, a0                   # a0<- BBBBbbbb
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     SET_VREG_GOTO(a0, a3, t0)           # vAA<- a0
@@ -809,11 +809,11 @@ dalvik_inst:
     FETCH(a0, 1)                        # a0<- bbbb (low)
     FETCH(a1, 2)                        # a1<- BBBB (low middle)
     FETCH(a2, 3)                        # a2<- hhhh (high middle)
-    sll   a1, 16                        # 
+    sll   a1, 16                        #
     or    a0, a1                        # a0<- BBBBbbbb (low word)
     FETCH(a3, 4)                        # a3<- HHHH (high)
     GET_OPA(t1)			        # t1<- AA
-    sll   a3, 16 
+    sll   a3, 16
     or    a1, a3, a2                    # a1<- HHHHhhhh (high word)
     FETCH_ADVANCE_INST(5)               # advance rPC, load rINST
     EAS2(t1, rFP, t1)		        # t1<- &fp[AA]
@@ -915,7 +915,7 @@ dalvik_inst:
     GET_OPA(rOBJ)		                # rOBJ<- AA
     LOAD_base_offDvmDex_pResClasses(a2,a2)      # a2<- dvmDex->pResClasses
     LOAD_eas2(v0, a2, a1)		        # v0<- pResClasses[BBBB]
-    					        
+
     bnez    v0, .LOP_CONST_CLASS_resolve		# v0!=0 => resolved-ok
     /*
      * Continuation if the Class has not yet been resolved.
@@ -1157,7 +1157,7 @@ dalvik_inst:
     bltz      a1, common_errNegativeArraySize   # negative length, bail
     EXPORT_PC()                                 # req'd for resolve, alloc
                                              	# already resolved?
-    beqz    a0, .LOP_NEW_ARRAY_resolve		# not resolved, 
+    beqz    a0, .LOP_NEW_ARRAY_resolve		# not resolved,
 
     /*
      * Finish allocation.
@@ -1265,6 +1265,7 @@ dalvik_inst:
     GET_OPA(a2)			              # a2<- AA
     GET_VREG(a1, a2)                          # a1<- vAA (exception object)
     LOAD_rGLUE_self(a0)                       # a0<- glue->self
+    EXPORT_PC()                         # exception handler can throw
                                               # null object?
     beqz   a1, common_errNullObject           # yes, throw an NPE instead
     # bypass dvmSetException, just store it
@@ -1344,7 +1345,7 @@ dalvik_inst:
     /* goto/32 +AAAAAAAA */
     FETCH(a0, 1)                        # a0<- aaaa (lo)
     FETCH(a1, 2)                        # a1<- AAAA (hi)
-    sll    a1, a1, 16                       
+    sll    a1, a1, 16
     or     a0, a0, a1                   # a0<- AAAAaaaa, check sign
     sll	   rBIX, a0, 1                  # rBIX<- byte offset
     bltz   a0, common_backwardBranch    # backward branch, do periodic checks
@@ -1472,12 +1473,12 @@ dalvik_inst:
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)	            	# a0<- (vBB == vCC)
-    li       rSELF, 0 			#set rSELF to 0  
+    li       rSELF, 0 			#set rSELF to 0
     beqz     v0, OP_CMPL_FLOAT_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__ltsf2)	              	# a0<- (vBB < vCC)
-    li	     rSELF, -1 
+    li	     rSELF, -1
     bltz     v0, OP_CMPL_FLOAT_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX			# a1<- vCC
@@ -1493,8 +1494,8 @@ dalvik_inst:
     bc1t	fcc0, OP_CMPL_FLOAT_finish
     c.eq.s	fcc0, fs0, fs1
     li		rSELF, 0
-    bc1t	fcc0, OP_CMPL_FLOAT_finish 
-    b		OP_CMPL_FLOAT_nan 
+    bc1t	fcc0, OP_CMPL_FLOAT_finish
+    b		OP_CMPL_FLOAT_nan
 
 #endif
 
@@ -1535,12 +1536,12 @@ dalvik_inst:
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)	            	# a0<- (vBB == vCC)
-    li       rSELF, 0 			#set rSELF to 0  
+    li       rSELF, 0 			#set rSELF to 0
     beqz     v0, OP_CMPG_FLOAT_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__ltsf2)	              	# a0<- (vBB < vCC)
-    li	     rSELF, -1 
+    li	     rSELF, -1
     bltz     v0, OP_CMPG_FLOAT_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX			# a1<- vCC
@@ -1556,8 +1557,8 @@ dalvik_inst:
     bc1t	fcc0, OP_CMPG_FLOAT_finish
     c.eq.s	fcc0, fs0, fs1
     li		rSELF, 0
-    bc1t	fcc0, OP_CMPG_FLOAT_finish 
-    b		OP_CMPG_FLOAT_nan 
+    bc1t	fcc0, OP_CMPG_FLOAT_finish
+    b		OP_CMPG_FLOAT_nan
 
 #endif
 
@@ -1598,7 +1599,7 @@ dalvik_inst:
     li		rSELF, -1
     bltz	v0, OP_CMPL_DOUBLE_finish
     LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    b		OP_CMPL_DOUBLE_continue 
+    b		OP_CMPL_DOUBLE_continue
 #else
     LOAD64_F(fs0, fs0f, rOBJ)
     LOAD64_F(fs1, fs1f, rBIX)
@@ -1650,7 +1651,7 @@ dalvik_inst:
     li		rSELF, -1
     bltz	v0, OP_CMPG_DOUBLE_finish
     LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    b		OP_CMPG_DOUBLE_continue 
+    b		OP_CMPG_DOUBLE_continue
 #else
     LOAD64_F(fs0, fs0f, rOBJ)
     LOAD64_F(fs1, fs1f, rBIX)
@@ -2497,32 +2498,32 @@ dalvik_inst:
      *
      */
     /* op vAA, vBB, vCC */
-    FETCH(a0, 1)				# a0<- CCBB
-    GET_OPA(t1)					# t1<- AA
-    and     a2, a0, 255			 	# a2<- BB
-    srl	    a3, a0, 8				# a3<- CC
-    GET_VREG(a1, a2)				# a1<- vBB (array object)
-    GET_VREG(a0, a3)				# a0<- vCC (requested index)
-    GET_VREG(rBIX, t1)				# rBIX<- vAA
-						# null array object?
-    beqz    a1, common_errNullObject		# yes, bail
+    FETCH(a0, 1)        # a0<- CCBB
+    GET_OPA(t1)         # t1<- AA
+    and     a2, a0, 255       # a2<- BB
+    srl     a3, a0, 8       # a3<- CC
+    GET_VREG(rINST, a2)       # rINST<- vBB (array object)
+    GET_VREG(a0, a3)        # a0<- vCC (requested index)
+    GET_VREG(rBIX, t1)        # rBIX<- vAA
+            # null array object?
+    beqz    rINST, common_errNullObject   # yes, bail
 
-    LOAD_base_offArrayObject_length(a3,a1)	# a3<- arrayObj->length
-    EAS2(rOBJ, a1, a0)			  	# rOBJ<- arrayObj + index*width
-						# compare unsigned index, length
-    bgeu    a0, a3, common_errArrayIndex	# index >= length, bail
+    LOAD_base_offArrayObject_length(a3,rINST) # a3<- arrayObj->length
+    EAS2(rOBJ, rINST, a0)         # rOBJ<- arrayObj + index*width
+            # compare unsigned index, length
+    bgeu    a0, a3, common_errArrayIndex  # index >= length, bail
     /*
      * On entry:
-     *  a1 = vBB (arrayObj)
+     *  rINST = vBB (arrayObj)
      *  rBIX = vAA (obj)
      *  rOBJ = offset into array (vBB + vCC * width)
      */
-    bnez     rBIX, .LOP_APUT_OBJECT_checks		# yes, skip type checks
+    bnez     rBIX, .LOP_APUT_OBJECT_checks   # yes, skip type checks
 .LOP_APUT_OBJECT_finish:
-    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
-    GET_INST_OPCODE(t0)			 	# extract opcode from rINST
-    sw     rBIX, offArrayObject_contents(rOBJ)	# vBB[vCC]<- vAA
-    GOTO_OPCODE(t0)				# jump to next instruction
+    FETCH_ADVANCE_INST(2)     # advance rPC, load rINST
+    GET_INST_OPCODE(t0)       # extract opcode from rINST
+    sw     rBIX, offArrayObject_contents(rOBJ)  # vBB[vCC]<- vAA
+    GOTO_OPCODE(t0)       # jump to next instruction
 
 
 /* ------------------------------ */
@@ -2903,30 +2904,28 @@ dalvik_inst:
     .balign 128
 .L_OP_IPUT_OBJECT: /* 0x5b */
 /* File: mips/OP_IPUT_OBJECT.S */
-/* File: mips/OP_IPUT.S */
     /*
-     * General 32-bit instance field put.
+     * 32-bit instance field put.
      *
-     * for: iput, iput-object, iput-boolean, iput-byte, iput-char, iput-short
+     * for: iput-object, iput-object-volatile
      */
     /* op vA, vB, field#CCCC */
-    GET_OPB(a0)			                  # a0<- B
-    LOAD_rGLUE_methodClassDex(a3)		  # a3<- DvmDex
+    GET_OPB(a0)                       # a0<- B
+    LOAD_rGLUE_methodClassDex(a3)     # a3<- DvmDex
     FETCH(a1, 1)                                  # a1<- field ref CCCC
-    LOAD_base_offDvmDex_pResFields(a2,a3)	  # a2<- pDvmDex->pResFields
+    LOAD_base_offDvmDex_pResFields(a2,a3)   # a2<- pDvmDex->pResFields
     GET_VREG(rOBJ, a0)                              # rOBJ<- fp[B], the object pointer
-    LOAD_eas2(a0, a2, a1)		          # a0<- resolved InstField ptr
+    LOAD_eas2(a0, a2, a1)             # a0<- resolved InstField ptr
                                                   # is resolved entry null?
     bnez     a0, .LOP_IPUT_OBJECT_finish               # no, already resolved
-    LOAD_rGLUE_method(a2)		          # a2<- current method
+    LOAD_rGLUE_method(a2)             # a2<- current method
     EXPORT_PC()                                   # resolve() could throw
-    LOAD_base_offMethod_clazz(a0,a2)		  # a0<- method->clazz
-    JAL(dvmResolveInstField)			  # v0<- resolved InstField ptr
+    LOAD_base_offMethod_clazz(a0,a2)      # a0<- method->clazz
+    JAL(dvmResolveInstField)        # v0<- resolved InstField ptr
                                                   # success?
     move     a0, v0
     bnez     v0, .LOP_IPUT_OBJECT_finish               # yes, finish up
     b       common_exceptionThrown
-
 
 /* ------------------------------ */
     .balign 128
@@ -3383,11 +3382,10 @@ dalvik_inst:
     .balign 128
 .L_OP_SPUT_OBJECT: /* 0x69 */
 /* File: mips/OP_SPUT_OBJECT.S */
-/* File: mips/OP_SPUT.S */
     /*
      * General 32-bit SPUT handler.
      *
-     * for: sput, sput-object, sput-boolean, sput-byte, sput-char, sput-short
+     * for: sput-object, sput-object-volatile
      */
     /* op vAA, field #BBBB */
     LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
@@ -3404,14 +3402,7 @@ dalvik_inst:
     JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
     move    a0, v0
     beqz    v0, common_exceptionThrown		# success? no, handle exception
-1:						# field ptr in a0
-    GET_OPA(a2)					# a2<- AA
-    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
-    GET_VREG(a1, a2)				# a1<- fp[AA]
-    GET_INST_OPCODE(t0)				# extract opcode from rINST
-    # no-op                                     # releasing store
-    sw    a1, offStaticField_value(a0)		# field<- vAA
-    GOTO_OPCODE(t0)				# jump to next instruction
+    nop
 
 
 /* ------------------------------ */
@@ -3722,7 +3713,7 @@ dalvik_inst:
     move    a0, v0
     						# failed?
     beqz    v0, common_exceptionThrown	        # yes, handle exception
-    b       common_invokeMethodNoRange	# jump to common handler 
+    b       common_invokeMethodNoRange	# jump to common handler
 
 
 /* ------------------------------ */
@@ -3911,7 +3902,7 @@ dalvik_inst:
     move    a0, v0
     						# failed?
     beqz    v0, common_exceptionThrown	        # yes, handle exception
-    b       common_invokeMethodRange	# jump to common handler 
+    b       common_invokeMethodRange	# jump to common handler
 
 
 
@@ -4129,7 +4120,7 @@ dalvik_inst:
      * specifies an instruction that performs "result = op a0".
      * This could be a MIPS instruction or a function call.
      *
-     * for: int-to-float, float-to-int      
+     * for: int-to-float, float-to-int
      */
     /* unop vA, vB */
     GET_OPB(a3)			        # a3<- B
@@ -4222,7 +4213,7 @@ dalvik_inst:
      *
      * For: long-to-float, double-to-int, double-to-float
      * If hard floating point support is available, use fa0 as the parameter, except for
-     * long-to-float opcode. 
+     * long-to-float opcode.
      * (This would work for long-to-int, but that instruction is actually
      * an exact match for OP_MOVE.)
      */
@@ -4235,7 +4226,7 @@ dalvik_inst:
     LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
 #else
     LOAD64(a0, a1, a3)
-#endif	   
+#endif
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
                                # optional op
 #ifdef	SOFT_FLOAT
@@ -4302,7 +4293,7 @@ dalvik_inst:
      * specifies an instruction that performs "result = op a0".
      * This could be a MIPS instruction or a function call.
      *
-     * for: int-to-float, float-to-int      
+     * for: int-to-float, float-to-int
      */
     /* unop vA, vB */
     GET_OPB(a3)			        # a3<- B
@@ -4420,7 +4411,7 @@ dalvik_inst:
      *
      * For: long-to-float, double-to-int, double-to-float
      * If hard floating point support is available, use fa0 as the parameter, except for
-     * long-to-float opcode. 
+     * long-to-float opcode.
      * (This would work for long-to-int, but that instruction is actually
      * an exact match for OP_MOVE.)
      */
@@ -4433,7 +4424,7 @@ dalvik_inst:
     LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
 #else
     LOAD64_F(fa0, fa0f, a3)
-#endif	   
+#endif
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
                                # optional op
 #ifdef	SOFT_FLOAT
@@ -4510,7 +4501,7 @@ dalvik_inst:
      *
      * For: long-to-float, double-to-int, double-to-float
      * If hard floating point support is available, use fa0 as the parameter, except for
-     * long-to-float opcode. 
+     * long-to-float opcode.
      * (This would work for long-to-int, but that instruction is actually
      * an exact match for OP_MOVE.)
      */
@@ -4523,7 +4514,7 @@ dalvik_inst:
     LOAD64(rARG0, rARG1, a3)                    # a0/a1<- vB/vB+1
 #else
     LOAD64_F(fa0, fa0f, a3)
-#endif	   
+#endif
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
                                # optional op
 #ifdef	SOFT_FLOAT
@@ -5171,7 +5162,7 @@ dalvik_inst:
      *   x     a3   a2
      *   -------------
      *       a2a1 a2a0
-     *       a3a0 
+     *       a3a0
      *  a3a1 (<= unused)
      *  ---------------
      *         v1   v0
@@ -5526,7 +5517,7 @@ dalvik_inst:
 
     EAS2(t2, rFP, t2)                   # t2<- &fp[AA]
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-  
+
     /*
      * Same code as from SHL_LONG_2ADDR
      */
@@ -5639,7 +5630,7 @@ dalvik_inst:
                                         # is second operand zero?
     beqz    a1, common_errDivideByZero
     .endif
-#else	
+#else
     GET_VREG_F(fa1, a3)			# a1<- vCC
     GET_VREG_F(fa0, a2)			# a0<- vBB
 
@@ -5689,7 +5680,7 @@ dalvik_inst:
                                         # is second operand zero?
     beqz    a1, common_errDivideByZero
     .endif
-#else	
+#else
     GET_VREG_F(fa1, a3)			# a1<- vCC
     GET_VREG_F(fa0, a2)			# a0<- vBB
 
@@ -5739,7 +5730,7 @@ dalvik_inst:
                                         # is second operand zero?
     beqz    a1, common_errDivideByZero
     .endif
-#else	
+#else
     GET_VREG_F(fa1, a3)			# a1<- vCC
     GET_VREG_F(fa0, a2)			# a0<- vBB
 
@@ -5789,7 +5780,7 @@ dalvik_inst:
                                         # is second operand zero?
     beqz    a1, common_errDivideByZero
     .endif
-#else	
+#else
     GET_VREG_F(fa1, a3)			# a1<- vCC
     GET_VREG_F(fa0, a2)			# a0<- vBB
 
@@ -5839,7 +5830,7 @@ dalvik_inst:
                                         # is second operand zero?
     beqz    a1, common_errDivideByZero
     .endif
-#else	
+#else
     GET_VREG_F(fa1, a3)			# a1<- vCC
     GET_VREG_F(fa0, a2)			# a0<- vBB
 
@@ -5874,7 +5865,7 @@ dalvik_inst:
     /*
      * Generic 64-bit binary operation.  Provide an "instr" line that
      * specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
@@ -5908,7 +5899,7 @@ dalvik_inst:
     bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
-1:	
+1:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
                                # optional op
 #ifdef	SOFT_FLOAT
@@ -5932,7 +5923,7 @@ dalvik_inst:
     /*
      * Generic 64-bit binary operation.  Provide an "instr" line that
      * specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
@@ -5966,7 +5957,7 @@ dalvik_inst:
     bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
-1:	
+1:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
                                # optional op
 #ifdef	SOFT_FLOAT
@@ -5990,7 +5981,7 @@ dalvik_inst:
     /*
      * Generic 64-bit binary operation.  Provide an "instr" line that
      * specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
@@ -6024,7 +6015,7 @@ dalvik_inst:
     bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
-1:	
+1:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
                                # optional op
 #ifdef	SOFT_FLOAT
@@ -6048,7 +6039,7 @@ dalvik_inst:
     /*
      * Generic 64-bit binary operation.  Provide an "instr" line that
      * specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
@@ -6082,7 +6073,7 @@ dalvik_inst:
     bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
-1:	
+1:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
                                # optional op
 #ifdef	SOFT_FLOAT
@@ -6106,7 +6097,7 @@ dalvik_inst:
     /*
      * Generic 64-bit binary operation.  Provide an "instr" line that
      * specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
@@ -6140,7 +6131,7 @@ dalvik_inst:
     bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
-1:	
+1:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
                                # optional op
 #ifdef	SOFT_FLOAT
@@ -6164,7 +6155,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6200,7 +6191,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6236,7 +6227,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6272,7 +6263,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6308,7 +6299,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6344,7 +6335,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6380,7 +6371,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6416,7 +6407,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6452,7 +6443,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6488,7 +6479,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6524,7 +6515,7 @@ dalvik_inst:
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
@@ -6660,7 +6651,7 @@ dalvik_inst:
     mfhi    t1
     mflo    v0                          #  v0= a2a0
     mul     t2,a2,a1                    #  t2= a2a1
-    addu    v1,v1,t1                    #  v1= a3a0 + hi(a2a0) 
+    addu    v1,v1,t1                    #  v1= a3a0 + hi(a2a0)
     addu    v1,v1,t2                    #  v1= v1   + a2a1;
 
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
@@ -6972,7 +6963,7 @@ dalvik_inst:
     sll     v0, v0, a2			# v0<- a0 << n
     or      v1, v1, a0			# v1<- v1 | a0
     andi    a2, a2, 0x20		# n & 0x20
-    movn    v1, v0, a2			# v1<- v0 (if n=32) 
+    movn    v1, v0, a2			# v1<- v0 (if n=32)
     movn    v0, zero, a2		# v0<- 0  (if n=32)
 
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
@@ -7053,13 +7044,13 @@ dalvik_inst:
 /* File: mips/binflop2addr.S */
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" and
-     * "instr_f" line 
+     * "instr_f" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-float/2addr, sub-float/2addr, mul-float/2addr, 
+     * For: add-float/2addr, sub-float/2addr, mul-float/2addr,
      * div-float/2addr, rem-float/2addr
      */
     /* binop/2addr vA, vB */
@@ -7104,13 +7095,13 @@ dalvik_inst:
 /* File: mips/binflop2addr.S */
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" and
-     * "instr_f" line 
+     * "instr_f" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-float/2addr, sub-float/2addr, mul-float/2addr, 
+     * For: add-float/2addr, sub-float/2addr, mul-float/2addr,
      * div-float/2addr, rem-float/2addr
      */
     /* binop/2addr vA, vB */
@@ -7155,13 +7146,13 @@ dalvik_inst:
 /* File: mips/binflop2addr.S */
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" and
-     * "instr_f" line 
+     * "instr_f" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-float/2addr, sub-float/2addr, mul-float/2addr, 
+     * For: add-float/2addr, sub-float/2addr, mul-float/2addr,
      * div-float/2addr, rem-float/2addr
      */
     /* binop/2addr vA, vB */
@@ -7206,13 +7197,13 @@ dalvik_inst:
 /* File: mips/binflop2addr.S */
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" and
-     * "instr_f" line 
+     * "instr_f" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-float/2addr, sub-float/2addr, mul-float/2addr, 
+     * For: add-float/2addr, sub-float/2addr, mul-float/2addr,
      * div-float/2addr, rem-float/2addr
      */
     /* binop/2addr vA, vB */
@@ -7257,13 +7248,13 @@ dalvik_inst:
 /* File: mips/binflop2addr.S */
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" and
-     * "instr_f" line 
+     * "instr_f" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-float/2addr, sub-float/2addr, mul-float/2addr, 
+     * For: add-float/2addr, sub-float/2addr, mul-float/2addr,
      * div-float/2addr, rem-float/2addr
      */
     /* binop/2addr vA, vB */
@@ -7309,11 +7300,11 @@ dalvik_inst:
     /*
      * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-double/2addr, sub-double/2addr, mul-double/2addr, 
+     * For: add-double/2addr, sub-double/2addr, mul-double/2addr,
      *  div-double/2addr, rem-double/2addr
      */
     /* binop/2addr vA, vB */
@@ -7334,7 +7325,7 @@ dalvik_inst:
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
-    bc1t	fcc0, common_errDivideByZero 
+    bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
 1:
@@ -7361,11 +7352,11 @@ dalvik_inst:
     /*
      * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-double/2addr, sub-double/2addr, mul-double/2addr, 
+     * For: add-double/2addr, sub-double/2addr, mul-double/2addr,
      *  div-double/2addr, rem-double/2addr
      */
     /* binop/2addr vA, vB */
@@ -7386,7 +7377,7 @@ dalvik_inst:
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
-    bc1t	fcc0, common_errDivideByZero 
+    bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
 1:
@@ -7413,11 +7404,11 @@ dalvik_inst:
     /*
      * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-double/2addr, sub-double/2addr, mul-double/2addr, 
+     * For: add-double/2addr, sub-double/2addr, mul-double/2addr,
      *  div-double/2addr, rem-double/2addr
      */
     /* binop/2addr vA, vB */
@@ -7438,7 +7429,7 @@ dalvik_inst:
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
-    bc1t	fcc0, common_errDivideByZero 
+    bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
 1:
@@ -7465,11 +7456,11 @@ dalvik_inst:
     /*
      * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-double/2addr, sub-double/2addr, mul-double/2addr, 
+     * For: add-double/2addr, sub-double/2addr, mul-double/2addr,
      *  div-double/2addr, rem-double/2addr
      */
     /* binop/2addr vA, vB */
@@ -7490,7 +7481,7 @@ dalvik_inst:
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
-    bc1t	fcc0, common_errDivideByZero 
+    bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
 1:
@@ -7517,11 +7508,11 @@ dalvik_inst:
     /*
      * Generic 64-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-double/2addr, sub-double/2addr, mul-double/2addr, 
+     * For: add-double/2addr, sub-double/2addr, mul-double/2addr,
      *  div-double/2addr, rem-double/2addr
      */
     /* binop/2addr vA, vB */
@@ -7542,7 +7533,7 @@ dalvik_inst:
     .if 0
     li.d	ft0, 0
     c.eq.d	fcc0, fa1, ft0
-    bc1t	fcc0, common_errDivideByZero 
+    bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
 1:
@@ -8621,12 +8612,12 @@ dalvik_inst:
     /* (stub) */
 	SAVE_PC_TO_GLUE()
 	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE 
+	move  a0, rGLUE
 	JAL(dvmMterp_OP_EXECUTE_INLINE_RANGE)
 	LOAD_PC_FROM_GLUE()
 	LOAD_FP_FROM_GLUE()
-	FETCH_INST() 
-	GET_INST_OPCODE(t0)	
+	FETCH_INST()
+	GET_INST_OPCODE(t0)
 	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
@@ -8682,7 +8673,7 @@ dalvik_inst:
     addu    t0, a3, a1                  # t0<- a3 + a1
     LOAD64(a0, a1, t0)		# a0<- obj.field (64 bits, aligned)
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    EAS2(a3, rFP, a2)		
+    EAS2(a3, rFP, a2)
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     STORE64(a0, a1, a3)		# fp[A]<- a0/a1
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -8723,7 +8714,7 @@ dalvik_inst:
     beqz    a3,  common_errNullObject   # object was null
     GET_VREG(a0, a2)                    # a0<- fp[A]
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    addu    t0, a3, a1          
+    addu    t0, a3, a1
     sw     a0, 0(t0)                    # obj.field (always 32 bits)<- a0
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
@@ -8753,22 +8744,26 @@ dalvik_inst:
     .balign 128
 .L_OP_IPUT_OBJECT_QUICK: /* 0xf7 */
 /* File: mips/OP_IPUT_OBJECT_QUICK.S */
-/* File: mips/OP_IPUT_QUICK.S */
-    /* For: iput-quick, iput-object-quick */
+    /* For: iput-object-quick */
     /* op vA, vB, offset#CCCC */
-    GET_OPB(a2)				# a2<- B
+    GET_OPB(a2)       # a2<- B
     GET_VREG(a3, a2)                    # a3<- fp[B], the object pointer
     FETCH(a1, 1)                        # a1<- field byte offset
-    GET_OPA4(a2)		        # a2<- A(+)
+    GET_OPA4(a2)            # a2<- A(+)
     beqz    a3,  common_errNullObject   # object was null
+    #andi   a2, a2, 15
     GET_VREG(a0, a2)                    # a0<- fp[A]
+    lw     a2, offGlue_cardTable(rGLUE) # a2<- card table base
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    addu    t0, a3, a1          
+    addu    t0, a3, a1
     sw     a0, 0(t0)                    # obj.field (always 32 bits)<- a0
+    beqz   a0, 1f
+    srl    a3, a3, GC_CARD_SHIFT
+    addu   t2, a2, a3
+    sb     a2, (t2)
+1:
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
-
-
 
 /* ------------------------------ */
     .balign 128
@@ -8884,25 +8879,25 @@ dalvik_inst:
     .balign 128
 .L_OP_IPUT_OBJECT_VOLATILE: /* 0xfc */
 /* File: mips/OP_IPUT_OBJECT_VOLATILE.S */
-/* File: mips/OP_IPUT.S */
+/* File: mips/OP_IPUT_OBJECT.S */
     /*
-     * General 32-bit instance field put.
+     * 32-bit instance field put.
      *
-     * for: iput, iput-object, iput-boolean, iput-byte, iput-char, iput-short
+     * for: iput-object, iput-object-volatile
      */
     /* op vA, vB, field#CCCC */
-    GET_OPB(a0)			                  # a0<- B
-    LOAD_rGLUE_methodClassDex(a3)		  # a3<- DvmDex
+    GET_OPB(a0)                       # a0<- B
+    LOAD_rGLUE_methodClassDex(a3)     # a3<- DvmDex
     FETCH(a1, 1)                                  # a1<- field ref CCCC
-    LOAD_base_offDvmDex_pResFields(a2,a3)	  # a2<- pDvmDex->pResFields
+    LOAD_base_offDvmDex_pResFields(a2,a3)   # a2<- pDvmDex->pResFields
     GET_VREG(rOBJ, a0)                              # rOBJ<- fp[B], the object pointer
-    LOAD_eas2(a0, a2, a1)		          # a0<- resolved InstField ptr
+    LOAD_eas2(a0, a2, a1)             # a0<- resolved InstField ptr
                                                   # is resolved entry null?
     bnez     a0, .LOP_IPUT_OBJECT_VOLATILE_finish               # no, already resolved
-    LOAD_rGLUE_method(a2)		          # a2<- current method
+    LOAD_rGLUE_method(a2)             # a2<- current method
     EXPORT_PC()                                   # resolve() could throw
-    LOAD_base_offMethod_clazz(a0,a2)		  # a0<- method->clazz
-    JAL(dvmResolveInstField)			  # v0<- resolved InstField ptr
+    LOAD_base_offMethod_clazz(a0,a2)      # a0<- method->clazz
+    JAL(dvmResolveInstField)        # v0<- resolved InstField ptr
                                                   # success?
     move     a0, v0
     bnez     v0, .LOP_IPUT_OBJECT_VOLATILE_finish               # yes, finish up
@@ -9056,7 +9051,7 @@ dvmAsmSisterStart:
     JAL(dvmInstanceofNonTrivial)		# v0<- boolean result
     move     a0, v0				# fall through to OP_INSTANCE_OF_store
     b       .LOP_INSTANCE_OF_store
-  
+
     /*
      * Resolution required.  This is the least-likely path.
      *
@@ -9165,16 +9160,16 @@ dvmAsmSisterStart:
 .LOP_FILLED_NEW_ARRAY_continue:
     LOAD_base_offClassObject_descriptor(a3, a0) # a3<- arrayClass->descriptor
     li      a2, ALLOC_DONT_TRACK                # a2<- alloc flags
-    lbu     a3, 1(a3)                           # a3<- descriptor[1]
+    lbu     rINST, 1(a3)                           # rINST<- descriptor[1]
     .if     0
     move    a1, rOBJ                            # a1<- AA (length)
     .else
     srl     a1, rOBJ, 4		                # rOBJ<- B (length)
     .endif
-    seq     t0, a3, 'I'                         # array of ints?
-    seq	    t1, a3, 'L'                         # array of objects?
+    seq     t0, rINST, 'I'                         # array of ints?
+    seq	    t1, rINST, 'L'                         # array of objects?
     or      t0, t1
-    seq	    t1, a3, '['                         # array of arrays?
+    seq	    t1, rINST, '['                         # array of arrays?
     or      t0, t1
     move    rBIX, a1				# save length in rBIX
     beqz    t0, .LOP_FILLED_NEW_ARRAY_notimpl             # no, not handled yet
@@ -9184,6 +9179,7 @@ dvmAsmSisterStart:
 
     FETCH(a1, 2)                                # a1<- FEDC or CCCC
     sw      v0, offGlue_retval(rGLUE)           # retval.l <- new array
+    sw      rINST, (offGlue_retval+4)(rGLUE)    # retval.h <- type
     addu    a0, v0, offArrayObject_contents     # a0<- newArray->contents
     subu    rBIX, rBIX, 1                       # length--, check for neg
     FETCH_ADVANCE_INST(3)                       # advance to next instr, load rINST
@@ -9220,8 +9216,19 @@ dvmAsmSisterStart:
     .endif
 
 2:
-    GET_INST_OPCODE(t0)                         # t0<- opcode from rINST
-    GOTO_OPCODE(t0)                             # execute it
+    lw     a0, offGlue_retval(rGLUE)     		 # a0<- object
+    lw     a1, (offGlue_retval+4)(rGLUE)	     # a1<- type
+    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
+    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
+    seq     t1, a1, 'I'                         # Is int array?
+    bnez			t1, 3f
+    nop
+    srl     t3, a0, GC_CARD_SHIFT
+    addu    t2, a2, t3
+    sb     a2, (t2)
+3:
+    GOTO_OPCODE(t0)                          # execute it
+
 
     /*
      * Throw an exception indicating that we have not implemented this
@@ -9251,16 +9258,16 @@ dvmAsmSisterStart:
 .LOP_FILLED_NEW_ARRAY_RANGE_continue:
     LOAD_base_offClassObject_descriptor(a3, a0) # a3<- arrayClass->descriptor
     li      a2, ALLOC_DONT_TRACK                # a2<- alloc flags
-    lbu     a3, 1(a3)                           # a3<- descriptor[1]
+    lbu     rINST, 1(a3)                           # rINST<- descriptor[1]
     .if     1
     move    a1, rOBJ                            # a1<- AA (length)
     .else
     srl     a1, rOBJ, 4		                # rOBJ<- B (length)
     .endif
-    seq     t0, a3, 'I'                         # array of ints?
-    seq	    t1, a3, 'L'                         # array of objects?
+    seq     t0, rINST, 'I'                         # array of ints?
+    seq	    t1, rINST, 'L'                         # array of objects?
     or      t0, t1
-    seq	    t1, a3, '['                         # array of arrays?
+    seq	    t1, rINST, '['                         # array of arrays?
     or      t0, t1
     move    rBIX, a1				# save length in rBIX
     beqz    t0, .LOP_FILLED_NEW_ARRAY_RANGE_notimpl             # no, not handled yet
@@ -9270,6 +9277,7 @@ dvmAsmSisterStart:
 
     FETCH(a1, 2)                                # a1<- FEDC or CCCC
     sw      v0, offGlue_retval(rGLUE)           # retval.l <- new array
+    sw      rINST, (offGlue_retval+4)(rGLUE)    # retval.h <- type
     addu    a0, v0, offArrayObject_contents     # a0<- newArray->contents
     subu    rBIX, rBIX, 1                       # length--, check for neg
     FETCH_ADVANCE_INST(3)                       # advance to next instr, load rINST
@@ -9306,8 +9314,19 @@ dvmAsmSisterStart:
     .endif
 
 2:
-    GET_INST_OPCODE(t0)                         # t0<- opcode from rINST
-    GOTO_OPCODE(t0)                             # execute it
+    lw     a0, offGlue_retval(rGLUE)     		 # a0<- object
+    lw     a1, (offGlue_retval+4)(rGLUE)	     # a1<- type
+    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
+    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
+    seq     t1, a1, 'I'                         # Is int array?
+    bnez			t1, 3f
+    nop
+    srl     t3, a0, GC_CARD_SHIFT
+    addu    t2, a2, t3
+    sb     a2, (t2)
+3:
+    GOTO_OPCODE(t0)                          # execute it
+
 
     /*
      * Throw an exception indicating that we have not implemented this
@@ -9331,7 +9350,7 @@ dvmAsmSisterStart:
 
 OP_CMPL_FLOAT_nan:
     li     rSELF, -1
-    b   OP_CMPL_FLOAT_finish 
+    b   OP_CMPL_FLOAT_finish
 
 #ifdef	SOFT_FLOAT
 OP_CMPL_FLOAT_continue:
@@ -9346,13 +9365,13 @@ OP_CMPL_FLOAT_finish:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
     SET_VREG(rSELF, t0)                 # vAA<- rSELF
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
-    GOTO_OPCODE(t0)     
+    GOTO_OPCODE(t0)
 
 /* continuation for OP_CMPG_FLOAT */
 
 OP_CMPG_FLOAT_nan:
     li	    rSELF, 1
-    b   OP_CMPG_FLOAT_finish 
+    b   OP_CMPG_FLOAT_finish
 
 #ifdef	SOFT_FLOAT
 OP_CMPG_FLOAT_continue:
@@ -9367,7 +9386,7 @@ OP_CMPG_FLOAT_finish:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
     SET_VREG(rSELF, t0)                 # vAA<- rSELF
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
-    GOTO_OPCODE(t0)     
+    GOTO_OPCODE(t0)
 
 /* continuation for OP_CMPL_DOUBLE */
 
@@ -9411,11 +9430,21 @@ OP_CMPG_DOUBLE_finish:
 
 /* continuation for OP_APUT_OBJECT */
 .LOP_APUT_OBJECT_checks:
-    LOAD_base_offObject_clazz(a0, rBIX)		# a0<- obj->clazz
-    LOAD_base_offObject_clazz(a1,a1)		# a1<- arrayObj->clazz
-    JAL(dvmCanPutArrayElement)			# test object type vs. array type
-    beqz     v0, common_errArrayStore		# okay ?
-    b        .LOP_APUT_OBJECT_finish			# yes, skip type checks
+    LOAD_base_offObject_clazz(a0, rBIX)   # a0<- obj->clazz
+    LOAD_base_offObject_clazz(a1,rINST)   # a1<- arrayObj->clazz
+    JAL(dvmCanPutArrayElement)      # test object type vs. array type
+    beqz     v0, common_errArrayStore   # okay ?
+    move    a1, rINST
+    FETCH_ADVANCE_INST(2)
+    lw      a2, offGlue_cardTable(rGLUE)
+    addu    rOBJ, rOBJ, offArrayObject_contents
+    GET_INST_OPCODE(t0)
+    sw      rBIX, (rOBJ)
+    srl     a1, a1, GC_CARD_SHIFT
+    addu    t2, a2, a1
+    sb      a2, (t2)
+    GOTO_OPCODE(t0)
+    b        .LOP_APUT_OBJECT_finish     # yes, skip type checks
 
 
 /* continuation for OP_IGET */
@@ -9630,16 +9659,22 @@ OP_CMPG_DOUBLE_finish:
      */
 .LOP_IPUT_OBJECT_finish:
     #BAL(common_squeak0)
-    GET_OPA4(a1)	                          # a1<- A+
+    GET_OPA4(a1)                            # a1<- A+
     LOAD_base_offInstField_byteOffset(a3, a0)     # a3<- byte offset of field
     GET_VREG(a0, a1)                              # a0<- fp[A]
+    lw      a2, offGlue_cardTable(rGLUE)          # a2<- card table base
                                                   # check object for null
     beqz    rOBJ, common_errNullObject            # object was null
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
-    addu    rOBJ, rOBJ, a3                        # form address
+    addu    t2, rOBJ, a3                        # form address
     # noop                                      # releasing store
-    sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
+    sw  a0, (t2)                            # obj.field (32 bits)<- a0
+    beqz    a0, 1f                                # stored a null reference?
+    srl     rOBJ, rOBJ, GC_CARD_SHIFT
+    addu    t2, a2, rOBJ
+    sb      a2, (t2)                              # mark card if not
+1:
     GOTO_OPCODE(t0)                               # jump to next instruction
 
 
@@ -9730,6 +9765,25 @@ OP_CMPG_DOUBLE_finish:
     sh  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
+
+/* continuation for OP_SPUT_OBJECT */
+1:						# field ptr in a0
+    GET_OPA(a2)					# a2<- AA
+    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
+    GET_VREG(a1, a2)				# a1<- fp[AA]
+    lw     a3, offGlue_cardTable(rGLUE)  # a2<- card table base
+    lw     t1, offField_clazz(a0)    # t1<- field->clazz
+    GET_INST_OPCODE(t0)				# extract opcode from rINST
+    # no-op                                     # releasing store
+    sw    a1, offStaticField_value(a0)		# field<- vAA
+    beqz	  a1, 2f
+    nop
+    srl     t1, t1, GC_CARD_SHIFT
+    addu    t2, a2, t1
+    sb     a2, (t2)
+
+ 2:
+    GOTO_OPCODE(t0)				# jump to next instruction
 
 /* continuation for OP_INVOKE_VIRTUAL */
 
@@ -9823,22 +9877,22 @@ OP_CMPG_DOUBLE_finish:
 
 /* continuation for OP_FLOAT_TO_INT */
 
-/* 
+/*
  * Not an entry point as it is used only once !!
  */
 f2i_doconv:
 #ifdef SOFT_FLOAT
 	li	a1, 0x4f000000	# (float)maxint
 	move    rBIX, a0
-	JAL(__gesf2)		# is arg >= maxint?			
-	move	t0, v0	
+	JAL(__gesf2)		# is arg >= maxint?
+	move	t0, v0
 	li	v0, ~0x80000000	# return maxint (7fffffff)
 	bgez	t0, .LOP_FLOAT_TO_INT_set_vreg
 
 	move	a0, rBIX		# recover arg
 	li	a1, 0xcf000000	# (float)minint
 	JAL(__lesf2)
-	
+
 	move	t0, v0
 	li	v0, 0x80000000	# return minint (80000000)
 	blez    t0, .LOP_FLOAT_TO_INT_set_vreg
@@ -9849,7 +9903,7 @@ f2i_doconv:
 	move	t0, v0
 	li	v0, 0		# return zero for NaN
 	bnez	t0, .LOP_FLOAT_TO_INT_set_vreg
-	
+
 	move	a0, rBIX
 	JAL(__fixsfsi)
 	b .LOP_FLOAT_TO_INT_set_vreg
@@ -9858,7 +9912,7 @@ f2i_doconv:
 	c.ole.s		fcc0, fa1, fa0
 	l.s		fv0, .LFLOAT_TO_INT_ret_max
 	bc1t		.LOP_FLOAT_TO_INT_set_vreg_f
-	
+
 	l.s		fa1, .LFLOAT_TO_INT_min
 	c.ole.s		fcc0, fa0, fa1
 	l.s		fv0, .LFLOAT_TO_INT_ret_min
@@ -9868,7 +9922,7 @@ f2i_doconv:
 	c.un.s		fcc0, fa0, fa1
 	li.s		fv0, 0
 	bc1t		.LOP_FLOAT_TO_INT_set_vreg_f
-	
+
 	trunc.w.s	fv0, fa0
 	b .LOP_FLOAT_TO_INT_set_vreg_f
 #endif
@@ -9890,12 +9944,12 @@ f2l_doconv:
     li		a1, 0x5f000000
     move	rBIX, a0
     JAL(__gesf2)
-      
+
     move	t0, v0
     li		rRESULT0, ~0
     li		rRESULT1, ~0x80000000
     bgez	t0, .LOP_FLOAT_TO_LONG_set_vreg
-    
+
     move	a0, rBIX
     li		a1, 0xdf000000
     JAL(__lesf2)
@@ -9904,7 +9958,7 @@ f2l_doconv:
     li		rRESULT0, 0
     li		rRESULT1, 0x80000000
     blez	t0, .LOP_FLOAT_TO_LONG_set_vreg
-	
+
     move	a0, rBIX
     move	a1, rBIX
     JAL(__nesf2)
@@ -9916,14 +9970,14 @@ f2l_doconv:
 
     move	a0, rBIX
     JAL(__fixsfdi)
-    
+
 #else
     l.s		fa1, .LLONG_TO_max
     c.ole.s	fcc0, fa1, fa0
     li		rRESULT0, ~0
     li		rRESULT1, ~0x80000000
     bc1t	.LOP_FLOAT_TO_LONG_set_vreg
-	
+
     l.s		fa1, .LLONG_TO_min
     c.ole.s	fcc0, fa0, fa1
     li		rRESULT0, 0
@@ -9935,7 +9989,7 @@ f2l_doconv:
     li		rRESULT0, 0
     li		rRESULT1, 0
     bc1t	.LOP_FLOAT_TO_LONG_set_vreg
-	
+
     JAL(__fixsfdi)
 #endif
 
@@ -9992,13 +10046,13 @@ d2i_doconv:
     c.ole.d	fcc0, fa1, fa0
     l.s		fv0, .LDOUBLE_TO_INT_maxret
     bc1t	.LOP_DOUBLE_TO_INT_set_vreg_f
-    
+
     la		t0, .LDOUBLE_TO_INT_min
-    LOAD64_F(fa1, fa1f, t0)	
+    LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa0, fa1
     l.s		fv0, .LDOUBLE_TO_INT_minret
     bc1t	.LOP_DOUBLE_TO_INT_set_vreg_f
-    
+
     mov.d	fa1, fa0
     c.un.d	fcc0, fa0, fa1
     li.s	fv0, 0
@@ -10043,7 +10097,7 @@ d2l_doconv:
     la		t0, .LDOUBLE_TO_LONG_ret_min
     LOAD64(rRESULT0, rRESULT1, t0)
     blez	t1, .LOP_DOUBLE_TO_LONG_set_vreg
-    
+
     move	rARG0, rBIX
     move	rARG1, rSELF
     move	rARG2, rBIX
@@ -10066,14 +10120,14 @@ d2l_doconv:
     la		t0, .LDOUBLE_TO_LONG_ret_max
     LOAD64(rRESULT0, rRESULT1, t0)
     bc1t	.LOP_DOUBLE_TO_LONG_set_vreg
-	
+
     la		t0, .LDOUBLE_TO_LONG_min
     LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa0, fa1
     la		t0, .LDOUBLE_TO_LONG_ret_min
     LOAD64(rRESULT0, rRESULT1, t0)
     bc1t	.LOP_DOUBLE_TO_LONG_set_vreg
-    
+
     mov.d	fa1, fa0
     c.un.d	fcc0, fa0, fa1
     li		rRESULT0, 0
@@ -10289,16 +10343,22 @@ d2l_doconv:
      */
 .LOP_IPUT_OBJECT_VOLATILE_finish:
     #BAL(common_squeak0)
-    GET_OPA4(a1)	                          # a1<- A+
+    GET_OPA4(a1)                            # a1<- A+
     LOAD_base_offInstField_byteOffset(a3, a0)     # a3<- byte offset of field
     GET_VREG(a0, a1)                              # a0<- fp[A]
+    lw      a2, offGlue_cardTable(rGLUE)          # a2<- card table base
                                                   # check object for null
     beqz    rOBJ, common_errNullObject            # object was null
     FETCH_ADVANCE_INST(2)                         # advance rPC, load rINST
     GET_INST_OPCODE(t0)                           # extract opcode from rINST
-    addu    rOBJ, rOBJ, a3                        # form address
+    addu    t2, rOBJ, a3                        # form address
     SMP_DMB                                      # releasing store
-    sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
+    sw  a0, (t2)                            # obj.field (32 bits)<- a0
+    beqz    a0, 1f                                # stored a null reference?
+    srl     rOBJ, rOBJ, GC_CARD_SHIFT
+    addu    t2, a2, rOBJ
+    sb      a2, (t2)                              # mark card if not
+1:
     GOTO_OPCODE(t0)                               # jump to next instruction
 
 
@@ -10323,67 +10383,69 @@ dvmAsmSisterEnd:
 
     .global dvmJitToInterpPunt
 dvmJitToInterpPunt:
-    ldr    r10, [rGLUE, #offGlue_self]  @ callee saved r10 <- glue->self
-    mov    r2,#kSVSPunt                 @ r2<- interpreter entry point
-    mov    r3, #0
-    str    r3, [r10, #offThread_inJitCodeCache] @ Back to the interp land
-    b      jitSVShadowRunEnd            @ doesn't return
+    lw     t0, offGlue_self(rGLUE)            # callee saved t0 <- glue->self
+    li     a2, kSVSPunt                       # a2<- interpreter entry point
+    sw     zero, offThread_inJitCodeCache(t0) # Back to the interp land
+    b      jitSVShadowRunEnd                  # doesn't return
 
     .global dvmJitToInterpSingleStep
 dvmJitToInterpSingleStep:
-    str    lr,[rGLUE,#offGlue_jitResumeNPC]
-    str    r1,[rGLUE,#offGlue_jitResumeDPC]
-    mov    r2,#kSVSSingleStep           @ r2<- interpreter entry point
-    b      jitSVShadowRunEnd            @ doesn't return
+    sw     ra, offGlue_jitResumeNPC(rGLUE)
+    sw     a1, offGlue_jitResumeDPC(rGLUE)
+    li     a2, kSVSSingleStep                 # a2<- interpreter entry point
+    b      jitSVShadowRunEnd                  # doesn't return
+
+    .global dvmJitToInterpNoChainNoProfile
+dvmJitToInterpNoChainNoProfile:
+    lw     t0, offGlue_self(rGLUE)            # callee saved t0 <- glue->self
+    move   a0, rPC                            # pass our target PC
+    li     a2, kSVSNoProfile         # a2<- interpreter entry point
+    sw     zero, offThread_inJitCodeCache(t0) # Back to the interp land
+    b      jitSVShadowRunEnd            			# doesn't return
 
     .global dvmJitToInterpTraceSelectNoChain
 dvmJitToInterpTraceSelectNoChain:
-    ldr    r10, [rGLUE, #offGlue_self]  @ callee saved r10 <- glue->self
-    mov    r0,rPC                       @ pass our target PC
-    mov    r2,#kSVSTraceSelectNoChain   @ r2<- interpreter entry point
-    mov    r3, #0
-    str    r3, [r10, #offThread_inJitCodeCache] @ Back to the interp land
-    b      jitSVShadowRunEnd            @ doesn't return
+    lw     t0, offGlue_self(rGLUE)            # callee saved t0 <- glue->self
+    move   a0, rPC                            # pass our target PC
+    li     a2, kSVSTraceSelect				         # a2<- interpreter entry point
+    sw     zero, offThread_inJitCodeCache(t0) # Back to the interp land
+    b      jitSVShadowRunEnd                  # doesn't return
 
     .global dvmJitToInterpTraceSelect
 dvmJitToInterpTraceSelect:
-    ldr    r10, [rGLUE, #offGlue_self]  @ callee saved r10 <- glue->self
-    ldr    r0,[lr, #-1]                 @ pass our target PC
-    mov    r2,#kSVSTraceSelect          @ r2<- interpreter entry point
-    mov    r3, #0
-    str    r3, [r10, #offThread_inJitCodeCache] @ Back to the interp land
-    b      jitSVShadowRunEnd            @ doesn't return
+    lw     t0, offGlue_self(rGLUE)            # callee saved t0 <- glue->self
+    lw     a0, -1(ra)                         # pass our target PC
+    li     a2, kSVSTraceSelect                # r2<- interpreter entry point
+    sw     zero, offThread_inJitCodeCache(t0) # Back to the interp land
+    b      jitSVShadowRunEnd                  # doesn't return
 
     .global dvmJitToInterpBackwardBranch
 dvmJitToInterpBackwardBranch:
-    ldr    r10, [rGLUE, #offGlue_self]  @ callee saved r10 <- glue->self
-    ldr    r0,[lr, #-1]                 @ pass our target PC
-    mov    r2,#kSVSBackwardBranch       @ r2<- interpreter entry point
-    mov    r3, #0
-    str    r3, [r10, #offThread_inJitCodeCache] @ Back to the interp land
-    b      jitSVShadowRunEnd            @ doesn't return
+    lw     t0, offGlue_self(rGLUE)            # callee saved t0 <- glue->self
+    lw     a0, -1(ra)                         # pass our target PC
+    li     a2, kSVSBackwardBranch             # a2<- interpreter entry point
+    sw     zero, offThread_inJitCodeCache(t0) # Back to the interp land
+    b      jitSVShadowRunEnd                  # doesn't return
 
     .global dvmJitToInterpNormal
 dvmJitToInterpNormal:
-    ldr    r10, [rGLUE, #offGlue_self]  @ callee saved r10 <- glue->self
-    ldr    r0,[lr, #-1]                 @ pass our target PC
-    mov    r2,#kSVSNormal               @ r2<- interpreter entry point
-    mov    r3, #0
-    str    r3, [r10, #offThread_inJitCodeCache] @ Back to the interp land
-    b      jitSVShadowRunEnd            @ doesn't return
+    lw     t0, offGlue_self(rGLUE)            # callee saved t0 <- glue->self
+    lw     a0, -1(ra)                         # pass our target PC
+    li     a2, kSVSNormal                     # a2<- interpreter entry point
+    sw     zero, offThread_inJitCodeCache(t0) # Back to the interp land
+    b      jitSVShadowRunEnd                  # doesn't return
 
     .global dvmJitToInterpNoChain
 dvmJitToInterpNoChain:
-    ldr    r10, [rGLUE, #offGlue_self]  @ callee saved r10 <- glue->self
-    mov    r0,rPC                       @ pass our target PC
-    mov    r2,#kSVSNoChain              @ r2<- interpreter entry point
-    mov    r3, #0
-    str    r3, [r10, #offThread_inJitCodeCache] @ Back to the interp land
-    b      jitSVShadowRunEnd            @ doesn't return
+    lw     t0, offGlue_self(rGLUE)            # callee saved t0 <- glue->self
+    move   a0, rPC                            # pass our target PC
+    li     a2, kSVSNoChain                    # a2<- interpreter entry point
+    sw     zero, offThread_inJitCodeCache(t0) # Back to the interp land
+    b      jitSVShadowRunEnd                  # doesn't return
 #else /* WITH_SELF_VERIFICATION */
 /*
  * Return from the translation cache to the interpreter when the compiler is
- * having issues translating/executing a Dalvik instruction. We have to skip 
+ * having issues translating/executing a Dalvik instruction. We have to skip
  * the code cache lookup otherwise it is possible to indefinitely bouce
  * between the interpreter and the code cache if the instruction that fails
  * to be compiled happens to be at a trace start.
@@ -10392,10 +10454,10 @@ dvmJitToInterpNoChain:
 dvmJitToInterpPunt:
     lw    gp, STACK_OFFSET_GP(sp)
     move  rPC, a0
-#ifdef JIT_STATS
+#if defined(WITH_JIT_TUNING)
     move  a0, ra
     JAL(dvmBumpPunt)
-#endif 
+#endif
     lw    t0, offGlue_self(rGLUE) # callee saved t0 <- glue->self
     EXPORT_PC()
     sw    zero, offThread_inJitCodeCache(t0) # Back to the interp land
@@ -10434,7 +10496,7 @@ dvmJitToInterpSingleStep:
     .global dvmJitToInterpTraceSelectNoChain
 dvmJitToInterpTraceSelectNoChain:
     lw    gp, STACK_OFFSET_GP(sp)
-#ifdef JIT_STATS
+#if defined(WITH_JIT_TUNING)
     JAL(dvmBumpNoChain)
 #endif
     move   a0, rPC
@@ -10445,6 +10507,7 @@ dvmJitToInterpTraceSelectNoChain:
     move   a1, rPC                  # arg1 of translation may need this
     move   ra, zero                 #  in case target is HANDLER_INTERPRET
     beqz   a0, 2f
+
     jr     a0                       # continue native execution if so
 
 /*
@@ -10468,7 +10531,8 @@ dvmJitToInterpTraceSelect:
     move  a1, rPC                 # arg1 of translation may need this
     move  ra, zero                # in case target is HANDLER_INTERPRET
     move  a0, v0
-    beqz  a0, toInterpreter       # didn't chain - resume with interpreter 
+    beqz  a0, toInterpreter       # didn't chain - resume with interpreter
+
     jr    a0                      # continue native execution
 
 /* No translation, so request one if profiling isn't disabled */
@@ -10501,7 +10565,7 @@ dvmJitToInterpNormal:
     lw    gp, STACK_OFFSET_GP(sp)
     lw    rPC, (ra)               # get our target PC
     subu  rINST, ra, 8            # save start of chain branch
-#ifdef JIT_STATS
+#if defined(WITH_JIT_TUNING)
     JAL(dvmBumpNormal)
 #endif
     move  a0, rPC
@@ -10515,17 +10579,44 @@ dvmJitToInterpNormal:
     move  a1, rPC                 # arg1 of translation may need this
     move  ra, zero                # in case target is HANDLER_INTERPRET
     move  a0, v0
-    beqz  a0, toInterpreter       # didn't chain - resume with interpreter 
+    beqz  a0, toInterpreter       # didn't chain - resume with interpreter
+
     jr    a0                      # continue native execution
+
+/* Return from the translation cache to the interpreter to do method invocation.
+ * Check if translation exists for the callee, but don't chain to it.
+*/
+    .global dvmJitToInterpNoChainNoProfile
+dvmJitToInterpNoChainNoProfile:
+#if defined(WITH_JIT_TUNING)
+    JAL(dvmBumpNoChain)
+#endif
+    move  a0, rPC
+    JAL(dvmJitGetCodeAddr)        # Is there a translation?
+    lw    t0, offGlue_self(rGLUE) # callee saved t0 <- glue->self
+    move  a0,v0
+    sw    a0, offThread_inJitCodeCache(t0) # set the inJitCodeCache flag
+    move  a1, rPC                 # arg1 of translation may need this
+    move  ra, zero                # in case target is HANDLER_INTERPRET
+    beqz  a0, footer235
+
+    jr    a0                      # continue native execution if so
+footer235:
+    EXPORT_PC()
+    la    rIBASE, dvmAsmInstructionStart
+    FETCH_INST()
+    GET_INST_OPCODE(t0)                 # extract opcode from rINST
+    GOTO_OPCODE(t0)                     # jump to next instruction
 
 /*
  * Return from the translation cache to the interpreter to do method invocation.
  * Check if translation exists for the callee, but don't chain to it.
  */
+
     .global dvmJitToInterpNoChain
 dvmJitToInterpNoChain:
     lw    gp, STACK_OFFSET_GP(sp)
-#ifdef JIT_STATS
+#if defined(WITH_JIT_TUNING)
     JAL(dvmBumpNoChain)
 #endif
     move  a0, rPC
@@ -10535,14 +10626,15 @@ dvmJitToInterpNoChain:
     sw    a0, offThread_inJitCodeCache(t0) # set the inJitCodeCache flag
     move  a1, rPC                 # arg1 of translation may need this
     move  ra, zero                # in case target is HANDLER_INTERPRET
-    beqz  a0, 1f 
+    beqz  a0, 1f
+
     jr    a0                      # continue native execution if so
 1:
 #endif /* WITH_SELF_VERIFICATION */
 
 /*
  * No translation, restore interpreter regs and start interpreting.
- * rGLUE & rFP were preserved in the translated code, and rPC has 
+ * rGLUE & rFP were preserved in the translated code, and rPC has
  * already been restored by the time we get here.  We'll need to set
  * up rIBASE & rINST, and load the address of the JitTable into r0.
  */
@@ -10558,7 +10650,7 @@ toInterpreter:
  * Common code to update potential trace start counter, and initiate
  * a trace-build if appropriate.  On entry, rPC should point to the
  * next instruction to execute, and rINST should be already loaded with
- * the next opcode word, and a0 holds a pointer to the jit profile 
+ * the next opcode word, and a0 holds a pointer to the jit profile
  * table (pJitProfTable).
  */
 
@@ -10566,7 +10658,7 @@ common_testUpdateProfile:
     GET_INST_OPCODE(t0)
     bnez  a0, common_updateProfile
     GOTO_OPCODE(t0)
-    
+
 common_updateProfile:
     srl   a3, rPC, 12          # cheap, but fast hash function
     xor   a3, a3, rPC
@@ -10591,32 +10683,40 @@ common_updateProfile:
     EXPORT_PC()
     move  a0, rPC
     JAL(dvmJitGetCodeAddr)       # v0<- dvmJitGetCodeAddr(rPC)
+    move  a0, v0
     lw    t0, offGlue_self(rGLUE) # callee saved t0 <- glue->self
-    move  a0, v0 
     sw    v0, offThread_inJitCodeCache(t0) # set the inJitCodeCache flag
     move  a1, rPC                 # arg1 of translation may need this
     move  ra, zero                # in case target is HANDLER_INTERPRET
 
 #if !defined(WITH_SELF_VERIFICATION)
-    li    t0, kJitTSelectRequest # ask for trace selection 
+    li    t0, kJitTSelectRequest # ask for trace selection
     movz  a2, t0, a0
     beqz  a0, common_selectTrace
     jr    a0                     # jump to the translation
 #else
-# MIPSTODO xlate self verification from arm to mips
-    moveq   r2,#kJitTSelectRequest      @ ask for trace selection
-    beq     common_selectTrace
+
+    bne     a0, zero, skip_ask_for_trace_selection
+    nop
+    li      a2, kJitTSelectRequest      # ask for trace selection
+    j       common_selectTrace
+
+skip_ask_for_trace_selection:
     /*
      * At this point, we have a target translation.  However, if
      * that translation is actually the interpret-only pseudo-translation
      * we want to treat it the same as no translation.
      */
-    mov     r10, r0                     @ save target
-    bl      dvmCompilerGetInterpretTemplate
-    cmp     r0, r10                     @ special case?
-    bne     jitSVShadowRunStart         @ set up self verification shadow space
-    GET_INST_OPCODE(ip)
-    GOTO_OPCODE(ip)
+   move     t9,a0                      # save target
+    jal     dvmCompilerGetInterpretTemplate
+                                        # special case?
+    bne     a0, t9, jitSVShadowRunStart # set up self verification shadow space
+    # Need to clear the inJitCodeCache flag
+    lw    t0, offGlue_self(rGLUE) 			# t0 <- glue->self
+    # 0 means not in the JIT code cache
+    sw    zero, offThread_inJitCodeCache(t0) # back to the interp land
+    GET_INST_OPCODE(t0)
+    GOTO_OPCODE(t0)
     /* no return */
 #endif
 
@@ -10633,7 +10733,7 @@ common_selectTrace:
     b     common_gotoBail
 
 #if defined(WITH_SELF_VERIFICATION)
-# MIPSTODO xlate self verification from arm to mips
+
 /*
  * Save PC and registers to shadow memory for self verification mode
  * before jumping to native translation.
@@ -10642,41 +10742,41 @@ common_selectTrace:
  *    r10: the address of the target translation.
  */
 jitSVShadowRunStart:
-    mov     r0,rPC                      @ r0<- program counter
-    mov     r1,rFP                      @ r1<- frame pointer
-    mov     r2,rGLUE                    @ r2<- InterpState pointer
-    mov     r3,r10                      @ r3<- target translation
-    bl      dvmSelfVerificationSaveState @ save registers to shadow space
-    ldr     rFP,[r0,#offShadowSpace_shadowFP] @ rFP<- fp in shadow space
-    add     rGLUE,r0,#offShadowSpace_interpState @ rGLUE<- rGLUE in shadow space
-    bx      r10                         @ jump to the translation
+    move    a0, rPC                               # r0<- program counter
+    move    a1, rFP                               # r1<- frame pointer
+    move    a2, rGLUE                             # r2<- InterpState pointer
+    move    a3, t9                                # r3<- target translation
+    jal     dvmSelfVerificationSaveState          # save registers to shadow space
+    lw      rFP, offShadowSpace_shadowFP(a0)      # rFP<- fp in shadow space
+    addi    rGLUE, a0, offShadowSpace_interpState # rGLUE<- rGLUE in shadow space
+    jr      t9                                    # jump to the translation
 
 /*
  * Restore PC, registers, and interpState to original values
  * before jumping back to the interpreter.
  */
 jitSVShadowRunEnd:
-    mov    r1,rFP                        @ pass ending fp
-    bl     dvmSelfVerificationRestoreState @ restore pc and fp values
-    ldr    rPC,[r0,#offShadowSpace_startPC] @ restore PC
-    ldr    rFP,[r0,#offShadowSpace_fp]   @ restore FP
-    ldr    rGLUE,[r0,#offShadowSpace_glue] @ restore InterpState
-    ldr    r1,[r0,#offShadowSpace_svState] @ get self verification state
-    cmp    r1,#0                         @ check for punt condition
-    beq    1f
-    mov    r2,#kJitSelfVerification      @ ask for self verification
-    str    r2,[rGLUE,#offGlue_jitState]
-    mov    r2,#kInterpEntryInstr         @ normal entry reason
-    str    r2,[rGLUE,#offGlue_entryPoint]
-    mov    r1,#1                         @ set changeInterp
-    b      common_gotoBail
+    move    a1, rFP                         # pass ending fp
+    jal     dvmSelfVerificationRestoreState # restore pc and fp values
+    lw      rPC, offShadowSpace_startPC(a0) # restore PC
+    lw      rFP, offShadowSpace_fp(a0)      # restore FP
+    lw      rGLUE, offShadowSpace_glue(a0)  # restore InterpState
+    lw      a1, offShadowSpace_svState(a0)  # get self verification state
+    beq     a1, zero, 1f                    # check for punt condition
 
-1:                                       @ exit to interpreter without check
+    li      a2, kJitSelfVerification        # ask for self verification
+    sw      a2, offGlue_jitState(rGLUE)
+    li      a2, kInterpEntryInstr           # normal entry reason
+    sw      a2, offGlue_entryPoint(rGLUE)
+    li      a1, 1                           # set changeInterp
+    b       common_gotoBail
+
+1:                                          # exit to interpreter without check
     EXPORT_PC()
-    adrl   rIBASE, dvmAsmInstructionStart
+    la     rIBASE, dvmAsmInstructionStart   # adrl   rIBASE, dvmAsmInstructionStart
     FETCH_INST()
-    GET_INST_OPCODE(ip)
-    GOTO_OPCODE(ip)
+    GET_INST_OPCODE(t0)
+    GOTO_OPCODE(t0)
 #endif
 
 #endif /* WITH_JIT */
@@ -10689,7 +10789,7 @@ jitSVShadowRunEnd:
  */
 
 common_backwardBranch:
-    li     a0, kInterpEntryInstr 
+    li     a0, kInterpEntryInstr
     JAL(common_periodicChecks)
 #if defined(WITH_JIT)
     GET_JIT_PROF_TABLE(a0)
@@ -10715,44 +10815,33 @@ common_backwardBranch:
 	.ent common_periodicChecks
 common_periodicChecks:
     lw    a3, offGlue_pSelfSuspendCount(rGLUE) # a3<- &suspendCount
-    # speculatively store a0 before it is clobbered by dvmCheckSuspendPending
-    sw    a0, offGlue_entryPoint(rGLUE)
-
-#if defined(WITH_DEBUGGER)
-    lw    a1,  offGlue_pDebuggerActive(rGLUE)   # a1<- &debuggerActive
-#endif
-#if defined(WITH_PROFILER)
+    lw    a1,  offGlue_pDebuggerActive(rGLUE)  # a1<- &debuggerActive
     lw    a2, offGlue_pActiveProfilers(rGLUE)  # a2<- &activeProfilers
-#endif
 
-    lw    a3, (a3)                   # a3<- suspendCount (int)
 
-#if defined(WITH_DEBUGGER)
+    lw    t0, (a3)                   # t0 <- suspendCount (int)
+    beqz   a1, 3f
+
+    nop
     lbu   a1, (a1)                   # a1<- debuggerActive (boolean)
-#endif
-#if defined (WITH_PROFILER)
-    lw    a2, (a2)                    # a2<- activeProfilers (int)
-#endif
+    or      t0, t0, a1                  # t0<- t0 | a2
+3:
+		lw    a2, (a2)                    # a2<- activeProfilers (int)
+    or      t0, t0, a2                  # t0<- a1 | a2
 
-    bnez    a3, 2f                  # yes, check suspend
+    bnez		t0,4f
+    nop
 
-# if defined(WITH_DEBUGGER) && defined(WITH_PROFILER)
-    or      a1, a1, a2                  # a1<- a1 | a2
-    bnez    a1, 3f                   # debugger attached or profiler started?
-# elif defined(WITH_DEBUGGER)
-    bnez    a1, 3f                   # debugger attached?
-# elif defined(WITH_PROFILER)
-    bnez    a2, 3f                   # profiler started?
-# endif
+    jr ra
+4:
+    lw    t0, (a3)                   # t0 <- suspendCount (int)
+    # want suspend?
+    beqz		t0,1f											#no, must be debugger/profiler
+    nop
+    CREATE_STACK(8)
+    STACK_STORE(a0,0)
+    SAVE_RA(4)
 
-    jr      ra                          # nothing to do, return
-
-3:  # debugger/profiler enabled, bail out
-    addu	rPC, rPC, rBIX                # update rPC
-    li		a1, 1                       # "want switch" = true
-    b       common_gotoBail
-
-2:  # check suspend
 #if defined(WITH_JIT)
     /*
      * Refresh the Jit's cached copy of profile table pointer.  This pointer
@@ -10767,8 +10856,38 @@ common_periodicChecks:
     lw		a0, offGlue_self(rGLUE)    # a0 <- glue->self
     EXPORT_PC() # need for precise GC
 #endif
-    la		t9, dvmCheckSuspendPending
-    jr		t9	# suspend if necessary, then return
+        JAL   (dvmCheckSuspendPending)
+
+    LOAD_RA(4)
+    STACK_LOAD(a0, 0)
+    DELETE_STACK(8)
+     /*
+     * Reload the debugger/profiler enable flags.  We're checking to see
+     * if either of these got set while we were suspended.
+     *
+     * We can't really avoid the #ifdefs here, because the fields don't
+     * exist when the feature is disabled.
+     */
+    lw      a1, offGlue_pDebuggerActive(rGLUE)
+    beqz    a1, label_offGlue_pDebuggerActive
+    nop
+    lbu     a1, (a1)
+label_offGlue_pDebuggerActive:
+		lw      a2, offGlue_pActiveProfilers(rGLUE)
+		lw      a2, (a2)
+
+		or      a1, a1, a2
+    beqz    a1, 2f
+
+1:  # debugger/profiler enabled, bail out; glue->entryPoint was set above
+		sw      a0, offGlue_entryPoint(rGLUE)  # store a0, need for debug/prof
+		addu	  rPC, rPC, rBIX                 # update rPC
+		li      a1, 1                          # "want switch" = true
+		b       common_gotoBail                # side exit
+                                           #
+2:
+	                                     #
+    jr      ra                             # nothing to do, return
 
     .end	common_periodicChecks
 
@@ -10798,7 +10917,7 @@ common_invokeMethodRange:
 .LinvokeNewRange:
     # prepare to copy args to "outs" area of current frame
 	GET_OPA(a2)
-	SAVEAREA_FROM_FP(t1, rFP)		# t1<- stack save area 	
+	SAVEAREA_FROM_FP(t1, rFP)		# t1<- stack save area
 	beqz	a2, .LinvokeArgsDone
     	FETCH(a1, 2)                        # a1<- CCCC
 
@@ -10810,7 +10929,7 @@ common_invokeMethodRange:
 
 1:	lw	a1, 0(a3)
         addu	a3, a3, 4
-	subu	a2, a2, 1								
+	subu	a2, a2, 1
 	sw	a1, 0(t1)
         addu    t1, 4
 	bnez	a2, 1b
@@ -10826,7 +10945,7 @@ common_invokeMethodNoRange:
 .LinvokeNewNoRange:
 	# prepare to copy args to "outs" area of current frame
 	GET_OPB(a2)
-	SAVEAREA_FROM_FP(t1, rFP)		
+	SAVEAREA_FROM_FP(t1, rFP)
 	blez	a2, .LinvokeArgsDone
 	FETCH(a1, 2)
 
@@ -10851,7 +10970,7 @@ common_invokeMethodNoRange:
 	subu		t1, 4
 	sw		a3, 0(t1)
 
-3:	and     t0, a1, 0x0f00	
+3:	and     t0, a1, 0x0f00
 	ESRN(t2, rFP, t0, 6)
 	lw		a3, (t2)
 	subu		t1, 4
@@ -10862,7 +10981,7 @@ common_invokeMethodNoRange:
 	lw		a3, (t2)
 	subu		t1, 4
 	sw		a3, 0(t1)
-	
+
 1:	and		t0, a1, 0x000f
 	EASN(t2, rFP, t0, 2)
 	lw		a3, (t2)
@@ -10873,7 +10992,7 @@ common_invokeMethodNoRange:
 
 
 .LinvokeArgsDone: # a0=methodToCall
-	# find space for the new stack frame, check for overflow 
+	# find space for the new stack frame, check for overflow
 	SAVEAREA_FROM_FP(a1, rFP)		#a1<- stack save area
 	lhu	a2, offMethod_registersSize(a0) # a2<- methodToCall->regsSize
 	lhu	a3, offMethod_outsSize(a0)		# a3<- methodToCall->outsSize
@@ -10883,9 +11002,9 @@ common_invokeMethodNoRange:
 	lw	t3, offGlue_interpStackEnd(rGLUE)	# t3<- interpStackEnd
 	sll	t2, a3, 2
 	subu	a3, t1, t2
-	bltu	a3, t3, .LstackOverflow		# yes, this frame will overflow stack 
+	bltu	a3, t3, .LstackOverflow		# yes, this frame will overflow stack
 
-		
+
     # set up newSaveArea
 #ifdef EASY_GDB
 	SAVEAREA_FROM_FP(t0, rFP)
@@ -10897,10 +11016,10 @@ common_invokeMethodNoRange:
 	sw		zero, (offStackSaveArea_returnAddr)(t1)
 #endif
 	sw		a0, (offStackSaveArea_method)(t1)
-	
-	lw		a3, offMethod_accessFlags(a0) # a3<- methodToCall->accessFlags  
+
+	lw		a3, offMethod_accessFlags(a0) # a3<- methodToCall->accessFlags
 	and		t2, a3, ACC_NATIVE
-	bnez		t2, .LinvokeNative	
+	bnez		t2, .LinvokeNative
     # Update "glue" values for the new method
     # a0=methodToCall, a1=newFp
 	lw		a3,	offMethod_clazz(a0)
@@ -10910,7 +11029,7 @@ common_invokeMethodNoRange:
 	sw		a3, offGlue_methodClassDex(rGLUE)
 	lw		a2, offGlue_self(rGLUE)
 #if defined(WITH_JIT)
-	GET_JIT_PROF_TABLE(a0) 
+	GET_JIT_PROF_TABLE(a0)
 	FETCH_INST()
 	move     rFP, a1
 	GET_INST_OPCODE(t0)
@@ -10936,7 +11055,7 @@ common_invokeMethodNoRange:
 	move	rBIX, a3
 	move	a2, a0
 	move	a0, a1
-	addu	a1, rGLUE, offGlue_retval 	
+	addu	a1, rGLUE, offGlue_retval
 
 #ifdef ASSIST_DEBUGGER
 	/* insert fake function header to help gdb find the stack frame */
@@ -10967,7 +11086,7 @@ dalvik_mterp:
 	sw      a3, offGlue_pJitProfTable(rGLUE) # refresh cached on/off switch
 #endif
 	bnez	a1, common_exceptionThrown
-	
+
 	FETCH_ADVANCE_INST(3)
 	GET_INST_OPCODE(t0)
 	GOTO_OPCODE(t0)
@@ -10998,17 +11117,16 @@ common_returnFromMethod:
 	lw	a2, (offStackSaveArea_method - sizeofStackSaveArea)(rFP)
 	li	a1, 0
 	beqz	a2, common_gotoBail
-	
+
 	lw	rPC, offStackSaveArea_savedPc(a0)
 	lw	a3, offGlue_self(rGLUE)
 	sw	a2, offGlue_method(rGLUE)
 	sw	rFP, offThread_curFrame(a3)
-	lw	a1, offMethod_clazz(a2) 
+	lw	a1, offMethod_clazz(a2)
 	FETCH_ADVANCE_INST(3)
 	lw	a1, offClassObject_pDvmDex(a1)
 #if defined(WITH_JIT)
 	lw	t0, offStackSaveArea_returnAddr(a0) # t0 = saveArea->returnAddr
-	GET_JIT_PROF_TABLE(a0)
 	sw	a1, offGlue_methodClassDex(rGLUE)
 	sw      t0, offThread_inJitCodeCache(a3) # may return to JIT'ed land
 	beqz	t0, no_compiled_code_caller
@@ -11016,7 +11134,6 @@ common_returnFromMethod:
 	move	a0, v0
 no_compiled_code_caller:
 	GET_INST_OPCODE(t0)
-	bnez	a0, common_updateProfile
 	GOTO_OPCODE(t0)
 #else
 	GET_INST_OPCODE(t0)
@@ -11040,13 +11157,13 @@ common_exceptionThrown:
 	li	a0, kInterpEntryThrow
 	li	rBIX, 0
 	JAL(common_periodicChecks)
-	
+
 	lw	rSELF, offGlue_self(rGLUE)
 	lw	rBIX, offThread_exception(rSELF)
 	move	a1, rSELF
 	move	a0, rBIX
 	JAL(dvmAddTrackedAlloc)
-	sw	zero, offThread_exception(rSELF)		
+	sw	zero, offThread_exception(rSELF)
 
 	/* set up args and a local for "&fp" */
 	sw	rFP, 20(sp)          		   # store   rFP => tmp
@@ -11061,7 +11178,7 @@ common_exceptionThrown:
 	subu	a1, rPC, a1
 	sra	a1, a1, 1
         /*
-         * call 
+         * call
          *     int dvmFindCatchBlock(Thread* self, int relPc, Object* exception,
          *                           bool scanOnly, void** newFrame)
          */
@@ -11079,7 +11196,7 @@ common_exceptionThrown:
 	move	a0, rSELF
 	JAL(dvmCleanupStackOverflow)
 	move	a0, rBIX
-	lw	rBIX, offThread_exception(rSELF)	
+	lw	rBIX, offThread_exception(rSELF)
 
 1:
 	/* adjust locals to match self->curFrame and updated PC */
@@ -11094,7 +11211,7 @@ common_exceptionThrown:
         EAS1(rPC, a3, a0)
 	sw	a2, offGlue_methodClassDex(rGLUE)
 
-	/* release the tracked alloc on the exception */	
+	/* release the tracked alloc on the exception */
 	move	a0, rBIX
 	move	a1, rSELF
 	JAL(dvmReleaseTrackedAlloc)
@@ -11115,7 +11232,7 @@ common_exceptionThrown:
 	move	a1, rBIX
 	JAL(dvmCleanupStackOverflow)
 
-3:	
+3:
 	# may want to show "not caught locally" debug messages here
 #if DVM_SHOW_EXCEPTION >= 2
 	/* call __android_log_print(prio, tag, format, ...) */
@@ -11134,7 +11251,7 @@ common_exceptionThrown:
 	lw	a3, offObject_clazz(rBIX)
 	lw	a3, offClassObject_descriptor(a3)
 	la	a2, .LstrExceptionNotCaughtLocally
-	la	a1, .LstrLogTag  
+	la	a1, .LstrLogTag
 	li	a0, 3
 	JAL(__android_log_print)
 #endif
@@ -11144,7 +11261,7 @@ common_exceptionThrown:
 	JAL(dvmReleaseTrackedAlloc)
 	li	a1, 0
         STACK_LOAD_RA()
-	b	common_gotoBail	
+	b	common_gotoBail
 /*
  * After returning from a "glued" function, pull out the updated
  * values and start executing at the next instruction.
@@ -11219,7 +11336,7 @@ common_errNullObject:
     b       common_exceptionThrown
 
 /*
- * For debugging, cause an immediate fault. 
+ * For debugging, cause an immediate fault.
  */
 common_abort:
 	b		.LdeadFood
@@ -11227,7 +11344,7 @@ common_abort:
     .word   0xffffffff
 
 /*
- * Spit out a "we were here", preserving all registers.  
+ * Spit out a "we were here", preserving all registers.
  */
     .macro  SQUEAK num
 common_squeak\num:

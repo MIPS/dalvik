@@ -18,7 +18,7 @@
 #include "compiler/CompilerInternals.h"
 
 #ifndef _DALVIK_VM_COMPILER_CODEGEN_MIPS_MIPSLIR_H
-#define _DALVIK_VM_COMPILER_CODEGEN_MIPS_MIPSLIR_H 
+#define _DALVIK_VM_COMPILER_CODEGEN_MIPS_MIPSLIR_H
 
 /*
  * r0, r1, r2, r3 are always scratch
@@ -423,7 +423,7 @@ typedef enum MipsOpCode {
     kMipsDiv,     /* div s,t [000000] s[25..21] t[20..16] [0000000000011010] */
     kMipsExt,     /* ext t,s,p,z [011111] s[25..21] t[20..16] z[15..11] p[10..6] [000000] */
     kMipsJal,     /* jal t [000011] t[25..0] */
-    kMipsJalr,    /* jalr d,s [000000] s[25..21] [00000] d[15..11] 
+    kMipsJalr,    /* jalr d,s [000000] s[25..21] [00000] d[15..11]
                                   hint[10..6] [001001] */
     kMipsJr,      /* jr s [000000] s[25..21] [0000000000] hint[10..6] [001000] */
     kMipsLahi,    /* lui t,imm16 [00111100000] t[20..16] imm16[15..0] load addr hi */
@@ -632,15 +632,6 @@ typedef struct MipsLIR {
 #define PREDICTED_CHAIN_METHOD_INIT      0
 #define PREDICTED_CHAIN_COUNTER_INIT     0
 
-/* Used when the callee is not compiled yet */
-#define PREDICTED_CHAIN_COUNTER_DELAY    512
-
-/* Rechain after this many mis-predictions have happened */
-#define PREDICTED_CHAIN_COUNTER_RECHAIN  1024
-
-/* Used if the resolved callee is a native method */
-#define PREDICTED_CHAIN_COUNTER_AVOID    0x7fffffff
-
 /* Utility macros to traverse the LIR/MipsLIR list */
 #define NEXT_LIR(lir) ((MipsLIR *) lir->generic.next)
 #define PREV_LIR(lir) ((MipsLIR *) lir->generic.prev)
@@ -653,5 +644,9 @@ typedef struct MipsLIR {
 #define IS_UIMM16(v) ((0 <= (v)) && ((v) <= 65535))
 #define IS_SIMM16(v) ((-32768 <= (v)) && ((v) <= 32766))
 #define IS_SIMM16_2WORD(v) ((-32764 <= (v)) && ((v) <= 32763)) /* 2 offsets must fit */
+
+#define CHAIN_CELL_NORMAL_SIZE 16
+#define CHAIN_CELL_PREDICTED_SIZE 20
+
 
 #endif /* _DALVIK_VM_COMPILER_CODEGEN_MIPS_MIPSLIR_H */

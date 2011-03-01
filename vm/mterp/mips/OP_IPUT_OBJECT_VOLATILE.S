@@ -1,2 +1,2 @@
 %verify "executed"
-%include "mips/OP_IPUT.S" {"barrier":"SMP_DMB"}
+%include "mips/OP_IPUT_OBJECT.S" {"barrier":"SMP_DMB"}

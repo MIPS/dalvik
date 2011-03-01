@@ -104,12 +104,12 @@ static MipsLIR *loadConstantNoClobber(CompilationUnit *cUnit, int rDest,
     if (value == 0) {
         res = newLIR2(cUnit, kMipsMove, rDest, r_ZERO);
     } else if ((value > 0) && (value <= 65535)) {
-        res = newLIR3(cUnit, kMipsOri, rDest, r_ZERO, value); 
+        res = newLIR3(cUnit, kMipsOri, rDest, r_ZERO, value);
     } else if ((value < 0) && (value >= -32768)) {
-        res = newLIR3(cUnit, kMipsAddiu, rDest, r_ZERO, value); 
+        res = newLIR3(cUnit, kMipsAddiu, rDest, r_ZERO, value);
     } else {
         res = newLIR2(cUnit, kMipsLui, rDest, value>>16);
-        newLIR3(cUnit, kMipsOri, rDest, rDest, value); 
+        newLIR3(cUnit, kMipsOri, rDest, rDest, value);
     }
 
 #ifdef __mips_hard_float
@@ -119,7 +119,7 @@ static MipsLIR *loadConstantNoClobber(CompilationUnit *cUnit, int rDest,
     }
 #endif
 
-    return res; 
+    return res;
 }
 
 /*
@@ -348,7 +348,6 @@ static MipsLIR *opRegRegImm(CompilationUnit *cUnit, OpKind op, int rDest,
 static MipsLIR *opRegReg(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
                         int rSrc2)
 {
-    MipsLIR *res;
     MipsOpCode opCode = kMipsNop;
     switch (op) {
         case kOpMov:
@@ -547,7 +546,7 @@ static MipsLIR *storeMultiple(CompilationUnit *cUnit, int rBase, int rMask)
             storeCnt++;
         }
     }
-  
+
     if (storeCnt) { /* increment after */
         newLIR3(cUnit, kMipsAddiu, rBase, rBase, storeCnt*4);
     }
@@ -901,13 +900,13 @@ static inline MipsLIR *genRegImmCheck(CompilationUnit *cUnit,
     } else if (IS_SIMM16(checkValue)) {
         if (cond == kMipsCondLt) {
             int tReg = dvmCompilerAllocTemp(cUnit);
-            newLIR3(cUnit, kMipsSlti, tReg, reg, checkValue);       
+            newLIR3(cUnit, kMipsSlti, tReg, reg, checkValue);
             branch = opCondBranchMips(cUnit, kMipsBne, tReg, r_ZERO);
             dvmCompilerFreeTemp(cUnit, tReg);
         } else {
             LOGE("Jit: bad case in genRegImmCheck");
             dvmCompilerAbort(cUnit);
-        } 
+        }
     } else {
         LOGE("Jit: bad case in genRegImmCheck");
         dvmCompilerAbort(cUnit);

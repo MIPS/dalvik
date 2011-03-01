@@ -1000,7 +1000,7 @@ static int dvmProcessOptions(int argc, const char* const argv[],
     }
 
     /* Force portable mode */
-    gDvm.executionMode = kExecutionModeInterpPortable;
+//    gDvm.executionMode = kExecutionModeInterpPortable;
     if (gDvm.heapSizeStart > gDvm.heapSizeMax) {
         dvmFprintf(stderr, "Heap start size must be <= heap max size\n");
         return -1;

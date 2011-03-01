@@ -92,3 +92,8 @@ int dvmCompilerTargetOptHint(int key)
     }
     return res;
 }
+
+void dvmCompilerGenMemBarrier(CompilationUnit *cUnit)
+{
+    __asm__ __volatile__ ("" : : : "memory");
+}

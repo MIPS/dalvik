@@ -26,7 +26,7 @@
     j      .LhandleException
 1:
     # Bail to interpreter - no chain [note - rPC still contains dPC]
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li     a0, kHeavyweightMonitor
 #endif
     la     a2, .LdvmJitToInterpNoChain

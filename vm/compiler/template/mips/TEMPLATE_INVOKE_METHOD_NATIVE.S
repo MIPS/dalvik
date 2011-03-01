@@ -67,7 +67,7 @@
     lw     a1, (a1)
     add    rPC, a0, 3*2                              # reconstruct new rPC (advance 3 instr)
 
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li     a0, kCallsiteInterpreted
 #endif
     jr     a1

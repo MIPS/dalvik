@@ -50,6 +50,8 @@ static inline bool isDalvikRegisterClobbered(MipsLIR *lir1, MipsLIR *lir2)
   return (reg1Lo == reg2Lo) || (reg1Lo == reg2Hi) || (reg1Hi == reg2Lo);
 }
 
+#if 0
+/* Debugging utility routine */
 static void dumpDependentInsnPair(MipsLIR *thisLIR, MipsLIR *checkLIR,
                                   const char *optimization)
 {
@@ -57,6 +59,7 @@ static void dumpDependentInsnPair(MipsLIR *thisLIR, MipsLIR *checkLIR,
     dvmDumpLIRInsn((LIR *) thisLIR, 0);
     dvmDumpLIRInsn((LIR *) checkLIR, 0);
 }
+#endif
 
 /*
  * Perform a pass of top-down walk to
@@ -78,8 +81,6 @@ static void applyLoadStoreElimination(CompilationUnit *cUnit,
             continue;
         }
         if (isDalvikStore(thisLIR)) {
-            int dRegId = DECODE_ALIAS_INFO_REG(thisLIR->aliasInfo);
-            int dRegIdHi = dRegId + DECODE_ALIAS_INFO_WIDE(thisLIR->aliasInfo);
             int nativeRegId = thisLIR->operands[0];
             MipsLIR *checkLIR;
             int sinkDistance = 0;
@@ -208,7 +209,6 @@ static void applyLoadHoisting(CompilationUnit *cUnit,
 
         if (isDalvikLoad(thisLIR)) {
             int dRegId = DECODE_ALIAS_INFO_REG(thisLIR->aliasInfo);
-            int dRegIdHi = dRegId + DECODE_ALIAS_INFO_WIDE(thisLIR->aliasInfo);
             int nativeRegId = thisLIR->operands[0];
             MipsLIR *checkLIR;
             int hoistDistance = 0;

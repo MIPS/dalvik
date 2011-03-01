@@ -65,8 +65,8 @@ static bool partialOverlap(int sreg1, int sreg2)
     return abs(sreg1 - sreg2) == 1;
 }
 
-static void withCarryHelper(CompilationUnit *cUnit, MipsOpCode opc, 
-                            RegLocation rlDest, RegLocation rlSrc1, 
+static void withCarryHelper(CompilationUnit *cUnit, MipsOpCode opc,
+                            RegLocation rlDest, RegLocation rlSrc1,
                             RegLocation rlSrc2, int sltuSrc1, int sltuSrc2)
 {
     int tReg = dvmCompilerAllocTemp(cUnit);
@@ -96,7 +96,7 @@ static void genLong3Addr(CompilationUnit *cUnit, MIR *mir, OpKind firstOp,
             opRegRegReg(cUnit, firstOp, rlResult.lowReg, rlResult.lowReg, rlSrc2.lowReg);
             opRegRegReg(cUnit, secondOp, rlResult.highReg, rlResult.highReg, rlSrc2.highReg);
         } else if (secondOp == kOpAdc) {
-            withCarryHelper(cUnit, kMipsAddu, rlResult, rlResult, rlSrc2, 
+            withCarryHelper(cUnit, kMipsAddu, rlResult, rlResult, rlSrc2,
                             rlResult.lowReg, rlSrc2.lowReg);
         } else {
             int tReg = dvmCompilerAllocTemp(cUnit);
@@ -113,7 +113,7 @@ static void genLong3Addr(CompilationUnit *cUnit, MIR *mir, OpKind firstOp,
             opRegRegReg(cUnit, firstOp, rlResult.lowReg, rlSrc1.lowReg, rlResult.lowReg);
             opRegRegReg(cUnit, secondOp, rlResult.highReg, rlSrc1.highReg, rlResult.highReg);
         } else if (secondOp == kOpAdc) {
-            withCarryHelper(cUnit, kMipsAddu, rlResult, rlSrc1, rlResult, 
+            withCarryHelper(cUnit, kMipsAddu, rlResult, rlSrc1, rlResult,
                             rlResult.lowReg, rlSrc1.lowReg);
         } else {
             withCarryHelper(cUnit, kMipsSubu, rlResult, rlSrc1, rlResult,
@@ -128,7 +128,7 @@ static void genLong3Addr(CompilationUnit *cUnit, MIR *mir, OpKind firstOp,
             opRegRegReg(cUnit, firstOp, rlResult.lowReg, rlSrc1.lowReg, rlSrc2.lowReg);
             opRegRegReg(cUnit, secondOp, rlResult.highReg, rlSrc1.highReg, rlSrc2.highReg);
         } else if (secondOp == kOpAdc) {
-            withCarryHelper(cUnit, kMipsAddu, rlResult, rlSrc1, rlSrc2, 
+            withCarryHelper(cUnit, kMipsAddu, rlResult, rlSrc1, rlSrc2,
                             rlResult.lowReg, rlSrc1.lowReg);
         } else {
             withCarryHelper(cUnit, kMipsSubu, rlResult, rlSrc1, rlSrc2,
@@ -140,7 +140,6 @@ static void genLong3Addr(CompilationUnit *cUnit, MIR *mir, OpKind firstOp,
 
 void dvmCompilerInitializeRegAlloc(CompilationUnit *cUnit)
 {
-    int i;
     int numTemps = sizeof(coreTemps)/sizeof(int);
     RegisterPool *pool = dvmCompilerNew(sizeof(*pool), true);
     cUnit->regPool = pool;
@@ -240,7 +239,7 @@ static bool genInlinedMinMaxInt(CompilationUnit *cUnit, MIR *mir, bool isMin)
     else {
        newLIR3(cUnit, kMipsSlt, tReg, reg1, reg0);
     }
-    newLIR3(cUnit, kMipsMovz, reg0, reg1, tReg); 
+    newLIR3(cUnit, kMipsMovz, reg0, reg1, tReg);
     dvmCompilerFreeTemp(cUnit, tReg);
     newLIR3(cUnit, kMipsSw, reg0, offset, rGLUE);
     //TUNING: rewrite this to not clobber

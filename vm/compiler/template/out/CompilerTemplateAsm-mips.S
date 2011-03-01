@@ -39,8 +39,8 @@
 #define		SOFT_FLOAT
 #endif
 
-/* MIPS definitions and declarations 
- 
+/* MIPS definitions and declarations
+
    reg	nick		purpose
    s0	rPC		interpreted program counter, used for fetching instructions
    s1	rFP		interpreted frame pointer, used for accessing locals and args
@@ -138,7 +138,7 @@ Big Endian mode */
 #define rRESULT0  v0
 #define rRESULT1  v1
 #else
-#define rARG0     a1 
+#define rARG0     a1
 #define rARG1     a0
 #define rARG2     a3
 #define rARG3     a2
@@ -187,7 +187,7 @@ Big Endian mode */
 #define GOTO_OPCODE(rd)			sll  rd, rd, -1000;	\
 					addu rd, rIBASE, rd;	\
 					jr  rd
-				
+
 
 #define LOAD(rd, rbase)			lw  rd, 0(rbase)
 #define LOAD_F(rd, rbase)		l.s rd, (rbase)
@@ -218,7 +218,7 @@ Big Endian mode */
 #ifndef		MIPS32R2
 #define GET_OPA4(rd)			GET_OPA(rd);  and  rd, 0xf
 #else
-#define GET_OPA4(rd)			ext	rd, rd, 8, 4	
+#define GET_OPA4(rd)			ext	rd, rd, 8, 4
 #endif
 #define GET_OPB(rd)			srl     rd, rINST, 12
 
@@ -484,7 +484,7 @@ dvmCompiler_TEMPLATE_RETURN:
     # DOUG: assume this does not return ???
 2:
 #endif
-    la      t4, .LdvmJitToInterpNoChain            # defined in footer.S
+    la      t4, .LdvmJitToInterpNoChainNoProfile   # defined in footer.S
     lw      a1, (t4)
     move    rFP, t0                                # publish new FP
     beq     a2, zero, 4f
@@ -504,11 +504,11 @@ dvmCompiler_TEMPLATE_RETURN:
     JALR(t2)                                       # jump to the chaining cell
     # DOUG: assume this does not return ???
 3:
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li      a0, kCallsiteInterpreted
 #endif
     j       a1                                     # callsite is interpreted
-1: 
+1:
     SAVE_PC_TO_GLUE()                              # SAVE_PC_FP_TO_GLUE()
     SAVE_FP_TO_GLUE()
     la      t4, .LdvmMterpStdBail                  # defined in footer.S
@@ -583,7 +583,7 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NO_OPT:
 
 
     # Start executing the callee
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li     a0, kInlineCacheMiss
 #endif
     jr     t0                                     # dvmJitToInterpTraceSelectNoChain
@@ -673,13 +673,30 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_PREDICTED_CHAIN:
      */
     # a0 = this, a1 = returnCell, a2 = predictedChainCell, rPC = dalvikCallsite
     lw      a3, offObject_clazz(a0)     # a3 <- this->class
-    lw      t0, 8(a2)                   # t0 <- predictedChainCell->clazz
+    lw      rIBASE, 8(a2)                   # t0 <- predictedChainCell->clazz
     lw      a0, 12(a2)                  # a0 <- predictedChainCell->method
-    lw      t1, 16(a2)                  # t1 <- predictedChainCell->counter
-    beq     a3, t0, .LinvokeChain       # branch if predicted chain is valid
+    lw      t1, offGlue_icRechainCount(rGLUE)    # t1 <- shared rechainCount
+
+#if defined(WITH_JIT_TUNING)
+    la      rINST, .LdvmICHitCount
+    #add     t2, t2, 1
+    bne    a3, rIBASE, 1f
+    nop
+    lw      t2, 0(rINST)
+    add     t2, t2, 1
+    sw      t2, 0(rINST)
+1:
+    #add     t2, t2, 1
+#endif
+    beq     a3, rIBASE, .LinvokeChain       # branch if predicted chain is valid
     lw      rINST, offClassObject_vtable(a3)     # rINST <- this->class->vtable
+    beqz    rIBASE, 2f                      # initialized class or not
     sub     a1, t1, 1                   # count--
-    sw      a1, 16(a2)                  # write back to predictedChainCell->counter
+    sw      a1, offGlue_icRechainCount(rGLUE)    #     write back to InterpState
+    b       3f
+2:
+    move    a1, zero
+3:
     add     ra, ra, 16                  # return to fully-resolve landing pad
     /*
      * a1 <- count
@@ -764,7 +781,7 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NATIVE:
     lw     a1, (a1)
     add    rPC, a0, 3*2                              # reconstruct new rPC (advance 3 instr)
 
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li     a0, kCallsiteInterpreted
 #endif
     jr     a1
@@ -1663,7 +1680,7 @@ dvmCompiler_TEMPLATE_CMPG_DOUBLE_VFP:
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
     JAL(__eqdf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0 
+    li       rSELF, 0                   # vAA<- 0
     beqz     v0, TEMPLATE_CMPG_DOUBLE_VFP_finish
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
@@ -1733,7 +1750,7 @@ dvmCompiler_TEMPLATE_CMPL_DOUBLE_VFP:
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
     JAL(__eqdf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0 
+    li       rSELF, 0                   # vAA<- 0
     beqz     v0, TEMPLATE_CMPL_DOUBLE_VFP_finish
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
@@ -1803,7 +1820,7 @@ dvmCompiler_TEMPLATE_CMPG_FLOAT_VFP:
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0 
+    li       rSELF, 0                   # vAA<- 0
     beqz     v0, TEMPLATE_CMPG_FLOAT_VFP_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
@@ -1873,7 +1890,7 @@ dvmCompiler_TEMPLATE_CMPL_FLOAT_VFP:
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0 
+    li       rSELF, 0                   # vAA<- 0
     beqz     v0, TEMPLATE_CMPL_FLOAT_VFP_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
@@ -2353,7 +2370,7 @@ indexof_loop1:
 indexof_nomatch:
      li    v0, -1
      RETURN
-  
+
 match_0:
      sub   v0, v1
      sra   v0, v0, 1                 # divide by 2
@@ -2430,7 +2447,7 @@ dvmCompiler_TEMPLATE_MONITOR_ENTER:
     sw     a0, offGlue_pJitProfTable(rGLUE)
 
     # Bail to interpreter - no chain [note - rPC still contains dPC]
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li      a0, kHeavyweightMonitor
 #endif
     jr      a2
@@ -2468,7 +2485,7 @@ dvmCompiler_TEMPLATE_MONITOR_ENTER_DEBUG:
     j      .LhandleException
 1:
     # Bail to interpreter - no chain [note - rPC still contains dPC]
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li     a0, kHeavyweightMonitor
 #endif
     la     a2, .LdvmJitToInterpNoChain
@@ -2740,7 +2757,7 @@ dvmCompiler_TEMPLATE_SAVE_STATE:
     lw     a1, (a1)
     add    rPC, a0, 3*2                              # reconstruct new rPC
 
-#if defined(JIT_STATS)
+#if defined(WITH_JIT_TUNING)
     li     a0, kCallsiteInterpreted
 #endif
     jr     a1
@@ -2770,6 +2787,8 @@ dvmCompiler_TEMPLATE_SAVE_STATE:
     .align  4
 .LdvmAsmInstructionStart:
     .word   dvmAsmInstructionStart
+.LdvmJitToInterpNoChainNoProfile:
+    .word   dvmJitToInterpNoChainNoProfile
 .LdvmJitToInterpTraceSelectNoChain:
     .word   dvmJitToInterpTraceSelectNoChain
 .LdvmJitToInterpNoChain:
@@ -2780,6 +2799,10 @@ dvmCompiler_TEMPLATE_SAVE_STATE:
     .word   dvmMterpCommonExceptionThrown
 .LdvmLockObject:
     .word   dvmLockObject
+#if defined(WITH_JIT_TUNING)
+.LdvmICHitCount:
+    .word   gDvmICHitCount
+#endif
 #if defined(WITH_SELF_VERIFICATION)
 .LdvmSelfVerificationMemOpDecode:
     .word   dvmSelfVerificationMemOpDecode
