@@ -3381,30 +3381,16 @@ dalvik_inst:
 /* ------------------------------ */
     .balign 128
 .L_OP_SPUT_OBJECT: /* 0x69 */
-/* File: mips/OP_SPUT_OBJECT.S */
-    /*
-     * General 32-bit SPUT handler.
-     *
-     * for: sput-object, sput-object-volatile
-     */
-    /* op vAA, field #BBBB */
-    LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
-    FETCH(a1, 1)				# a1<- field ref BBBB
-    LOAD_base_offDvmDex_pResFields(a2,a2)	# a2<- dvmDex->pResFields
-    LOAD_eas2(a0, a2, a1)			# a0<- resolved StaticField ptr
-    bnez   a0, 1f				# is resolved entry null?
-    /*
-     *  a1: BBBB field ref
-     */
-    LOAD_rGLUE_method(a2)			# a2<- current method
-    EXPORT_PC()					# resolve() may throw, so export now
-    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
-    JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
-    move    a0, v0
-    beqz    v0, common_exceptionThrown		# success? no, handle exception
-    nop
-
-
+    /* (stub) */
+	SAVE_PC_TO_GLUE()
+	SAVE_FP_TO_GLUE()
+	move  a0, rGLUE
+	JAL(dvmMterp_OP_SPUT_OBJECT)
+	LOAD_PC_FROM_GLUE()
+	LOAD_FP_FROM_GLUE()
+	FETCH_INST()
+	GET_INST_OPCODE(t0)
+	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
 .L_OP_SPUT_BOOLEAN: /* 0x6a */
@@ -8642,43 +8628,29 @@ dalvik_inst:
 /* ------------------------------ */
     .balign 128
 .L_OP_IGET_QUICK: /* 0xf2 */
-/* File: mips/OP_IGET_QUICK.S */
-    /* For: iget-quick, iget-object-quick */
-    /* op vA, vB, offset#CCCC */
-    GET_OPB(a2)			        # a2<- B
-    GET_VREG(a3, a2)                    # a3<- object we're operating on
-    FETCH(a1, 1)                        # a1<- field byte offset
-    GET_OPA4(a2)		        # a2<- A(+)
-                                        # check object for null
-    beqz    a3, common_errNullObject    # object was null
-    addu    t0, a3, a1                  #
-    lw      a0, 0(t0)                   # a0<- obj.field (always 32 bits)
-    FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    GET_INST_OPCODE(t0)                 # extract opcode from rINST
-    SET_VREG(a0, a2)                    # fp[A]<- a0
-    GOTO_OPCODE(t0)                     # jump to next instruction
-
-
+    /* (stub) */
+	SAVE_PC_TO_GLUE()
+	SAVE_FP_TO_GLUE()
+	move  a0, rGLUE
+	JAL(dvmMterp_OP_IGET_QUICK)
+	LOAD_PC_FROM_GLUE()
+	LOAD_FP_FROM_GLUE()
+	FETCH_INST()
+	GET_INST_OPCODE(t0)
+	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
 .L_OP_IGET_WIDE_QUICK: /* 0xf3 */
-/* File: mips/OP_IGET_WIDE_QUICK.S */
-    /* iget-wide-quick vA, vB, offset#CCCC */
-    GET_OPB(a2)			        # a2<- B
-    GET_VREG(a3, a2)                    # a3<- object we're operating on
-    FETCH(a1, 1)                        # a1<- field byte offset
-    GET_OPA4(a2)			# a2<- A(+)
-                                        # check object for null
-    beqz    a3, common_errNullObject    # object was null
-    addu    t0, a3, a1                  # t0<- a3 + a1
-    LOAD64(a0, a1, t0)		# a0<- obj.field (64 bits, aligned)
-    FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    EAS2(a3, rFP, a2)
-    GET_INST_OPCODE(t0)                 # extract opcode from rINST
-    STORE64(a0, a1, a3)		# fp[A]<- a0/a1
-    GOTO_OPCODE(t0)                     # jump to next instruction
-
-
+    /* (stub) */
+	SAVE_PC_TO_GLUE()
+	SAVE_FP_TO_GLUE()
+	move  a0, rGLUE
+	JAL(dvmMterp_OP_IGET_WIDE_QUICK)
+	LOAD_PC_FROM_GLUE()
+	LOAD_FP_FROM_GLUE()
+	FETCH_INST()
+	GET_INST_OPCODE(t0)
+	GOTO_OPCODE(t0)
 /* ------------------------------ */
     .balign 128
 .L_OP_IGET_OBJECT_QUICK: /* 0xf4 */
@@ -8751,20 +8723,18 @@ dalvik_inst:
     FETCH(a1, 1)                        # a1<- field byte offset
     GET_OPA4(a2)            # a2<- A(+)
     beqz    a3,  common_errNullObject   # object was null
-    #andi   a2, a2, 15
     GET_VREG(a0, a2)                    # a0<- fp[A]
     lw     a2, offGlue_cardTable(rGLUE) # a2<- card table base
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    addu    t0, a3, a1
-    sw     a0, 0(t0)                    # obj.field (always 32 bits)<- a0
+    addu    t1, a3, a1
+    sw     a0, 0(t1)                    # obj.field (always 32 bits)<- a0
     beqz   a0, 1f
-    srl    a3, a3, GC_CARD_SHIFT
-    addu   t2, a2, a3
-    sb     a2, (t2)
+    srl    t1, a3, GC_CARD_SHIFT
+    addu   t2, a2, t1
+    sb     a2, 0(t2)
 1:
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
-
 /* ------------------------------ */
     .balign 128
 .L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */
@@ -9440,8 +9410,8 @@ OP_CMPG_DOUBLE_finish:
     addu    rOBJ, rOBJ, offArrayObject_contents
     GET_INST_OPCODE(t0)
     sw      rBIX, (rOBJ)
-    srl     a1, a1, GC_CARD_SHIFT
-    addu    t2, a2, a1
+    srl     t1, a1, GC_CARD_SHIFT
+    addu    t2, a2, t1
     sb      a2, (t2)
     GOTO_OPCODE(t0)
     b        .LOP_APUT_OBJECT_finish     # yes, skip type checks
@@ -9671,8 +9641,8 @@ OP_CMPG_DOUBLE_finish:
     # noop                                      # releasing store
     sw  a0, (t2)                            # obj.field (32 bits)<- a0
     beqz    a0, 1f                                # stored a null reference?
-    srl     rOBJ, rOBJ, GC_CARD_SHIFT
-    addu    t2, a2, rOBJ
+    srl     t1, rOBJ, GC_CARD_SHIFT
+    addu    t2, a2, t1
     sb      a2, (t2)                              # mark card if not
 1:
     GOTO_OPCODE(t0)                               # jump to next instruction
@@ -9765,25 +9735,6 @@ OP_CMPG_DOUBLE_finish:
     sh  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
-
-/* continuation for OP_SPUT_OBJECT */
-1:						# field ptr in a0
-    GET_OPA(a2)					# a2<- AA
-    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
-    GET_VREG(a1, a2)				# a1<- fp[AA]
-    lw     a3, offGlue_cardTable(rGLUE)  # a2<- card table base
-    lw     t1, offField_clazz(a0)    # t1<- field->clazz
-    GET_INST_OPCODE(t0)				# extract opcode from rINST
-    # no-op                                     # releasing store
-    sw    a1, offStaticField_value(a0)		# field<- vAA
-    beqz	  a1, 2f
-    nop
-    srl     t1, t1, GC_CARD_SHIFT
-    addu    t2, a2, t1
-    sb     a2, (t2)
-
- 2:
-    GOTO_OPCODE(t0)				# jump to next instruction
 
 /* continuation for OP_INVOKE_VIRTUAL */
 
@@ -10355,8 +10306,8 @@ d2l_doconv:
     SMP_DMB                                      # releasing store
     sw  a0, (t2)                            # obj.field (32 bits)<- a0
     beqz    a0, 1f                                # stored a null reference?
-    srl     rOBJ, rOBJ, GC_CARD_SHIFT
-    addu    t2, a2, rOBJ
+    srl     t1, rOBJ, GC_CARD_SHIFT
+    addu    t2, a2, t1
     sb      a2, (t2)                              # mark card if not
 1:
     GOTO_OPCODE(t0)                               # jump to next instruction

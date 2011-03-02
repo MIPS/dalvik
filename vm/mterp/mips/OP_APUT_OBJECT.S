@@ -43,8 +43,8 @@
     addu    rOBJ, rOBJ, offArrayObject_contents
     GET_INST_OPCODE(t0)
     sw      rBIX, (rOBJ)
-    srl     a1, a1, GC_CARD_SHIFT
-    addu    t2, a2, a1
+    srl     t1, a1, GC_CARD_SHIFT
+    addu    t2, a2, t1
     sb      a2, (t2)
     GOTO_OPCODE(t0)
     b        .L${opcode}_finish     # yes, skip type checks

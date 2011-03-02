@@ -1059,10 +1059,7 @@ const Method *dvmJitToPatchPredictedChain(const Method *method,
         newRechainCount = interpState->icRechainCount;
     }
 
-    int baseAddr = (int) cell + 4;   // PC is cur_addr + 4
-    int branchOffset = tgtAddr - baseAddr;
-
-    newCell.branch = assembleChainingBranch(branchOffset, true);
+    newCell.branch = assembleChainingBranch(tgtAddr, true);
     newCell.delay_slot = getSkeleton(kMipsNop);
     newCell.clazz = clazz;
     newCell.method = method;

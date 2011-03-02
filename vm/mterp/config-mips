@@ -40,6 +40,9 @@ import mips/entry.S
 op-start mips
     # !!! DRP Add mips .S version of OP_EXECUTE_INLINE_RANGE
     op OP_EXECUTE_INLINE_RANGE c
+    op OP_SPUT_OBJECT c
+    op OP_IGET_QUICK c
+    op OP_IGET_WIDE_QUICK c
 op-end
 
 # arch-specific entry point to interpreter
@@ -54,3 +57,4 @@ import cstubs/enddefs.c
 # common subroutines for asm
 import mips/footer.S
 import mips/debug.c
+

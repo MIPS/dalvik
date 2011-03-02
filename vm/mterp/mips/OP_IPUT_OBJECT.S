@@ -47,8 +47,8 @@
     $barrier                                      # releasing store
     $store  a0, (t2)                            # obj.field (32 bits)<- a0
     beqz    a0, 1f                                # stored a null reference?
-    srl     rOBJ, rOBJ, GC_CARD_SHIFT
-    addu    t2, a2, rOBJ
+    srl     t1, rOBJ, GC_CARD_SHIFT
+    addu    t2, a2, t1
     sb      a2, (t2)                              # mark card if not
 1:
     GOTO_OPCODE(t0)                               # jump to next instruction

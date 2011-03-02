@@ -17,9 +17,9 @@
     /*
      *  a1: BBBB field ref
      */
-    LOAD_rGLUE_method(a2)			# a2<- current method
+    LOAD_rGLUE_method(t1)			# t1<- current method
     EXPORT_PC()					# resolve() may throw, so export now
-    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
+    LOAD_base_offMethod_clazz(a0,t1)		# a0<- method->clazz
     JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
     move    a0, v0
     beqz    v0, common_exceptionThrown		# success? no, handle exception
@@ -30,16 +30,15 @@
     GET_OPA(a2)					# a2<- AA
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
-    lw     a3, offGlue_cardTable(rGLUE)  # a2<- card table base
+    lw     a2, offGlue_cardTable(rGLUE)  # a2<- card table base
     lw     t1, offField_clazz(a0)    # t1<- field->clazz
     GET_INST_OPCODE(t0)				# extract opcode from rINST
     $barrier                                    # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     beqz	  a1, 2f
     nop
-    srl     t1, t1, GC_CARD_SHIFT
-    addu    t2, a2, t1
-    sb     a2, (t2)
-
+    srl     t2, t1, GC_CARD_SHIFT
+    addu    t3, a2, t2
+    sb      a2, (t3)
  2:
     GOTO_OPCODE(t0)				# jump to next instruction
