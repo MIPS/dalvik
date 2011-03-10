@@ -32,7 +32,7 @@ static void markCard(CompilationUnit *cUnit, int valReg, int tgtAddrReg)
     int regCardBase = dvmCompilerAllocTemp(cUnit);
     int regCardNo = dvmCompilerAllocTemp(cUnit);
 //    opRegImm(cUnit, kOpCmp, valReg, 0); /* storing null? */
-    MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsCondEq, valReg, r_ZERO);
+    MipsLIR *branchOver = opCondBranchMips(cUnit, kMipsBeq, valReg, r_ZERO);
     loadWordDisp(cUnit, rGLUE, offsetof(InterpState, cardTable),
                  regCardBase);
     opRegRegImm(cUnit, kOpLsr, regCardNo, tgtAddrReg, GC_CARD_SHIFT);
@@ -2715,7 +2715,7 @@ static s8 findPackedSwitchIndex(const u2* switchData, int testVal)
 }
 
 /* See comments for findPackedSwitchIndex */
-static s8 findSparseSwitchIndex(const u2* switchData, int testVal, int pc)
+static s8 findSparseSwitchIndex(const u2* switchData, int testVal)
 {
     int size;
     const int *keys;
@@ -3606,7 +3606,8 @@ static bool handleFmt51l(CompilationUnit *cUnit, MIR *mir)
 static void insertChainingSwitch(CompilationUnit *cUnit)
 {
     MipsLIR *branch = newLIR0(cUnit, kMipsB);
-    newLIR3(cUnit, kMipsOr, r_A0, r_A0, r_A0);
+    //newLIR3(cUnit, kMipsOr, r_A0, r_A0, r_A0);
+    newLIR0(cUnit, kMipsNop);  /* prevents another nop added by delay slot code */
     MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
     target->defMask = ENCODE_ALL;
     branch->generic.target = (LIR *) target;
@@ -4544,7 +4545,6 @@ bool dvmCompilerArchInit()
 
 void *dvmCompilerGetInterpretTemplate()
 {
-assert(0); /* MIPSTODO activate dvmCompilerGetInterpretTemplate() */
       return (void*) ((int)gDvmJit.codeCache +
                       templateEntryOffsets[TEMPLATE_INTERPRET]);
 }

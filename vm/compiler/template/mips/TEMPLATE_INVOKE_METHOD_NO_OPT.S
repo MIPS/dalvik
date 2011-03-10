@@ -16,7 +16,7 @@
     sll    t6, a2, 2                              # multiply outsSize by 4 (4 bytes per reg)
     sub    t0, t0, t6                             # t0<- bottom (newsave-outsSize)
     lw     t8, (t8)                               # t8<- suspendCount(int)
-    bge    t0, t9, 1f                             # bottom < interpStackEnd?
+    bgeu   t0, t9, 1f                             # bottom < interpStackEnd?
     RETURN                                        # return to raise stack overflow excep.
 
 1:

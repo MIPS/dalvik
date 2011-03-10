@@ -8,7 +8,7 @@
     sub    a1, a1, t6                             # a1<- newFp(old savearea-regsSize)
     SAVEAREA_FROM_FP(t0, a1)                      # t0<- stack save area
     lw     t8, (t8)                               # t8<- suspendCount(int)
-    bge    t0, t9, 1f                             # bottom < interpStackEnd?
+    bgeu   t0, t9, 1f                             # bottom < interpStackEnd?
     RETURN                                        # return to raise stack overflow excep.
 
 1:

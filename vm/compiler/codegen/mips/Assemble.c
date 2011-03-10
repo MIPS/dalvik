@@ -1034,20 +1034,14 @@ const Method *dvmJitToPatchPredictedChain(const Method *method,
     }
 
     int tgtAddr = (int) dvmJitGetCodeAddr(method->insns);
-
-    /* TODO_AS_START: Check if this code is needed at all!!! */
-#if 0
     int baseAddr = (int) cell + 4;   // PC is cur_addr + 4
+
     if ((baseAddr & 0xF0000000) != (tgtAddr & 0xF0000000)) {
-        cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
-       cacheflush((long) cell, (long) (cell+1), 0);
         COMPILER_TRACE_CHAINING(
             LOGD("Jit Runtime: predicted chain %p to distant target %s ignored",
                  cell, method->name));
         goto done;
     }
-#endif
-    /* TODO_AS_END: Check if this code is needed at all!!! */
 
     /*
      * Compilation not made yet for the callee. Reset the counter to a small
@@ -1204,9 +1198,7 @@ u4* dvmJitUnchain(void* codeAddr)
                      * that is suspended between the two halves when
                      * this unchaining takes place.
                      */
-                    newInst = *pChainCells;
-                    newInst &= 0xFFFF0000; /* TODO_AS: Check if this is correct. */
-                    newInst |= getSkeleton(kMipsJal); /* b offset is 0 */
+                    newInst = getSkeleton(kMipsB) | 1; /* b offset is 1 */
                     *pChainCells = newInst;
                     break;
                 case kChainingCellInvokePredicted:

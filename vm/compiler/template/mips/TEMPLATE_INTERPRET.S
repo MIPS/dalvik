@@ -13,8 +13,9 @@
      *    rFP - Dalvik frame pointer
      */
     la      t0, dvmJitToInterpPunt
+    move    a0, a1
+    beq     ra, zero, 1f
     lw      a0, 0(ra)
-    seq     t1, ra, zero
-    movn    a0, a1, t1                 # a0 <- a1 if ra == 0
+1:
     jr      t0
     # doesn't return

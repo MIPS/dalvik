@@ -39,8 +39,8 @@
 #define		SOFT_FLOAT
 #endif
 
-/* MIPS definitions and declarations
-
+/* MIPS definitions and declarations 
+ 
    reg	nick		purpose
    s0	rPC		interpreted program counter, used for fetching instructions
    s1	rFP		interpreted frame pointer, used for accessing locals and args
@@ -138,7 +138,7 @@ Big Endian mode */
 #define rRESULT0  v0
 #define rRESULT1  v1
 #else
-#define rARG0     a1
+#define rARG0     a1 
 #define rARG1     a0
 #define rARG2     a3
 #define rARG3     a2
@@ -187,7 +187,7 @@ Big Endian mode */
 #define GOTO_OPCODE(rd)			sll  rd, rd, -1000;	\
 					addu rd, rIBASE, rd;	\
 					jr  rd
-
+				
 
 #define LOAD(rd, rbase)			lw  rd, 0(rbase)
 #define LOAD_F(rd, rbase)		l.s rd, (rbase)
@@ -218,7 +218,7 @@ Big Endian mode */
 #ifndef		MIPS32R2
 #define GET_OPA4(rd)			GET_OPA(rd);  and  rd, 0xf
 #else
-#define GET_OPA4(rd)			ext	rd, rd, 8, 4
+#define GET_OPA4(rd)			ext	rd, rd, 8, 4	
 #endif
 #define GET_OPB(rd)			srl     rd, rINST, 12
 
@@ -541,7 +541,7 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NO_OPT:
     sll    t6, a2, 2                              # multiply outsSize by 4 (4 bytes per reg)
     sub    t0, t0, t6                             # t0<- bottom (newsave-outsSize)
     lw     t8, (t8)                               # t8<- suspendCount(int)
-    bge    t0, t9, 1f                             # bottom < interpStackEnd?
+    bgeu   t0, t9, 1f                             # bottom < interpStackEnd?
     RETURN                                        # return to raise stack overflow excep.
 
 1:
@@ -615,7 +615,7 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_CHAIN:
     sll    t6, a2, 2                              # multiply outsSize by 4 (4 bytes per reg)
     sub    t0, t0, t6                             # t0<- bottom (newsave-outsSize)
     lw     t8, (t8)                               # t8<- suspendCount(int)
-    bge    t0, t9, 1f                             # bottom < interpStackEnd?
+    bgeu   t0, t9, 1f                             # bottom < interpStackEnd?
     jr     t2                                     # return to raise stack overflow excep.
 
 1:
@@ -722,7 +722,7 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NATIVE:
     sub    a1, a1, t6                             # a1<- newFp(old savearea-regsSize)
     SAVEAREA_FROM_FP(t0, a1)                      # t0<- stack save area
     lw     t8, (t8)                               # t8<- suspendCount(int)
-    bge    t0, t9, 1f                             # bottom < interpStackEnd?
+    bgeu   t0, t9, 1f                             # bottom < interpStackEnd?
     RETURN                                        # return to raise stack overflow excep.
 
 1:
@@ -1680,7 +1680,7 @@ dvmCompiler_TEMPLATE_CMPG_DOUBLE_VFP:
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
     JAL(__eqdf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0
+    li       rSELF, 0                   # vAA<- 0 
     beqz     v0, TEMPLATE_CMPG_DOUBLE_VFP_finish
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
@@ -1750,7 +1750,7 @@ dvmCompiler_TEMPLATE_CMPL_DOUBLE_VFP:
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
     JAL(__eqdf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0
+    li       rSELF, 0                   # vAA<- 0 
     beqz     v0, TEMPLATE_CMPL_DOUBLE_VFP_finish
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
@@ -1820,7 +1820,7 @@ dvmCompiler_TEMPLATE_CMPG_FLOAT_VFP:
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0
+    li       rSELF, 0                   # vAA<- 0 
     beqz     v0, TEMPLATE_CMPG_FLOAT_VFP_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
@@ -1890,7 +1890,7 @@ dvmCompiler_TEMPLATE_CMPL_FLOAT_VFP:
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0
+    li       rSELF, 0                   # vAA<- 0 
     beqz     v0, TEMPLATE_CMPL_FLOAT_VFP_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
@@ -2374,7 +2374,7 @@ indexof_loop1:
 indexof_nomatch:
      li    v0, -1
      RETURN
-
+  
 match_0:
      sub   v0, v1
      sra   v0, v0, 1                 # divide by 2
@@ -2415,9 +2415,10 @@ dvmCompiler_TEMPLATE_INTERPRET:
      *    rFP - Dalvik frame pointer
      */
     la      t0, dvmJitToInterpPunt
+    move    a0, a1
+    beq     ra, zero, 1f
     lw      a0, 0(ra)
-    seq     t1, ra, zero
-    movn    a0, a1, t1                 # a0 <- a1 if ra == 0
+1:
     jr      t0
     # doesn't return
 

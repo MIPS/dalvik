@@ -648,7 +648,7 @@ typedef struct MipsLIR {
 #define IS_SIMM16(v) ((-32768 <= (v)) && ((v) <= 32766))
 #define IS_SIMM16_2WORD(v) ((-32764 <= (v)) && ((v) <= 32763)) /* 2 offsets must fit */
 
-#define CHAIN_CELL_NORMAL_SIZE 16
+#define CHAIN_CELL_NORMAL_SIZE (16+8)
 #define CHAIN_CELL_PREDICTED_SIZE 20
 
 
