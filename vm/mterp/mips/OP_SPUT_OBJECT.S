@@ -26,7 +26,7 @@
     b       common_exceptionThrown		# success? no, handle exception
 
 %break
-.L${opcode}_finish::				# field ptr in a0
+.L${opcode}_finish:				# field ptr in a0
     GET_OPA(a2)					# a2<- AA
     FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
     GET_VREG(a1, a2)				# a1<- fp[AA]
@@ -36,7 +36,6 @@
     $barrier                                    # releasing store
     sw    a1, offStaticField_value(a0)		# field<- vAA
     beqz	  a1, 1f
-    nop
     srl     t2, t1, GC_CARD_SHIFT
     addu    t3, a2, t2
     sb      a2, (t3)

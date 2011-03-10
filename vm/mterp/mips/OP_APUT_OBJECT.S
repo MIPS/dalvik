@@ -37,15 +37,9 @@
     LOAD_base_offObject_clazz(a1,rINST)   # a1<- arrayObj->clazz
     JAL(dvmCanPutArrayElement)      # test object type vs. array type
     beqz     v0, common_errArrayStore   # okay ?
-    move    a1, rINST
-    FETCH_ADVANCE_INST(2)
     lw      a2, offGlue_cardTable(rGLUE)
-    addu    rOBJ, rOBJ, offArrayObject_contents
-    GET_INST_OPCODE(t0)
-    sw      rBIX, (rOBJ)
-    srl     t1, a1, GC_CARD_SHIFT
+    srl     t1, rINST, GC_CARD_SHIFT
     addu    t2, a2, t1
     sb      a2, (t2)
-    GOTO_OPCODE(t0)
     b        .L${opcode}_finish     # yes, skip type checks
 

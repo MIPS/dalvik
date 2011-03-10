@@ -8,11 +8,11 @@
     GET_OPA4(a2)            # a2<- A(+)
     beqz    a3,  common_errNullObject   # object was null
     GET_VREG(a0, a2)                    # a0<- fp[A]
-    lw     a2, offGlue_cardTable(rGLUE) # a2<- card table base
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    addu    t1, a3, a1
-    sw     a0, 0(t1)                    # obj.field (always 32 bits)<- a0
+    addu    t0, a3, a1
+    sw     a0, 0(t0)                    # obj.field (always 32 bits)<- a0
     beqz   a0, 1f
+    lw     a2, offGlue_cardTable(rGLUE) # a2<- card table base
     srl    t1, a3, GC_CARD_SHIFT
     addu   t2, a2, t1
     sb     a2, 0(t2)

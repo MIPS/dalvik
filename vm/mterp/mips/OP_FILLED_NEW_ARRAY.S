@@ -92,15 +92,14 @@
 2:
     lw     a0, offGlue_retval(rGLUE)     		 # a0<- object
     lw     a1, (offGlue_retval+4)(rGLUE)	     # a1<- type
-    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
-    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
     seq     t1, a1, 'I'                         # Is int array?
-    bnez			t1, 3f
-    nop
+    bnez	t1, 3f
+    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
     srl     t3, a0, GC_CARD_SHIFT
     addu    t2, a2, t3
     sb     a2, (t2)
 3:
+    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
     GOTO_OPCODE(t0)                          # execute it
 
 

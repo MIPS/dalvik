@@ -3380,16 +3380,30 @@ dalvik_inst:
 /* ------------------------------ */
     .balign 128
 .L_OP_SPUT_OBJECT: /* 0x69 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE
-	JAL(dvmMterp_OP_SPUT_OBJECT)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST()
-	GET_INST_OPCODE(t0)
-	GOTO_OPCODE(t0)
+/* File: mips/OP_SPUT_OBJECT.S */
+    /*
+     * General 32-bit SPUT handler.
+     *
+     * for: sput-object, sput-object-volatile
+     */
+    /* op vAA, field #BBBB */
+    LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
+    FETCH(a1, 1)				# a1<- field ref BBBB
+    LOAD_base_offDvmDex_pResFields(a2,a2)	# a2<- dvmDex->pResFields
+    LOAD_eas2(a0, a2, a1)			# a0<- resolved StaticField ptr
+    bnez   a0, .LOP_SPUT_OBJECT_finish		# is resolved entry null?
+    /*
+     *  a1: BBBB field ref
+     */
+    LOAD_rGLUE_method(t1)			# t1<- current method
+    EXPORT_PC()					# resolve() may throw, so export now
+    LOAD_base_offMethod_clazz(a0,t1)		# a0<- method->clazz
+    JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
+    move    a0, v0
+    bnez    v0, .LOP_SPUT_OBJECT_finish		# yes, finish
+    b       common_exceptionThrown		# success? no, handle exception
+
+
 /* ------------------------------ */
     .balign 128
 .L_OP_SPUT_BOOLEAN: /* 0x6a */
@@ -8624,29 +8638,43 @@ dalvik_inst:
 /* ------------------------------ */
     .balign 128
 .L_OP_IGET_QUICK: /* 0xf2 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE
-	JAL(dvmMterp_OP_IGET_QUICK)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST()
-	GET_INST_OPCODE(t0)
-	GOTO_OPCODE(t0)
+/* File: mips/OP_IGET_QUICK.S */
+    /* For: iget-quick, iget-object-quick */
+    /* op vA, vB, offset#CCCC */
+    GET_OPB(a2)			        # a2<- B
+    GET_VREG(a3, a2)                    # a3<- object we're operating on
+    FETCH(a1, 1)                        # a1<- field byte offset
+    GET_OPA4(a2)		        # a2<- A(+)
+                                        # check object for null
+    beqz    a3, common_errNullObject    # object was null
+    addu    t0, a3, a1                  #
+    lw      a0, 0(t0)                   # a0<- obj.field (always 32 bits)
+    FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
+    GET_INST_OPCODE(t0)                 # extract opcode from rINST
+    SET_VREG(a0, a2)                    # fp[A]<- a0
+    GOTO_OPCODE(t0)                     # jump to next instruction
+
+
 /* ------------------------------ */
     .balign 128
 .L_OP_IGET_WIDE_QUICK: /* 0xf3 */
-    /* (stub) */
-	SAVE_PC_TO_GLUE()
-	SAVE_FP_TO_GLUE()
-	move  a0, rGLUE
-	JAL(dvmMterp_OP_IGET_WIDE_QUICK)
-	LOAD_PC_FROM_GLUE()
-	LOAD_FP_FROM_GLUE()
-	FETCH_INST()
-	GET_INST_OPCODE(t0)
-	GOTO_OPCODE(t0)
+/* File: mips/OP_IGET_WIDE_QUICK.S */
+    /* iget-wide-quick vA, vB, offset#CCCC */
+    GET_OPB(a2)			        # a2<- B
+    GET_VREG(a3, a2)                    # a3<- object we're operating on
+    FETCH(a1, 1)                        # a1<- field byte offset
+    GET_OPA4(a2)			# a2<- A(+)
+                                        # check object for null
+    beqz    a3, common_errNullObject    # object was null
+    addu    t0, a3, a1                  # t0<- a3 + a1
+    LOAD64(a0, a1, t0)		# a0<- obj.field (64 bits, aligned)
+    FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
+    EAS2(a3, rFP, a2)
+    GET_INST_OPCODE(t0)                 # extract opcode from rINST
+    STORE64(a0, a1, a3)		# fp[A]<- a0/a1
+    GOTO_OPCODE(t0)                     # jump to next instruction
+
+
 /* ------------------------------ */
     .balign 128
 .L_OP_IGET_OBJECT_QUICK: /* 0xf4 */
@@ -8720,11 +8748,11 @@ dalvik_inst:
     GET_OPA4(a2)            # a2<- A(+)
     beqz    a3,  common_errNullObject   # object was null
     GET_VREG(a0, a2)                    # a0<- fp[A]
-    lw     a2, offGlue_cardTable(rGLUE) # a2<- card table base
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    addu    t1, a3, a1
-    sw     a0, 0(t1)                    # obj.field (always 32 bits)<- a0
+    addu    t0, a3, a1
+    sw     a0, 0(t0)                    # obj.field (always 32 bits)<- a0
     beqz   a0, 1f
+    lw     a2, offGlue_cardTable(rGLUE) # a2<- card table base
     srl    t1, a3, GC_CARD_SHIFT
     addu   t2, a2, t1
     sb     a2, 0(t2)
@@ -8913,35 +8941,29 @@ dalvik_inst:
     .balign 128
 .L_OP_SPUT_OBJECT_VOLATILE: /* 0xfe */
 /* File: mips/OP_SPUT_OBJECT_VOLATILE.S */
-/* File: mips/OP_SPUT.S */
+/* File: mips/OP_SPUT_OBJECT.S */
     /*
      * General 32-bit SPUT handler.
      *
-     * for: sput, sput-object, sput-boolean, sput-byte, sput-char, sput-short
+     * for: sput-object, sput-object-volatile
      */
     /* op vAA, field #BBBB */
     LOAD_rGLUE_methodClassDex(a2)		# a2<- DvmDex
     FETCH(a1, 1)				# a1<- field ref BBBB
     LOAD_base_offDvmDex_pResFields(a2,a2)	# a2<- dvmDex->pResFields
     LOAD_eas2(a0, a2, a1)			# a0<- resolved StaticField ptr
-    bnez   a0, 1f				# is resolved entry null?
+    bnez   a0, .LOP_SPUT_OBJECT_VOLATILE_finish		# is resolved entry null?
     /*
      *  a1: BBBB field ref
      */
-    LOAD_rGLUE_method(a2)			# a2<- current method
+    LOAD_rGLUE_method(t1)			# t1<- current method
     EXPORT_PC()					# resolve() may throw, so export now
-    LOAD_base_offMethod_clazz(a0,a2)		# a0<- method->clazz
+    LOAD_base_offMethod_clazz(a0,t1)		# a0<- method->clazz
     JAL(dvmResolveStaticField)			# v0<- resolved StaticField ptr
     move    a0, v0
-    beqz    v0, common_exceptionThrown		# success? no, handle exception
-1:						# field ptr in a0
-    GET_OPA(a2)					# a2<- AA
-    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
-    GET_VREG(a1, a2)				# a1<- fp[AA]
-    GET_INST_OPCODE(t0)				# extract opcode from rINST
-    SMP_DMB                                    # releasing store
-    sw    a1, offStaticField_value(a0)		# field<- vAA
-    GOTO_OPCODE(t0)				# jump to next instruction
+    bnez    v0, .LOP_SPUT_OBJECT_VOLATILE_finish		# yes, finish
+    b       common_exceptionThrown		# success? no, handle exception
+
 
 
 /* ------------------------------ */
@@ -9185,15 +9207,14 @@ dvmAsmSisterStart:
 2:
     lw     a0, offGlue_retval(rGLUE)     		 # a0<- object
     lw     a1, (offGlue_retval+4)(rGLUE)	     # a1<- type
-    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
-    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
     seq     t1, a1, 'I'                         # Is int array?
-    bnez			t1, 3f
-    nop
+    bnez	t1, 3f
+    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
     srl     t3, a0, GC_CARD_SHIFT
     addu    t2, a2, t3
     sb     a2, (t2)
 3:
+    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
     GOTO_OPCODE(t0)                          # execute it
 
 
@@ -9283,15 +9304,14 @@ dvmAsmSisterStart:
 2:
     lw     a0, offGlue_retval(rGLUE)     		 # a0<- object
     lw     a1, (offGlue_retval+4)(rGLUE)	     # a1<- type
-    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
-    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
     seq     t1, a1, 'I'                         # Is int array?
-    bnez			t1, 3f
-    nop
+    bnez	t1, 3f
+    lw     a2, offGlue_cardTable(rGLUE)		   # a2<- card table base
     srl     t3, a0, GC_CARD_SHIFT
     addu    t2, a2, t3
     sb     a2, (t2)
 3:
+    GET_INST_OPCODE(t0)                      # ip<- opcode from rINST
     GOTO_OPCODE(t0)                          # execute it
 
 
@@ -9401,16 +9421,10 @@ OP_CMPG_DOUBLE_finish:
     LOAD_base_offObject_clazz(a1,rINST)   # a1<- arrayObj->clazz
     JAL(dvmCanPutArrayElement)      # test object type vs. array type
     beqz     v0, common_errArrayStore   # okay ?
-    move    a1, rINST
-    FETCH_ADVANCE_INST(2)
     lw      a2, offGlue_cardTable(rGLUE)
-    addu    rOBJ, rOBJ, offArrayObject_contents
-    GET_INST_OPCODE(t0)
-    sw      rBIX, (rOBJ)
-    srl     t1, a1, GC_CARD_SHIFT
+    srl     t1, rINST, GC_CARD_SHIFT
     addu    t2, a2, t1
     sb      a2, (t2)
-    GOTO_OPCODE(t0)
     b        .LOP_APUT_OBJECT_finish     # yes, skip type checks
 
 
@@ -9732,6 +9746,23 @@ OP_CMPG_DOUBLE_finish:
     sw  a0, (rOBJ)                            # obj.field (8/16/32 bits)<- a0
     GOTO_OPCODE(t0)                               # jump to next instruction
 
+
+/* continuation for OP_SPUT_OBJECT */
+.LOP_SPUT_OBJECT_finish:				# field ptr in a0
+    GET_OPA(a2)					# a2<- AA
+    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
+    GET_VREG(a1, a2)				# a1<- fp[AA]
+    lw     a2, offGlue_cardTable(rGLUE)  # a2<- card table base
+    lw     t1, offField_clazz(a0)    # t1<- field->clazz
+    GET_INST_OPCODE(t0)				# extract opcode from rINST
+    # no-op                                     # releasing store
+    sw    a1, offStaticField_value(a0)		# field<- vAA
+    beqz	  a1, 1f
+    srl     t2, t1, GC_CARD_SHIFT
+    addu    t3, a2, t2
+    sb      a2, (t3)
+ 1:
+    GOTO_OPCODE(t0)				# jump to next instruction
 
 /* continuation for OP_INVOKE_VIRTUAL */
 
@@ -10309,6 +10340,23 @@ d2l_doconv:
 1:
     GOTO_OPCODE(t0)                               # jump to next instruction
 
+
+/* continuation for OP_SPUT_OBJECT_VOLATILE */
+.LOP_SPUT_OBJECT_VOLATILE_finish:				# field ptr in a0
+    GET_OPA(a2)					# a2<- AA
+    FETCH_ADVANCE_INST(2)			# advance rPC, load rINST
+    GET_VREG(a1, a2)				# a1<- fp[AA]
+    lw     a2, offGlue_cardTable(rGLUE)  # a2<- card table base
+    lw     t1, offField_clazz(a0)    # t1<- field->clazz
+    GET_INST_OPCODE(t0)				# extract opcode from rINST
+    SMP_DMB                                    # releasing store
+    sw    a1, offStaticField_value(a0)		# field<- vAA
+    beqz	  a1, 1f
+    srl     t2, t1, GC_CARD_SHIFT
+    addu    t3, a2, t2
+    sb      a2, (t3)
+ 1:
+    GOTO_OPCODE(t0)				# jump to next instruction
 
     .size   dvmAsmSisterStart, .-dvmAsmSisterStart
     .global dvmAsmSisterEnd

@@ -1206,10 +1206,6 @@ GOTO_TARGET_DECL(exceptionThrown);
     }                                                                       \
     FINISH(2);
 
-/* File: c/OP_SPUT_OBJECT.c */
-HANDLE_SPUT_X(OP_SPUT_OBJECT,           "-object", Object, _AS_OBJECT)
-OP_END
-
 /* File: c/OP_EXECUTE_INLINE_RANGE.c */
 HANDLE_OPCODE(OP_EXECUTE_INLINE_RANGE /*{vCCCC..v(CCCC+AA-1)}, inline@BBBB*/)
     {
@@ -1253,14 +1249,6 @@ HANDLE_OPCODE(OP_EXECUTE_INLINE_RANGE /*{vCCCC..v(CCCC+AA-1)}, inline@BBBB*/)
 #endif
     }
     FINISH(3);
-OP_END
-
-/* File: c/OP_IGET_QUICK.c */
-HANDLE_IGET_X_QUICK(OP_IGET_QUICK,          "", Int, )
-OP_END
-
-/* File: c/OP_IGET_WIDE_QUICK.c */
-HANDLE_IGET_X_QUICK(OP_IGET_WIDE_QUICK,     "-wide", Long, _WIDE)
 OP_END
 
 /* File: c/gotoTargets.c */
