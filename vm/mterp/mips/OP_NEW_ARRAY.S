@@ -19,7 +19,7 @@
     bltz      a1, common_errNegativeArraySize   # negative length, bail
     EXPORT_PC()                                 # req'd for resolve, alloc
                                              	# already resolved?
-    beqz    a0, .L${opcode}_resolve		# not resolved, 
+    beqz    a0, .L${opcode}_resolve		# not resolved,
 
     /*
      * Finish allocation.

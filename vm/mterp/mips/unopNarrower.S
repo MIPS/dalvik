@@ -6,7 +6,7 @@
      *
      * For: long-to-float, double-to-int, double-to-float
      * If hard floating point support is available, use fa0 as the parameter, except for
-     * long-to-float opcode. 
+     * long-to-float opcode.
      * (This would work for long-to-int, but that instruction is actually
      * an exact match for OP_MOVE.)
      */
@@ -18,7 +18,7 @@
     LOAD64(rARG0, rARG1, a3)              # a0/a1<- vB/vB+1
 #else
     $load
-#endif	   
+#endif
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST
     $preinstr                           # optional op
 #ifdef	SOFT_FLOAT

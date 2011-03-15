@@ -17,7 +17,7 @@
                                         # is second operand zero?
     beqz    a1, common_errDivideByZero
     .endif
-#else	
+#else
     GET_VREG_F(fa1, a3)			# a1<- vCC
     GET_VREG_F(fa0, a2)			# a0<- vBB
 

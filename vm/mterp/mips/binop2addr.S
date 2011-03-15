@@ -2,7 +2,7 @@
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call. 
+     * This could be an MIPS instruction or a function call.
      *
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.

@@ -1,13 +1,13 @@
 %default {"preinstr":"","chkzero":"0"}
     /*
      * Generic 32-bit "/2addr" binary operation.  Provide an "instr" and
-     * "instr_f" line 
+     * "instr_f" line
      * that specifies an instruction that performs "result = a0 op a1".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
-     * For: add-float/2addr, sub-float/2addr, mul-float/2addr, 
+     * For: add-float/2addr, sub-float/2addr, mul-float/2addr,
      * div-float/2addr, rem-float/2addr
      */
     /* binop/2addr vA, vB */

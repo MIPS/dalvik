@@ -34,7 +34,7 @@
     li		rSELF, -1
     bltz	v0, ${opcode}_finish
     LOAD64(rARG0, rARG1, rOBJ)                    # a0/a1<- vBB/vBB+1
-    b		${opcode}_continue 
+    b		${opcode}_continue
 #else
     LOAD64_F(fs0, fs0f, rOBJ)
     LOAD64_F(fs1, fs1f, rBIX)

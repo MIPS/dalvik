@@ -21,7 +21,7 @@
     sll     v0, v0, a2			# v0<- a0 << n
     or      v1, v1, a0			# v1<- v1 | a0
     andi    a2, a2, 0x20		# n & 0x20
-    movn    v1, v0, a2			# v1<- v0 (if n=32) 
+    movn    v1, v0, a2			# v1<- v0 (if n=32)
     movn    v0, zero, a2		# v0<- 0  (if n=32)
 
     GET_INST_OPCODE(t0)                 # extract opcode from rINST

@@ -58,7 +58,7 @@
     JAL(dvmInstanceofNonTrivial)		# v0<- boolean result
     move     a0, v0				# fall through to ${opcode}_store
     b       .L${opcode}_store
-  
+
     /*
      * Resolution required.  This is the least-likely path.
      *

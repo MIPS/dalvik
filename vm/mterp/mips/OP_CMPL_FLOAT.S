@@ -34,12 +34,12 @@
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)	            	# a0<- (vBB == vCC)
-    li       rSELF, 0 			#set rSELF to 0  
+    li       rSELF, 0 			#set rSELF to 0
     beqz     v0, ${opcode}_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__ltsf2)	              	# a0<- (vBB < vCC)
-    li	     rSELF, -1 
+    li	     rSELF, -1
     bltz     v0, ${opcode}_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX			# a1<- vCC
@@ -55,8 +55,8 @@
     bc1t	fcc0, ${opcode}_finish
     c.eq.s	fcc0, fs0, fs1
     li		rSELF, 0
-    bc1t	fcc0, ${opcode}_finish 
-    b		${opcode}_nan 
+    bc1t	fcc0, ${opcode}_finish
+    b		${opcode}_nan
 
 #endif
 
@@ -64,7 +64,7 @@
 
 ${opcode}_nan:
     $naninst
-    b   ${opcode}_finish 
+    b   ${opcode}_finish
 
 #ifdef	SOFT_FLOAT
 ${opcode}_continue:
@@ -79,4 +79,4 @@ ${opcode}_finish:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
     SET_VREG(rSELF, t0)                 # vAA<- rSELF
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
-    GOTO_OPCODE(t0)     
+    GOTO_OPCODE(t0)

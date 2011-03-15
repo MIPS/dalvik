@@ -2,7 +2,7 @@
     /*
      * Generic 64-bit binary operation.  Provide an "instr" line that
      * specifies an instruction that performs "result = a0-a1 op a2-a3".
-     * This could be an MIPS instruction or a function call.  
+     * This could be an MIPS instruction or a function call.
      * If "chkzero" is set to 1, we perform a divide-by-zero check on
      * vCC (a1).  Useful for integer division and modulus.
      *
@@ -36,7 +36,7 @@
     bc1t	fcc0, common_errDivideByZero
     .endif
 #endif
-1:	
+1:
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
     $preinstr                           # optional op
 #ifdef	SOFT_FLOAT

@@ -1,4 +1,4 @@
-#entry.S 
+#entry.S
 
 #define ASSIST_DEBUGGER 1
 
@@ -14,7 +14,7 @@ dvmMterpStdRun:
 	STACK_STORE_FULL()
 /* This directive will make sure all subsequent jal restore gp at a known offset */
 	.cprestore STACK_OFFSET_GP
-	
+
 	addu		fp, sp, STACK_SIZE	# Move Frame Pointer to the base of frame
 	/* save stack pointer, add magic word for debuggerd */
 	sw		sp, offGlue_bailPtr(a0)	#Save SP
@@ -27,7 +27,7 @@ dvmMterpStdRun:
 	la		rIBASE, dvmAsmInstructionStart	#set rIBASE. GOT needed here.
 	li		t0, kInterpEntryInstr
 	bne		a1, t0, .Lnot_instr		# no, handle it
-		
+
 #if defined(WITH_JIT)
 entryInstr:
 	lw              t0, offGlue_self(rGLUE)
@@ -47,7 +47,7 @@ entryInstr:
 
 .Lnot_instr:		# were we returning from a method?
 	beq		a1, kInterpEntryReturn, common_returnFromMethod
-	
+
 .Lnot_return:		# were we throwing an exception?
 	beq             a1, kInterpEntryThrow, common_exceptionThrown
 
@@ -74,7 +74,7 @@ not_throw:
 	JAL(printf)
 	JAL(dvmAbort)
 
-	.end	dvmMterpStdRun	
+	.end	dvmMterpStdRun
 
 	.global dvmMterpStdBail
 	.ent	dvmMterpStdBail
@@ -87,7 +87,7 @@ dvmMterpStdBail:
 	move		v0, a1				# return the changeInterp value
 	STACK_LOAD_FULL()
 	jr		ra
-	
+
 	.end dvmMterpStdBail
 
 /*

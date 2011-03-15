@@ -13,8 +13,8 @@
 #define MIPS32R2
 #endif
 
-/* MIPS definitions and declarations 
- 
+/* MIPS definitions and declarations
+
    reg	nick		purpose
    s0	rPC		interpreted program counter, used for fetching instructions
    s1	rFP		interpreted frame pointer, used for accessing locals and args
@@ -47,7 +47,7 @@ Big Endian mode */
 #define rRESULT0  v0
 #define rRESULT1  v1
 #else
-#define rARG0     a1 
+#define rARG0     a1
 #define rARG1     a0
 #define rARG2     a3
 #define rARG3     a2
@@ -96,7 +96,6 @@ Big Endian mode */
 #define GOTO_OPCODE(rd)			sll  rd, rd, ${handler_size_bits};	\
 					addu rd, rIBASE, rd;	\
 					jr  rd
-				
 
 #define GET_VREG(rd, rix)		LOAD_eas2(rd,rFP,rix)
 
@@ -122,7 +121,7 @@ Big Endian mode */
 #ifndef		MIPS32R2
 #define GET_OPA4(rd)			GET_OPA(rd);  and  rd, 0xf
 #else
-#define GET_OPA4(rd)			ext	rd, rINST, 8, 4	
+#define GET_OPA4(rd)			ext	rd, rINST, 8, 4
 #endif
 #define GET_OPB(rd)			srl     rd, rINST, 12
 

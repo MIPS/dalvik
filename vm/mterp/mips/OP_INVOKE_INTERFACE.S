@@ -25,5 +25,5 @@
     move    a0, v0
     						# failed?
     beqz    v0, common_exceptionThrown	        # yes, handle exception
-    b       common_invokeMethod${routine}	# jump to common handler 
+    b       common_invokeMethod${routine}	# jump to common handler
 

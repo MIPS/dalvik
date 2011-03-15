@@ -14,7 +14,7 @@
     /* goto/32 +AAAAAAAA */
     FETCH(a0, 1)                        # a0<- aaaa (lo)
     FETCH(a1, 2)                        # a1<- AAAA (hi)
-    sll    a1, a1, 16                       
+    sll    a1, a1, 16
     or     a0, a0, a1                   # a0<- AAAAaaaa, check sign
     sll	   rBIX, a0, 1                  # rBIX<- byte offset
     blez   a0, common_backwardBranch    # backward branch, do periodic checks

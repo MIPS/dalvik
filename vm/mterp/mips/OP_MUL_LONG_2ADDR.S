@@ -17,7 +17,7 @@
     mfhi    t1
     mflo    v0                          #  v0= a2a0
     mul     t2,a2,a1                    #  t2= a2a1
-    addu    v1,v1,t1                    #  v1= a3a0 + hi(a2a0) 
+    addu    v1,v1,t1                    #  v1= a3a0 + hi(a2a0)
     addu    v1,v1,t2                    #  v1= v1   + a2a1;
 
     FETCH_ADVANCE_INST(1)               # advance rPC, load rINST

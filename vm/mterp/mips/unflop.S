@@ -4,7 +4,7 @@
      * specifies an instruction that performs "result = op a0".
      * This could be a MIPS instruction or a function call.
      *
-     * for: int-to-float, float-to-int      
+     * for: int-to-float, float-to-int
      */
     /* unop vA, vB */
     GET_OPB(a3)			        # a3<- B

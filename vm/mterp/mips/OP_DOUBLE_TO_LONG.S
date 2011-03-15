@@ -25,7 +25,7 @@ d2l_doconv:
     la		t0, .LDOUBLE_TO_LONG_ret_min
     LOAD64(rRESULT0, rRESULT1, t0)
     blez	t1, .L${opcode}_set_vreg
-    
+
     move	rARG0, rBIX
     move	rARG1, rSELF
     move	rARG2, rBIX
@@ -48,14 +48,14 @@ d2l_doconv:
     la		t0, .LDOUBLE_TO_LONG_ret_max
     LOAD64(rRESULT0, rRESULT1, t0)
     bc1t	.L${opcode}_set_vreg
-	
+
     la		t0, .LDOUBLE_TO_LONG_min
     LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa0, fa1
     la		t0, .LDOUBLE_TO_LONG_ret_min
     LOAD64(rRESULT0, rRESULT1, t0)
     bc1t	.L${opcode}_set_vreg
-    
+
     mov.d	fa1, fa0
     c.un.d	fcc0, fa0, fa1
     li		rRESULT0, 0

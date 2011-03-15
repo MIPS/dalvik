@@ -10,7 +10,7 @@
     addu    t0, a3, a1                  # t0<- a3 + a1
     LOAD64(a0, a1, t0)		# a0<- obj.field (64 bits, aligned)
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-    EAS2(a3, rFP, a2)		
+    EAS2(a3, rFP, a2)
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     STORE64(a0, a1, a3)		# fp[A]<- a0/a1
     GOTO_OPCODE(t0)                     # jump to next instruction

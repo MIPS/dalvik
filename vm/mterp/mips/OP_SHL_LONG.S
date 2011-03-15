@@ -17,7 +17,7 @@
 
     EAS2(t2, rFP, t2)                   # t2<- &fp[AA]
     FETCH_ADVANCE_INST(2)               # advance rPC, load rINST
-  
+
     /*
      * Same code as from SHL_LONG_2ADDR
      */

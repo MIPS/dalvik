@@ -7,12 +7,12 @@ f2l_doconv:
     li		a1, 0x5f000000
     move	rBIX, a0
     JAL(__gesf2)
-      
+
     move	t0, v0
     li		rRESULT0, ~0
     li		rRESULT1, ~0x80000000
     bgez	t0, .L${opcode}_set_vreg
-    
+
     move	a0, rBIX
     li		a1, 0xdf000000
     JAL(__lesf2)
@@ -21,7 +21,7 @@ f2l_doconv:
     li		rRESULT0, 0
     li		rRESULT1, 0x80000000
     blez	t0, .L${opcode}_set_vreg
-	
+
     move	a0, rBIX
     move	a1, rBIX
     JAL(__nesf2)
@@ -33,14 +33,14 @@ f2l_doconv:
 
     move	a0, rBIX
     JAL(__fixsfdi)
-    
+
 #else
     l.s		fa1, .LLONG_TO_max
     c.ole.s	fcc0, fa1, fa0
     li		rRESULT0, ~0
     li		rRESULT1, ~0x80000000
     bc1t	.L${opcode}_set_vreg
-	
+
     l.s		fa1, .LLONG_TO_min
     c.ole.s	fcc0, fa0, fa1
     li		rRESULT0, 0
@@ -52,7 +52,7 @@ f2l_doconv:
     li		rRESULT0, 0
     li		rRESULT1, 0
     bc1t	.L${opcode}_set_vreg
-	
+
     JAL(__fixsfdi)
 #endif
 

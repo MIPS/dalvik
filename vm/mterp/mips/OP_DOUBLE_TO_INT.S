@@ -53,13 +53,13 @@ d2i_doconv:
     c.ole.d	fcc0, fa1, fa0
     l.s		fv0, .LDOUBLE_TO_INT_maxret
     bc1t	.L${opcode}_set_vreg_f
-    
+
     la		t0, .LDOUBLE_TO_INT_min
-    LOAD64_F(fa1, fa1f, t0)	
+    LOAD64_F(fa1, fa1f, t0)
     c.ole.d	fcc0, fa0, fa1
     l.s		fv0, .LDOUBLE_TO_INT_minret
     bc1t	.L${opcode}_set_vreg_f
-    
+
     mov.d	fa1, fa0
     c.un.d	fcc0, fa0, fa1
     li.s	fv0, 0

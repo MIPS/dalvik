@@ -1,6 +1,6 @@
 %verify "executed"
     FETCH_ADVANCE_INST(1)               # advance to next instr, load rINST
-    GET_INST_OPCODE(t0)                 
+    GET_INST_OPCODE(t0)
     GOTO_OPCODE(t0)                     # execute it
 
 #ifdef ASSIST_DEBUGGER

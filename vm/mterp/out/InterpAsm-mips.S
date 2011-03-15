@@ -104,7 +104,6 @@ Big Endian mode */
 					addu rd, rIBASE, rd;	\
 					jr  rd
 
-
 #define GET_VREG(rd, rix)		LOAD_eas2(rd,rFP,rix)
 
 #define GET_VREG_F(rd, rix)		EAS2(AT, rFP, rix);		\
@@ -1348,7 +1347,7 @@ dalvik_inst:
     sll    a1, a1, 16
     or     a0, a0, a1                   # a0<- AAAAaaaa, check sign
     sll	   rBIX, a0, 1                  # rBIX<- byte offset
-    bltz   a0, common_backwardBranch    # backward branch, do periodic checks
+    blez   a0, common_backwardBranch    # backward branch, do periodic checks
 #if defined(WITH_JIT)
     GET_JIT_PROF_TABLE(a0)
     FETCH_ADVANCE_INST_RB(rBIX)         # update rPC, load rINST
@@ -8732,6 +8731,7 @@ dalvik_inst:
 1:
     GET_INST_OPCODE(t0)                 # extract opcode from rINST
     GOTO_OPCODE(t0)                     # jump to next instruction
+
 /* ------------------------------ */
     .balign 128
 .L_OP_INVOKE_VIRTUAL_QUICK: /* 0xf8 */

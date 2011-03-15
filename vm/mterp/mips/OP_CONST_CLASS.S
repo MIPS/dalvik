@@ -8,7 +8,7 @@
     GET_OPA(rOBJ)		                # rOBJ<- AA
     LOAD_base_offDvmDex_pResClasses(a2,a2)      # a2<- dvmDex->pResClasses
     LOAD_eas2(v0, a2, a1)		        # v0<- pResClasses[BBBB]
-    					        
+
     bnez    v0, .L${opcode}_resolve		# v0!=0 => resolved-ok
     /*
      * Continuation if the Class has not yet been resolved.
