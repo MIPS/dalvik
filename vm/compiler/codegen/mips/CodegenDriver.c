@@ -3359,8 +3359,8 @@ static bool genInlinedStringIsEmptyOrLength(CompilationUnit *cUnit, MIR *mir,
     if (isEmpty) {
         // dst = (dst == 0);
         int tReg = dvmCompilerAllocTemp(cUnit);
-        opRegReg(cUnit, kOpNeg, tReg, rlResult.lowReg);
-        opRegRegReg(cUnit, kOpAdc, rlResult.lowReg, rlResult.lowReg, tReg);
+        newLIR3(cUnit, kMipsSltu, tReg, r_ZERO, rlResult.lowReg);
+        opRegRegImm(cUnit, kOpXor, rlResult.lowReg, tReg, 1);
     }
     storeValue(cUnit, rlDest, rlResult);
     return false;
