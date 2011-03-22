@@ -260,7 +260,12 @@ static bool checkArrayData(const Method* meth, int curOffset)
     }
 
     valueWidth = arrayData[1];
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
     valueCount = *(u4*)(&arrayData[2]);
+#else
+    valueCount = (arrayData[3] << 0x16) | arrayData[2];
+#endif
 
     tableSize = 4 + (valueWidth * valueCount + 1) / 2;
 

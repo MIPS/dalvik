@@ -771,7 +771,16 @@ bool dvmCompileTrace(JitTraceDescription *desc, int numMaxInsts,
                 lastBB->next = caseChain;
                 lastBB = caseChain;
 
+#if __BYTE_ORDER == __LITTLE_ENDIAN
                 caseChain->startOffset = lastInsn->offset + targets[i];
+#else
+                /* The target data is in little endian format.  See
+                   s4FromSwitchData() in interp/Interp.c.  Dalvik test
+                   074 with low jitthreshold (e.g., 20) shows the problem. */
+                u2* data = (u2 *) &targets[i];
+                caseChain->startOffset = lastInsn->offset +
+                                         (data[0]|(((s4) data[1]) << 16));
+#endif
                 caseChain->id = numBlocks++;
             }
 

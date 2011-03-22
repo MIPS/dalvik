@@ -401,8 +401,7 @@ static bool swapMap(CheckState* state, DexMapList* pMap)
     bool first = true;
     u4 lastOffset = 0;
 
-    SWAP_FIELD4(pMap->size);
-    count = pMap->size;
+    count = SWAP4(pMap->size);
 
     CHECK_LIST_SIZE(item, count, sizeof(DexMapItem));
 
@@ -909,6 +908,7 @@ static void* swapClassDefItem(const CheckState* state, void* ptr) {
     SWAP_INDEX4_OR_NOINDEX(item->sourceFileIdx, state->pHeader->stringIdsSize);
     SWAP_OFFSET4(item->annotationsOff);
     SWAP_OFFSET4(item->classDataOff);
+    SWAP_OFFSET4(item->staticValuesOff);
 
     return item + 1;
 }
@@ -2512,7 +2512,7 @@ static bool swapEverythingButHeaderAndMap(CheckState* state,
         DexMapList* pMap) {
     const DexMapItem* item = pMap->list;
     u4 lastOffset = 0;
-    u4 count = pMap->size;
+    u4 count = SWAP4(pMap->size);
     bool okay = true;
 
     while (okay && count--) {
@@ -2685,7 +2685,7 @@ static bool swapEverythingButHeaderAndMap(CheckState* state,
 static bool crossVerifyEverything(CheckState* state, DexMapList* pMap)
 {
     const DexMapItem* item = pMap->list;
-    u4 count = pMap->size;
+    u4 count = SWAP4(pMap->size);
     bool okay = true;
 
     while (okay && count--) {

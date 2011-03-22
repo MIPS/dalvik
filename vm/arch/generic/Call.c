@@ -38,6 +38,11 @@ static ffi_type* getFfiType(char sigType)
     }
 }
 
+/* We will call this generic function if there is no hints */
+#ifdef __mips__
+#define dvmPlatformInvoke dvmPlatformInvokeMIPS
+#endif
+
 /*
  * Call "func" with the specified arguments.
  *
