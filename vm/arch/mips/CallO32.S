@@ -112,6 +112,9 @@ Please notice that argc in dvmPlatformInvoke does NOT include pEnv and clazz/thi
   */
 
 dvmPlatformInvoke:
+	.set noreorder
+	.cpload $t9
+	.set reorder
 
 	/*  Do we have arg padding flags in "argInfo"? Check bit 31 */
 	bltz	$a2,.Lno_arginfo
@@ -256,9 +259,6 @@ dvmPlatformInvoke:
 
 /* Slow path - just tail call the generic routine */
 .Lno_arginfo:
-	.set noreorder
-	.cpload $t9
-	.set reorder
 	
 	la $t9,dvmPlatformInvokeMIPS
 	j $t9
