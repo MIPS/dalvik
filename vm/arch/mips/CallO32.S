@@ -49,7 +49,7 @@ Please notice that argc in dvmPlatformInvoke does NOT include pEnv and clazz/thi
  *
  *   S - if set, do things the hard way (scan the signature)
  *   R - return type enumeration, really only important for hardware FP
- *   L - number of double-words of storage required on stack (0-30 words)
+ *   L - number of double-words (64 bits!) of storage required on stack (0-30 words)
  *   F - pad flag -- if set, write a pad word to the stack
  *
  * With this arrangement we can efficiently push up to 24 words of arguments
@@ -140,7 +140,7 @@ dvmPlatformInvoke:
 	/* expand the stack for args */
 	srl	$s2,$a2,28	/* s2 <- returnType */
 	srl	$t1,$a2,21
-	andi	$t1,0x38	/* t1 <- stackSize in bytes */
+	andi	$t1,0x78	/* t1 <- stackSize in bytes */
 
 	addiu	$t1,16		/* include space for a0/a1/a2/a3 */
 	subu	$sp,$t1
