@@ -349,6 +349,7 @@ static MipsLIR *opRegReg(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
                         int rSrc2)
 {
     MipsOpCode opCode = kMipsNop;
+    MipsLIR *res;
     switch (op) {
         case kOpMov:
             opCode = kMipsMove;
@@ -365,9 +366,21 @@ static MipsLIR *opRegReg(CompilationUnit *cUnit, OpKind op, int rDestSrc1,
         case kOpXor:
             return opRegRegReg(cUnit, op, rDestSrc1, rDestSrc1, rSrc2);
         case kOp2Byte:
-             return newLIR2(cUnit, kMipsSeb, rDestSrc1, rSrc2);
+#if __mips_isa_rev>=2
+            res = newLIR2(cUnit, kMipsSeb, rDestSrc1, rSrc2);
+#else
+            res = opRegRegImm(cUnit, kOpLsl, rDestSrc1, rSrc2, 24);
+            opRegRegImm(cUnit, kOpAsr, rDestSrc1, rDestSrc1, 24);
+#endif
+            return res;
         case kOp2Short:
-             return newLIR2(cUnit, kMipsSeh, rDestSrc1, rSrc2);
+#if __mips_isa_rev>=2
+            res = newLIR2(cUnit, kMipsSeh, rDestSrc1, rSrc2);
+#else
+            res = opRegRegImm(cUnit, kOpLsl, rDestSrc1, rSrc2, 16);
+            opRegRegImm(cUnit, kOpAsr, rDestSrc1, rDestSrc1, 16);
+#endif
+            return res;
         case kOp2Char:
              return newLIR3(cUnit, kMipsAndi, rDestSrc1, rSrc2, 0xFFFF);
         default:

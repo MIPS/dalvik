@@ -202,7 +202,12 @@ static bool genInlinedAbsFloat(CompilationUnit *cUnit, MIR *mir)
     int offset = offsetof(InterpState, retval);
     RegLocation rlSrc = dvmCompilerGetSrc(cUnit, mir, 0);
     int reg0 = loadValue(cUnit, rlSrc, kCoreReg).lowReg;
+#if __mips_isa_rev>=2
     newLIR4(cUnit, kMipsExt, reg0, reg0, 0, 31-1 /* size-1 */);
+#else
+    newLIR2(cUnit, kMipsSll, reg0, 1);
+    newLIR2(cUnit, kMipsSrl, reg0, 1);
+#endif
     storeWordDisp(cUnit, rGLUE, offset, reg0);
     //TUNING: rewrite this to not clobber
     dvmCompilerClobber(cUnit, reg0);
@@ -217,7 +222,12 @@ static bool genInlinedAbsDouble(CompilationUnit *cUnit, MIR *mir)
     int reglo = regSrc.lowReg;
     int reghi = regSrc.highReg;
     storeWordDisp(cUnit, rGLUE, offset + LOWORD_OFFSET, reglo);
+#if __mips_isa_rev>=2
     newLIR4(cUnit, kMipsExt, reghi, reghi, 0, 31-1 /* size-1 */);
+#else
+    newLIR2(cUnit, kMipsSll, reghi, 1);
+    newLIR2(cUnit, kMipsSrl, reghi, 1);
+#endif
     storeWordDisp(cUnit, rGLUE, offset + HIWORD_OFFSET, reghi);
     //TUNING: rewrite this to not clobber
     dvmCompilerClobber(cUnit, reghi);

@@ -139,10 +139,12 @@ MipsEncodingMap EncodingMap[kMipsLast] = {
                  kFmtUnused, -1, -1, kFmtUnused, -1, -1, kFmtBitBlt, 25, 21,
                  kFmtBitBlt, 20, 16, IS_QUAD_OP | REG_DEF01 | REG_USE23,
                  "div", "!2r,!3r", 2),
+#if __mips_isa_rev>=2
     ENCODING_MAP(kMipsExt, 0x7c000000,
                  kFmtBitBlt, 20, 16, kFmtBitBlt, 25, 21, kFmtBitBlt, 10, 6,
                  kFmtBitBlt, 15, 11, IS_QUAD_OP | REG_DEF0 | REG_USE1,
                  "ext", "!0r,!1r,!2d,!3D", 2),
+#endif
     ENCODING_MAP(kMipsJal, 0x0c000000,
                  kFmtBitBlt, 25, 0, kFmtUnused, -1, -1, kFmtUnused, -1, -1,
                  kFmtUnused, -1, -1, IS_UNARY_OP | IS_BRANCH | REG_DEF_LR,
@@ -231,6 +233,7 @@ MipsEncodingMap EncodingMap[kMipsLast] = {
                  kFmtBitBlt, 20, 16, kFmtBitBlt, 15, 0, kFmtBitBlt, 25, 21,
                  kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_USE02 | IS_STORE,
                  "sb", "!0r,!1d(!2r)", 2),
+#if __mips_isa_rev>=2
     ENCODING_MAP(kMipsSeb, 0x7c000420,
                  kFmtBitBlt, 15, 11, kFmtBitBlt, 20, 16, kFmtUnused, -1, -1,
                  kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
@@ -239,6 +242,7 @@ MipsEncodingMap EncodingMap[kMipsLast] = {
                  kFmtBitBlt, 15, 11, kFmtBitBlt, 20, 16, kFmtUnused, -1, -1,
                  kFmtUnused, -1, -1, IS_BINARY_OP | REG_DEF0_USE1,
                  "seh", "!0r,!1r", 2),
+#endif
     ENCODING_MAP(kMipsSh, 0xA4000000,
                  kFmtBitBlt, 20, 16, kFmtBitBlt, 15, 0, kFmtBitBlt, 25, 21,
                  kFmtUnused, -1, -1, IS_TERTIARY_OP | REG_USE02 | IS_STORE,
