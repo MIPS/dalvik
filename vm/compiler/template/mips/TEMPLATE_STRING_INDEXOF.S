@@ -29,11 +29,11 @@
      */
 
     /* Point to first element */
-     add   v0, 16                    # point to contents[0]
+     addu  v0, 16                    # point to contents[0]
 
     /* Build pointer to start of string data */
      sll   t7, t0, 1                 # multiply offset by 2
-     add   v0, v0, t7
+     addu  v0, v0, t7
 
     /* Save a copy of starting data in v1 */
      move  v1, v0
@@ -46,10 +46,10 @@
 
     /* Build pointer to start of data to compare */
      sll   t7, a2, 1                # multiply offset by 2
-     add   v0, v0, t7
+     addu  v0, v0, t7
 
     /* Compute iteration count */
-     sub   a3, t1, a2
+     subu  a3, t1, a2
 
     /*
      * At this point we have:
@@ -59,31 +59,31 @@
      *   v1: original start of string
      *   t0-t7 available for loading string data
      */
-     sub   a3, 4
+     subu  a3, 4
      bltz  a3, indexof_remainder
 
 indexof_loop4:
-     lh    t0, 0(v0)
+     lhu   t0, 0(v0)
      beq   t0, a1, match_0
-     lh    t0, 2(v0)
+     lhu   t0, 2(v0)
      beq   t0, a1, match_1
-     lh    t0, 4(v0)
+     lhu   t0, 4(v0)
      beq   t0, a1, match_2
-     lh    t0, 6(v0)
+     lhu   t0, 6(v0)
      beq   t0, a1, match_3
-     add   v0, 8                     # offset to contents[i+4]
-     sub   a3, 4
+     addu  v0, 8                     # offset to contents[i+4]
+     subu  a3, 4
      bgez  a3, indexof_loop4
 
 indexof_remainder:
-     add   a3, 4
+     addu  a3, 4
      beqz  a3, indexof_nomatch
 
 indexof_loop1:
-     lh    t0, 0(v0)
+     lhu   t0, 0(v0)
      beq   t0, a1, match_0
-     add   v0, 2                     # offset to contents[i+1]
-     sub   a3, 1
+     addu  v0, 2                     # offset to contents[i+1]
+     subu  a3, 1
      bgez  a3, indexof_loop1
 
 indexof_nomatch:
@@ -91,21 +91,21 @@ indexof_nomatch:
      RETURN
   
 match_0:
-     sub   v0, v1
+     subu  v0, v1
      sra   v0, v0, 1                 # divide by 2
      RETURN
 match_1:
-     add   v0, 2
-     sub   v0, v1
+     addu  v0, 2
+     subu  v0, v1
      sra   v0, v0, 1                 # divide by 2
      RETURN
 match_2:
-     add   v0, 4
-     sub   v0, v1
+     addu  v0, 4
+     subu  v0, v1
      sra   v0, v0, 1                 # divide by 2
      RETURN
 match_3:
-     add   v0, 6
-     sub   v0, v1
+     addu  v0, 6
+     subu  v0, v1
      sra   v0, v0, 1                 # divide by 2
      RETURN
