@@ -16,7 +16,7 @@
      *
      */
 
-     sub   v0, a2, a1                # Same?
+     subu  v0, a0, a1                # Same?
      bnez  v0, 1f
      RETURN
 1:
@@ -36,21 +36,21 @@
      *    a3 <- countDiff
      *    a2 <- minCount
      */
-     sub   a3, t2, a2                # a3<- countDiff
+     subu  a3, t2, a2                # a3<- countDiff
      sleu  t7, t2, a2
      movn  a2, t2, t7                # a2<- minCount
 
      /*
       * Note: data pointers point to first element.
       */
-     add   a0, 16                    # point to contents[0]
-     add   a1, 16                    # point to contents[0]
+     addu  a0, 16                    # point to contents[0]
+     addu  a1, 16                    # point to contents[0]
 
      /* Now, build pointers to the string data */
      sll   t7, t0, 1                 # multiply offset by 2
-     add   a0, a0, t7
+     addu  a0, a0, t7
      sll   t7, t1, 1                 # multiply offset by 2
-     add   a1, a1, t7
+     addu  a1, a1, t7
 
      /*
       * At this point we have:
@@ -62,68 +62,68 @@
       *   t0-t5 available for loading string data
       */
 
-     sub   a2, 2
+     subu  a2, 2
      bltz  a2, do_remainder2
 
      /*
       * Unroll the first two checks so we can quickly catch early mismatch
       * on long strings (but preserve incoming alignment)
       */
-     lh    t0, 0(a0)
-     lh    t1, 0(a1)
-     sub   v0, t0, t1
+     lhu   t0, 0(a0)
+     lhu   t1, 0(a1)
+     subu  v0, t0, t1
      beqz  v0, 1f
      RETURN
 1:
-     lh    t2, 2(a0)
-     lh    t3, 2(a1)
-     sub   v0, t2, t3
+     lhu   t2, 2(a0)
+     lhu   t3, 2(a1)
+     subu  v0, t2, t3
      beqz  v0, 2f
      RETURN
 2:
-     add   a0, 4                     # offset to contents[2]
-     add   a1, 4                     # offset to contents[2]
+     addu  a0, 4                     # offset to contents[2]
+     addu  a1, 4                     # offset to contents[2]
      li    t7, 28
      bgt   a2, t7, do_memcmp16
-     sub   a2, 3
+     subu  a2, 3
      bltz  a2, do_remainder
 
 loopback_triple:
-     lh    t0, 0(a0)
-     lh    t1, 0(a1)
-     sub   v0, t0, t1
+     lhu   t0, 0(a0)
+     lhu   t1, 0(a1)
+     subu  v0, t0, t1
      beqz  v0, 1f
      RETURN
 1:
-     lh    t2, 2(a0)
-     lh    t3, 2(a1)
-     sub   v0, t2, t3
+     lhu   t2, 2(a0)
+     lhu   t3, 2(a1)
+     subu  v0, t2, t3
      beqz  v0, 2f
      RETURN
 2:
-     lh    t4, 4(a0)
-     lh    t5, 4(a1)
-     sub   v0, t4, t5
+     lhu   t4, 4(a0)
+     lhu   t5, 4(a1)
+     subu  v0, t4, t5
      beqz  v0, 3f
      RETURN
 3:
-     add   a0, 6                     # offset to contents[i+3]
-     add   a1, 6                     # offset to contents[i+3]
-     sub   a2, 3
+     addu  a0, 6                     # offset to contents[i+3]
+     addu  a1, 6                     # offset to contents[i+3]
+     subu  a2, 3
      bgez  a2, loopback_triple
 
 do_remainder:
-     add   a2, 3
+     addu  a2, 3
      beqz  a2, returnDiff
 
 loopback_single:
-     lh    t0, 0(a0)
-     lh    t1, 0(a1)
-     sub   v0, t0, t1
+     lhu   t0, 0(a0)
+     lhu   t1, 0(a1)
+     subu  v0, t0, t1
      bnez  v0, 1f
-     add   a0, 2                     # offset to contents[i+1]
-     add   a1, 2                     # offset to contents[i+1]
-     sub   a2, 1
+     addu  a0, 2                     # offset to contents[i+1]
+     addu  a1, 2                     # offset to contents[i+1]
+     subu  a2, 1
      bnez  a2, loopback_single
 
 returnDiff:
@@ -132,7 +132,7 @@ returnDiff:
      RETURN
 
 do_remainder2:
-     add   a2, 2
+     addu  a2, 2
      bnez  a2, loopback_single
      move  v0, a3
      RETURN
