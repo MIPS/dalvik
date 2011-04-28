@@ -84,7 +84,7 @@ indexof_loop1:
      beq   t0, a1, match_0
      addu  v0, 2                     # offset to contents[i+1]
      subu  a3, 1
-     bgez  a3, indexof_loop1
+     bnez  a3, indexof_loop1
 
 indexof_nomatch:
      li    v0, -1
