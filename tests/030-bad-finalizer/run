@@ -17,7 +17,7 @@
 ${RUN} "$@" > original-output.txt
 
 cat original-output.txt | awk '
-/Segmentation fault/ {
+/Segmentation fault/ || /EMT/ {
     # ignore the details of the line
     print "(segfault)"
     next;
