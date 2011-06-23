@@ -194,6 +194,10 @@ LOCAL_SRC_FILES := \
 	test/TestHash.c \
 	test/TestIndirectRefTable.c
 
+ifeq ($(ARCH_MIPS_HAS_FPU),true)
+  LOCAL_CFLAGS += -DDOUBLE_64_BIT_ALIGNED
+endif
+
 WITH_COPYING_GC := $(strip $(WITH_COPYING_GC))
 
 ifeq ($(WITH_COPYING_GC),true)

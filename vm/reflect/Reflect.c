@@ -930,6 +930,9 @@ int dvmConvertPrimitiveValue(PrimitiveType srcType,
     /*long */ { bad,    bad,    JtoF,   JtoD,   bad,    bad,    bad,    OK8  },
     };
     int result;
+#ifdef DOUBLE_64_BIT_ALIGNED
+    double ret;
+#endif
 
     assert(srcType != PRIM_NOT && dstType != PRIM_NOT &&
            srcType != PRIM_VOID && dstType != PRIM_VOID);
@@ -948,13 +951,28 @@ int dvmConvertPrimitiveValue(PrimitiveType srcType,
         *(s8*)dstPtr = (s8) (*(s4*) srcPtr);
         return 2;
     case ItoD:
+#ifndef DOUBLE_64_BIT_ALIGNED
         *(double*)dstPtr = (double) (*(s4*) srcPtr);
+#else
+        ret = (double) (*(s4*) srcPtr);
+        memcpy(dstPtr, &ret, 8);
+#endif
         return 2;
     case JtoD:
+#ifndef DOUBLE_64_BIT_ALIGNED
         *(double*)dstPtr = (double) (*(long long*) srcPtr);
+#else
+        ret = (double) (*(long long*) srcPtr);
+        memcpy(dstPtr, &ret, 8);
+#endif
         return 2;
     case FtoD:
+#ifndef DOUBLE_64_BIT_ALIGNED
         *(double*)dstPtr = (double) (*(float*) srcPtr);
+#else
+        ret = (double) (*(float*) srcPtr);
+        memcpy(dstPtr, &ret, 8);
+#endif
         return 2;
     case ItoF:
         *(float*)dstPtr = (float) (*(int*) srcPtr);
