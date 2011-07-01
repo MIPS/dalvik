@@ -105,15 +105,15 @@ LOCAL_SRC_FILES := \
 	DvmDex.c \
 	Exception.c \
 	Hash.c \
-	IndirectRefTable.c.arm \
+	IndirectRefTable.c.arch \
 	Init.c \
-	InlineNative.c.arm \
+	InlineNative.c.arch \
 	Inlines.c \
 	Intern.c \
 	Jni.c \
 	JarFile.c \
 	LinearAlloc.c \
-	Misc.c.arm \
+	Misc.c.arch \
 	Native.c \
 	PointerSet.c \
 	Profile.c \
@@ -126,15 +126,15 @@ LOCAL_SRC_FILES := \
 	TestCompability.c \
 	Thread.c \
 	UtfString.c \
-	alloc/clz.c.arm \
+	alloc/clz.c.arch \
 	alloc/Alloc.c \
-	alloc/HeapBitmap.c.arm \
+	alloc/HeapBitmap.c.arch \
 	alloc/HeapDebug.c \
 	alloc/HeapSource.c \
 	alloc/HeapTable.c \
 	alloc/HeapWorker.c \
-	alloc/Heap.c.arm \
-	alloc/MarkSweep.c.arm \
+	alloc/Heap.c.arch \
+	alloc/MarkSweep.c.arch \
 	alloc/DdmHeap.c \
 	analysis/CodeVerify.c \
 	analysis/DexOptimize.c \
@@ -142,7 +142,7 @@ LOCAL_SRC_FILES := \
 	analysis/ReduceConstants.c \
 	analysis/RegisterMap.c \
 	analysis/VerifySubs.c \
-	interp/Interp.c.arm \
+	interp/Interp.c.arch \
 	interp/Stack.c \
 	jdwp/ExpandBuf.c \
 	jdwp/JdwpAdb.c \
@@ -151,9 +151,9 @@ LOCAL_SRC_FILES := \
 	jdwp/JdwpHandler.c \
 	jdwp/JdwpMain.c \
 	jdwp/JdwpSocket.c \
-	mterp/Mterp.c.arm \
-	mterp/out/InterpC-portstd.c.arm \
-	mterp/out/InterpC-portdbg.c.arm \
+	mterp/Mterp.c.arch \
+	mterp/out/InterpC-portstd.c.arch \
+	mterp/out/InterpC-portdbg.c.arch \
 	native/InternalNative.c \
 	native/dalvik_system_DexFile.c \
 	native/dalvik_system_SamplingProfiler.c \
@@ -272,7 +272,7 @@ ifeq ($(dvm_arch),arm)
 		arch/arm/CallOldABI.S \
 		arch/arm/CallEABI.S \
 		arch/arm/HintsEABI.c \
-		mterp/out/InterpC-$(dvm_arch_variant).c.arm \
+		mterp/out/InterpC-$(dvm_arch_variant).c.arch \
 		mterp/out/InterpAsm-$(dvm_arch_variant).S
 
   ifeq ($(WITH_JIT),true)
