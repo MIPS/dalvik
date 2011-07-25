@@ -1251,9 +1251,8 @@ void dvmJitUnchainAll()
                     highAddress = lastAddress;
             }
         }
-
-        __clear_cache((char *)lowAddress, (char *)(highAddress+1));
-
+        if (lowAddress != NULL && highAddress != NULL)
+		cacheflush((long)lowAddress, (long)highAddress, 0);
         UPDATE_CODE_CACHE_PATCHES();
 
         PROTECT_CODE_CACHE(gDvmJit.codeCache, gDvmJit.codeCacheByteUsed);
