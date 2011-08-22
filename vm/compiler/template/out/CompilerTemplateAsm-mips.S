@@ -829,17 +829,17 @@ dvmCompiler_TEMPLATE_SHL_LONG:
      * distance) is 32-bit.  Also, Dalvik requires us to ignore all but the low
      * 6 bits.
      */
-    /* shl-long vAA(a1), vBB(a0), vCC(a2) - result in v1:v0 */
-    andi    t0, a2, 0x20                #  t0<- a2 & 0x20
-    movn    rARG1, rARG0, t0            #  a1<- a0 (if (a2 & 0x20) != 0)
-    movn    rARG0, zero, t0             #  a0<- 0 (if (a2 & 0x20) != 0)
-    andi    a2, a2, 0x1f                #  a2<- a2 & 0x1f
-    sll     rRESULT0, rARG0, a2         #  v0<- a0 << a2
-    sll     rRESULT1, rARG1, a2         #  v1<- a1 << a2
-    add     t0, zero, 32                #  t0<- 32
-    sub     t0, t0, a2                  #  t0<- 32 - a2
-    srl     t0, rARG0, t0               #  t0<- a0 >> (32-a2)
-    or      rRESULT1, rRESULT1, t0      #  v1<- v1 | (a0 >> (32-a2))
+    /* shl-long vAA:vBB(rARG1:rARG0), vCC(a2) - result in (rRESULT1:rRESULT0) */
+    andi    a2, 0x3f			#  shift<- shift & 0x3f
+    sll     rRESULT0, rARG0, a2		#  rlo<- alo << shift
+    not     rRESULT1, a2		#  rhi<- 31-shift  (shift is 5b)
+    srl     rARG0, 1
+    srl     rARG0, rRESULT1		#  alo<- alo >> (32-shift)
+    sll     rRESULT1, rARG1, a2		#  rhi<- ahi << shift
+    or      rRESULT1, rARG0		#  rhi<- rhi | alo
+    andi    a2, 0x20			#  shift< shift & 0x20
+    movn    rRESULT1, rRESULT0, a2	#  rhi<- rlo (if shift&0x20)
+    movn    rRESULT0, zero, a2		#  rlo<- 0  (if shift & 0x20)
     RETURN
 
 /* ------------------------------ */
@@ -853,18 +853,18 @@ dvmCompiler_TEMPLATE_SHR_LONG:
      * distance) is 32-bit.  Also, Dalvik requires us to ignore all but the low
      * 6 bits.
      */
-    /* shr-long vAA(a1), vBB(a0), vCC(a2) - result in v1:v0 */
-    andi    t0, a2, 0x20                #  t0<- a2 & 0x20
-    sra     t1, rARG1, 31               #  t1<- a1 >> 31
-    movn    rARG0, rARG1, t0            #  a0<- a1 (if (a2 & 0x20) != 0)
-    movn    rARG1, t1, t0               #  a1<- a1 >> 31 (if (a2 & 0x20) != 0)
-    andi    a2, a2, 0x1f                #  a2<- a2 & 0x1f
-    srl     rRESULT0, rARG0, a2         #  v0<- a0 >> a2
-    sra     rRESULT1, rARG1, a2         #  v1<- a1 >> a2
-    add     t0, zero, 32                #  t0<- 32
-    sub     t0, t0, a2                  #  t0<- 32 - a2
-    sll     t0, rARG1, t0               #  t0<- a1 << (32-a2)
-    or      rRESULT0, rRESULT0, t0      #  v0<- v0 | (a1 << (32-a2))
+    /* shr-long vAA:vBB(rARG1:rARG0), vCC(a2) - result in (rRESULT1:rRESULT0) */
+    andi    a2, 0x3f			#  shift<- shift & 0x3f
+    sra     rRESULT1, rARG1, a2		#  rhi<- ahi >> shift
+    srl     rRESULT0, rARG0, a2		#  rlo<- alo >> shift
+    sra     a3, rARG1, 31		#  a3<- sign(ah)
+    not     rARG0, a2			#  alo<- 31-n  (shift is 5b)
+    sll     rARG1, 1
+    sll     rARG1, rARG0		#  ahi<- ahi << (32-shift)
+    or      rRESULT0, rARG1		#  rlo<- rlo | ahi
+    andi    a2, 0x20			#  shift & 0x20
+    movn    rRESULT0, rRESULT1, a2	#  rlo<- rhi (if n=32)
+    movn    rRESULT1, a3, a2		#  rhi<- sign(ahi) (if n=32)
     RETURN
 
 /* ------------------------------ */

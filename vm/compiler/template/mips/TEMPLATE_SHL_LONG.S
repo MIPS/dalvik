@@ -4,15 +4,15 @@
      * distance) is 32-bit.  Also, Dalvik requires us to ignore all but the low
      * 6 bits.
      */
-    /* shl-long vAA(a1), vBB(a0), vCC(a2) - result in v1:v0 */
-    andi    t0, a2, 0x20                #  t0<- a2 & 0x20
-    movn    rARG1, rARG0, t0            #  a1<- a0 (if (a2 & 0x20) != 0)
-    movn    rARG0, zero, t0             #  a0<- 0 (if (a2 & 0x20) != 0)
-    andi    a2, a2, 0x1f                #  a2<- a2 & 0x1f
-    sll     rRESULT0, rARG0, a2         #  v0<- a0 << a2
-    sll     rRESULT1, rARG1, a2         #  v1<- a1 << a2
-    add     t0, zero, 32                #  t0<- 32
-    sub     t0, t0, a2                  #  t0<- 32 - a2
-    srl     t0, rARG0, t0               #  t0<- a0 >> (32-a2)
-    or      rRESULT1, rRESULT1, t0      #  v1<- v1 | (a0 >> (32-a2))
+    /* shl-long vAA:vBB(rARG1:rARG0), vCC(a2) - result in (rRESULT1:rRESULT0) */
+    andi    a2, 0x3f			#  shift<- shift & 0x3f
+    sll     rRESULT0, rARG0, a2		#  rlo<- alo << shift
+    not     rRESULT1, a2		#  rhi<- 31-shift  (shift is 5b)
+    srl     rARG0, 1
+    srl     rARG0, rRESULT1		#  alo<- alo >> (32-shift)
+    sll     rRESULT1, rARG1, a2		#  rhi<- ahi << shift
+    or      rRESULT1, rARG0		#  rhi<- rhi | alo
+    andi    a2, 0x20			#  shift< shift & 0x20
+    movn    rRESULT1, rRESULT0, a2	#  rhi<- rlo (if shift&0x20)
+    movn    rRESULT0, zero, a2		#  rlo<- 0  (if shift & 0x20)
     RETURN
