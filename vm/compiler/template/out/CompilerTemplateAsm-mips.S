@@ -39,8 +39,8 @@
 #define		SOFT_FLOAT
 #endif
 
-/* MIPS definitions and declarations 
- 
+/* MIPS definitions and declarations
+
    reg	nick		purpose
    s0	rPC		interpreted program counter, used for fetching instructions
    s1	rFP		interpreted frame pointer, used for accessing locals and args
@@ -138,7 +138,7 @@ Big Endian mode */
 #define rRESULT0  v0
 #define rRESULT1  v1
 #else
-#define rARG0     a1 
+#define rARG0     a1
 #define rARG1     a0
 #define rARG2     a3
 #define rARG3     a2
@@ -187,7 +187,7 @@ Big Endian mode */
 #define GOTO_OPCODE(rd)			sll  rd, rd, -1000;	\
 					addu rd, rIBASE, rd;	\
 					jr  rd
-				
+
 
 #define LOAD(rd, rbase)			lw  rd, 0(rbase)
 #define LOAD_F(rd, rbase)		l.s rd, (rbase)
@@ -218,7 +218,7 @@ Big Endian mode */
 #ifndef		MIPS32R2
 #define GET_OPA4(rd)			GET_OPA(rd);  and  rd, 0xf
 #else
-#define GET_OPA4(rd)			ext	rd, rd, 8, 4	
+#define GET_OPA4(rd)			ext	rd, rd, 8, 4
 #endif
 #define GET_OPB(rd)			srl     rd, rINST, 12
 
@@ -1680,7 +1680,7 @@ dvmCompiler_TEMPLATE_CMPG_DOUBLE_VFP:
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
     JAL(__eqdf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0 
+    li       rSELF, 0                   # vAA<- 0
     beqz     v0, TEMPLATE_CMPG_DOUBLE_VFP_finish
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
@@ -1750,7 +1750,7 @@ dvmCompiler_TEMPLATE_CMPL_DOUBLE_VFP:
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
     JAL(__eqdf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0 
+    li       rSELF, 0                   # vAA<- 0
     beqz     v0, TEMPLATE_CMPL_DOUBLE_VFP_finish
     LOAD64(rARG0, rARG1, rOBJ)          # a0/a1<- vBB/vBB+1
     LOAD64(rARG2, rARG3, rBIX)          # a2/a3<- vCC/vCC+1
@@ -1820,7 +1820,7 @@ dvmCompiler_TEMPLATE_CMPG_FLOAT_VFP:
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0 
+    li       rSELF, 0                   # vAA<- 0
     beqz     v0, TEMPLATE_CMPG_FLOAT_VFP_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
@@ -1890,7 +1890,7 @@ dvmCompiler_TEMPLATE_CMPL_FLOAT_VFP:
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
     JAL(__eqsf2)                        # v0<- (vBB == vCC)
-    li       rSELF, 0                   # vAA<- 0 
+    li       rSELF, 0                   # vAA<- 0
     beqz     v0, TEMPLATE_CMPL_FLOAT_VFP_finish
     move     a0, rOBJ                   # a0<- vBB
     move     a1, rBIX                   # a1<- vCC
@@ -1929,24 +1929,25 @@ dvmCompiler_TEMPLATE_SQRT_DOUBLE_VFP:
 /* File: mips/TEMPLATE_SQRT_DOUBLE_VFP.S */
 
     /*
-     * 64-bit floating point vfp sqrt operation.
+     * 64-bit floating point sqrt operation.
      * If the result is a NaN, bail out to library code to do
      * the right thing.
-     *
-     * Since MIPS don't have a 64-bit sqrt function, we bail
-     * out to library code right away.
      *
      * On entry:
      *     a2 src addr of op1
      * On exit:
-     *     v0,v1 = res
+     *     v0,v1/fv0 = res
      */
-#ifdef HARD_FLOAT
-    LOAD64_F(fa0, fa0f, a2)         # fa0/fa1<- vBB/vBB+1
-#else
+#ifdef  SOFT_FLOAT
     LOAD64(rARG0, rARG1, a2)        # a0/a1<- vBB/vBB+1
+#else
+    LOAD64_F(fa0, fa0f, a2)         # fa0/fa0f<- vBB/vBB+1
+    sqrt.d	fv0, fa0
+    c.eq.d	fv0, fv0
+    bc1t	1f
 #endif
     JAL(sqrt)
+1:
     RETURN
 
 /* ------------------------------ */
