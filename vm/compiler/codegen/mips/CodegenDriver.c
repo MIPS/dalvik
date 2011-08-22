@@ -138,13 +138,22 @@ static bool genArithOpFloatPortable(CompilationUnit *cUnit, MIR *mir,
     }
 
     dvmCompilerFlushAllRegs(cUnit);   /* Send everything to home location */
+#ifdef __mips_hard_float
+    loadValueDirectFixed(cUnit, rlSrc1, r_F12);
+    loadValueDirectFixed(cUnit, rlSrc2, r_F14);
+#else
     loadValueDirectFixed(cUnit, rlSrc1, r_A0);
     loadValueDirectFixed(cUnit, rlSrc2, r_A1);
+#endif
     LOAD_FUNC_ADDR(cUnit, r_T9, (int)funct);
     opReg(cUnit, kOpBlx, r_T9);
     newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
     dvmCompilerClobberCallRegs(cUnit);
+#ifdef __mips_hard_float
+    rlResult = dvmCompilerGetReturnAlt(cUnit);
+#else
     rlResult = dvmCompilerGetReturn(cUnit);
+#endif
     storeValue(cUnit, rlDest, rlResult);
     return false;
 }
@@ -186,12 +195,21 @@ static bool genArithOpDoublePortable(CompilationUnit *cUnit, MIR *mir,
     }
     dvmCompilerFlushAllRegs(cUnit);   /* Send everything to home location */
     LOAD_FUNC_ADDR(cUnit, r_T9, (int)funct);
+#ifdef __mips_hard_float
+    loadValueDirectWideFixed(cUnit, rlSrc1, r_F12, r_F13);
+    loadValueDirectWideFixed(cUnit, rlSrc2, r_F14, r_F15);
+#else
     loadValueDirectWideFixed(cUnit, rlSrc1, r_ARG0, r_ARG1);
     loadValueDirectWideFixed(cUnit, rlSrc2, r_ARG2, r_ARG3);
+#endif
     opReg(cUnit, kOpBlx, r_T9);
     newLIR3(cUnit, kMipsLw, r_GP, STACK_OFFSET_GP, r_SP);
     dvmCompilerClobberCallRegs(cUnit);
+#ifdef __mips_hard_float
+    rlResult = dvmCompilerGetReturnWideAlt(cUnit);
+#else
     rlResult = dvmCompilerGetReturnWide(cUnit);
+#endif
     storeValueWide(cUnit, rlDest, rlResult);
     return false;
 }
