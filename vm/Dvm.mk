@@ -96,43 +96,43 @@ endif  # !dvm_make_debug_vm
 
 LOCAL_SRC_FILES := \
 	AllocTracker.c \
-	Atomic.c.arm \
-	AtomicCache.c \
+	Atomic.c.arch \
+	AtomicCache.c.arch \
 	CheckJni.c \
 	Ddm.c \
 	Debugger.c \
 	DvmDex.c \
 	Exception.c \
 	Hash.c \
-	IndirectRefTable.c.arm \
+	IndirectRefTable.c.arch \
 	Init.c \
-	InlineNative.c.arm \
+	InlineNative.c.arch \
 	Inlines.c \
 	Intern.c \
 	Jni.c \
 	JarFile.c \
 	LinearAlloc.c \
-	Misc.c.arm \
+	Misc.c.arch \
 	Native.c \
 	PointerSet.c \
-	Profile.c \
+	Profile.c.arch \
 	Properties.c \
 	RawDexFile.c \
 	ReferenceTable.c \
 	SignalCatcher.c \
 	StdioConverter.c \
-	Sync.c \
+	Sync.c.arch \
 	TestCompability.c \
 	Thread.c \
-	UtfString.c \
-	alloc/clz.c.arm \
+	UtfString.c.arch \
+	alloc/clz.c.arch \
 	alloc/Alloc.c \
 	alloc/CardTable.c \
-	alloc/HeapBitmap.c.arm \
+	alloc/HeapBitmap.c.arch \
 	alloc/HeapDebug.c \
 	alloc/HeapTable.c \
 	alloc/HeapWorker.c \
-	alloc/Heap.c.arm \
+	alloc/Heap.c.arch \
 	alloc/DdmHeap.c \
 	alloc/Verify.c \
 	alloc/Visit.c \
@@ -142,7 +142,7 @@ LOCAL_SRC_FILES := \
 	analysis/Optimize.c \
 	analysis/RegisterMap.c \
 	analysis/VerifySubs.c \
-	interp/Interp.c.arm \
+	interp/Interp.c.arch \
 	interp/Stack.c \
 	jdwp/ExpandBuf.c \
 	jdwp/JdwpAdb.c \
@@ -151,9 +151,9 @@ LOCAL_SRC_FILES := \
 	jdwp/JdwpHandler.c \
 	jdwp/JdwpMain.c \
 	jdwp/JdwpSocket.c \
-	mterp/Mterp.c.arm \
-	mterp/out/InterpC-portstd.c.arm \
-	mterp/out/InterpC-portdbg.c.arm \
+	mterp/Mterp.c.arch \
+	mterp/out/InterpC-portstd.c.arch \
+	mterp/out/InterpC-portdbg.c.arch \
 	native/InternalNative.c \
 	native/dalvik_system_DexFile.c \
 	native/dalvik_system_VMDebug.c \
@@ -180,17 +180,17 @@ LOCAL_SRC_FILES := \
 	native/org_apache_harmony_dalvik_NativeTestTarget.c \
 	native/org_apache_harmony_dalvik_ddmc_DdmServer.c \
 	native/org_apache_harmony_dalvik_ddmc_DdmVmInternal.c \
-	native/sun_misc_Unsafe.c \
+	native/sun_misc_Unsafe.c.arch \
 	oo/AccessCheck.c \
-	oo/Array.c \
-	oo/Class.c \
+	oo/Array.c.arch \
+	oo/Class.c.arch \
 	oo/Object.c \
 	oo/Resolve.c \
 	oo/TypeCheck.c \
 	reflect/Annotation.c \
 	reflect/Proxy.c \
 	reflect/Reflect.c \
-	test/AtomicTest.c.arm \
+	test/AtomicTest.c.arch \
 	test/TestHash.c \
 	test/TestIndirectRefTable.c
 
@@ -203,11 +203,11 @@ WITH_COPYING_GC := $(strip $(WITH_COPYING_GC))
 ifeq ($(WITH_COPYING_GC),true)
   LOCAL_CFLAGS += -DWITH_COPYING_GC
   LOCAL_SRC_FILES += \
-	alloc/Copying.c.arm
+	alloc/Copying.c.arch
 else
   LOCAL_SRC_FILES += \
 	alloc/HeapSource.c \
-	alloc/MarkSweep.c.arm
+	alloc/MarkSweep.c.arch
 endif
 
 WITH_JIT := $(strip $(WITH_JIT))
@@ -223,7 +223,7 @@ ifeq ($(WITH_JIT),true)
 	compiler/Dataflow.c \
 	compiler/Loop.c \
 	compiler/Ralloc.c \
-	interp/Jit.c
+	interp/Jit.c.arch
 endif
 
 WITH_HPROF := $(strip $(WITH_HPROF))
@@ -275,7 +275,7 @@ ifeq ($(dvm_arch),arm)
 		arch/arm/CallOldABI.S \
 		arch/arm/CallEABI.S \
 		arch/arm/HintsEABI.c \
-		mterp/out/InterpC-$(dvm_arch_variant).c.arm \
+		mterp/out/InterpC-$(dvm_arch_variant).c.arch \
 		mterp/out/InterpAsm-$(dvm_arch_variant).S
 
   ifeq ($(WITH_JIT),true)
