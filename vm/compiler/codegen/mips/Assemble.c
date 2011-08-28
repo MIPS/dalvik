@@ -1246,7 +1246,7 @@ void dvmJitUnchainAll()
                       dvmJitUnchain(gDvmJit.pJitEntryTable[i].codeAddress);
                 if (lowAddress == NULL ||
                       (u4*)gDvmJit.pJitEntryTable[i].codeAddress < lowAddress)
-                    lowAddress = lastAddress;
+                    lowAddress = (u4*)gDvmJit.pJitEntryTable[i].codeAddress;
                 if (lastAddress > highAddress)
                     highAddress = lastAddress;
             }
