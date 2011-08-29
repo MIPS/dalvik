@@ -3609,33 +3609,10 @@ static bool handleFmt51l(CompilationUnit *cUnit, MIR *mir)
  * Dalvik PC and special-purpose registers are reconstructed here.
  */
 
-/*
- * Insert a
- *    b   .+4
- *    nop
- * pair at the beginning of a chaining cell.  This serves as the
- * switch branch that selects between reverting to the interpreter or
- * not.  Once the cell is chained to a translation, the cell will
- * contain a 32-bit branch.  Subsequent chain/unchain operations will
- * then only alter that first 16-bits - the "b .+4" for unchaining,
- * and the restoration of the first half of the 32-bit branch for
- * rechaining.
- */
-static void insertChainingSwitch(CompilationUnit *cUnit)
-{
-    MipsLIR *branch = newLIR0(cUnit, kMipsB);
-    //newLIR3(cUnit, kMipsOr, r_A0, r_A0, r_A0);
-    newLIR0(cUnit, kMipsNop);  /* prevents another nop added by delay slot code */
-    MipsLIR *target = newLIR0(cUnit, kMipsPseudoTargetLabel);
-    target->defMask = ENCODE_ALL;
-    branch->generic.target = (LIR *) target;
-}
-
 /* Chaining cell for code that may need warmup. */
 static void handleNormalChainingCell(CompilationUnit *cUnit,
                                      unsigned int offset)
 {
-    insertChainingSwitch(cUnit);
     newLIR3(cUnit, kMipsLw, r_A0,
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpNormal),
         rGLUE);
@@ -3650,7 +3627,6 @@ static void handleNormalChainingCell(CompilationUnit *cUnit,
 static void handleHotChainingCell(CompilationUnit *cUnit,
                                   unsigned int offset)
 {
-    insertChainingSwitch(cUnit);
     newLIR3(cUnit, kMipsLw, r_A0,
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpTraceSelect),
         rGLUE);
@@ -3667,7 +3643,6 @@ static void handleBackwardBranchChainingCell(CompilationUnit *cUnit,
      * Use raw instruction constructors to guarantee that the generated
      * instructions fit the predefined cell size.
      */
-     insertChainingSwitch(cUnit);
 #if defined(WITH_SELF_VERIFICATION)
     newLIR3(cUnit, kMipsLw, r_A0,
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpBackwardBranch),
@@ -3686,7 +3661,6 @@ static void handleBackwardBranchChainingCell(CompilationUnit *cUnit,
 static void handleInvokeSingletonChainingCell(CompilationUnit *cUnit,
                                               const Method *callee)
 {
-    insertChainingSwitch(cUnit);
     newLIR3(cUnit, kMipsLw, r_A0,
         offsetof(InterpState, jitToInterpEntries.dvmJitToInterpTraceSelect),
         rGLUE);

@@ -1188,20 +1188,16 @@ u4* dvmJitUnchain(void* codeAddr)
             int targetOffset;
             switch(i) {
                 case kChainingCellNormal:
+                    targetOffset = offsetof(InterpState,
+                          jitToInterpEntries.dvmJitToInterpNormal);
+                    break;
                 case kChainingCellHot:
                 case kChainingCellInvokeSingleton:
-                    case kChainingCellBackwardBranch:
-                    /*
-                     * Replace the 1st half-word of the cell with an
-                     * unconditional branch, leaving the 2nd half-word
-                     * untouched.  This avoids problems with a thread
-                     * that is suspended between the two halves when
-                     * this unchaining takes place.
-                     */
-                    newInst = getSkeleton(kMipsB) | 1; /* b offset is 1 */
-                    *pChainCells = newInst;
+                    targetOffset = offsetof(InterpState,
+                          jitToInterpEntries.dvmJitToInterpTraceSelect);
                     break;
                 case kChainingCellInvokePredicted:
+                    targetOffset = 0;
                     predChainCell = (PredictedChainingCell *) pChainCells;
                     /*
                      * There could be a race on another mutator thread to use
@@ -1212,12 +1208,35 @@ u4* dvmJitUnchain(void* codeAddr)
                      */
                     predChainCell->clazz = PREDICTED_CHAIN_CLAZZ_INIT;
                     break;
+#if defined(WITH_SELF_VERIFICATION)
+                case kChainingCellBackwardBranch:
+                    targetOffset = offsetof(InterpState,
+                          jitToInterpEntries.dvmJitToInterpBackwardBranch);
+                    break;
+#elif defined(WITH_JIT_TUNING)
+                case kChainingCellBackwardBranch:
+                    targetOffset = offsetof(InterpState,
+                          jitToInterpEntries.dvmJitToInterpNormal);
+                    break;
+#endif
                 default:
+                    targetOffset = 0; // make gcc happy
                     LOGE("Unexpected chaining type: %d", i);
                     dvmAbort();  // dvmAbort OK here - can't safely recover
             }
             COMPILER_TRACE_CHAINING(
                 LOGD("Jit Runtime: unchaining 0x%x", (int)pChainCells));
+            /*
+             * Code sequence for a chaining cell is:
+             *     lw   a0, offset(rGLUE)
+             *     jalr ra, a0
+             */
+            if (i != kChainingCellInvokePredicted) {
+                *pChainCells = getSkeleton(kMipsLw) | (r_A0 << 16) |
+                               targetOffset | (rGLUE << 21);
+                *(pChainCells+1) = getSkeleton(kMipsJalr) | (r_RA << 11) |
+                                   (r_A0 << 21);
+            }
             pChainCells += elemSize;  /* Advance by a fixed number of words */
         }
     }
