@@ -150,7 +150,7 @@ dvmJitToInterpTraceSelectNoChain:
 dvmJitToInterpTraceSelect:
     lw    gp, STACK_OFFSET_GP(sp)
     lw    rPC, (ra)               # get our target PC
-    subu  rINST, ra, 8            # save start of chain branch
+    subu  rINST, ra, 20           # save start of chain branch
     move  a0, rPC
     JAL(dvmJitGetCodeAddr)        # Is there a translation?
     lw    t0, offGlue_self(rGLUE) # callee saved t0 <- glue->self
@@ -195,7 +195,7 @@ dvmJitToInterpTraceSelect:
 dvmJitToInterpNormal:
     lw    gp, STACK_OFFSET_GP(sp)
     lw    rPC, (ra)               # get our target PC
-    subu  rINST, ra, 8            # save start of chain branch
+    subu  rINST, ra, 20           # save start of chain branch
 #if defined(WITH_JIT_TUNING)
     JAL(dvmBumpNormal)
 #endif
