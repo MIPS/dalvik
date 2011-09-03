@@ -830,16 +830,15 @@ dvmCompiler_TEMPLATE_SHL_LONG:
      * 6 bits.
      */
     /* shl-long vAA:vBB(rARG1:rARG0), vCC(a2) - result in (rRESULT1:rRESULT0) */
-    andi    a2, 0x3f			#  shift<- shift & 0x3f
-    sll     rRESULT0, rARG0, a2		#  rlo<- alo << shift
+    sll     rRESULT0, rARG0, a2		#  rlo<- alo << (shift&31)
     not     rRESULT1, a2		#  rhi<- 31-shift  (shift is 5b)
     srl     rARG0, 1
-    srl     rARG0, rRESULT1		#  alo<- alo >> (32-shift)
-    sll     rRESULT1, rARG1, a2		#  rhi<- ahi << shift
+    srl     rARG0, rRESULT1		#  alo<- alo >> (32-(shift&31))
+    sll     rRESULT1, rARG1, a2		#  rhi<- ahi << (shift&31)
     or      rRESULT1, rARG0		#  rhi<- rhi | alo
     andi    a2, 0x20			#  shift< shift & 0x20
     movn    rRESULT1, rRESULT0, a2	#  rhi<- rlo (if shift&0x20)
-    movn    rRESULT0, zero, a2		#  rlo<- 0  (if shift & 0x20)
+    movn    rRESULT0, zero, a2		#  rlo<- 0  (if shift&0x20)
     RETURN
 
 /* ------------------------------ */
@@ -854,17 +853,16 @@ dvmCompiler_TEMPLATE_SHR_LONG:
      * 6 bits.
      */
     /* shr-long vAA:vBB(rARG1:rARG0), vCC(a2) - result in (rRESULT1:rRESULT0) */
-    andi    a2, 0x3f			#  shift<- shift & 0x3f
-    sra     rRESULT1, rARG1, a2		#  rhi<- ahi >> shift
-    srl     rRESULT0, rARG0, a2		#  rlo<- alo >> shift
+    sra     rRESULT1, rARG1, a2		#  rhi<- ahi >> (shift&31)
+    srl     rRESULT0, rARG0, a2		#  rlo<- alo >> (shift&31)
     sra     a3, rARG1, 31		#  a3<- sign(ah)
-    not     rARG0, a2			#  alo<- 31-n  (shift is 5b)
+    not     rARG0, a2			#  alo<- 31-shift (shift is 5b)
     sll     rARG1, 1
-    sll     rARG1, rARG0		#  ahi<- ahi << (32-shift)
+    sll     rARG1, rARG0		#  ahi<- ahi << (32-(shift&31))
     or      rRESULT0, rARG1		#  rlo<- rlo | ahi
     andi    a2, 0x20			#  shift & 0x20
-    movn    rRESULT0, rRESULT1, a2	#  rlo<- rhi (if n=32)
-    movn    rRESULT1, a3, a2		#  rhi<- sign(ahi) (if n=32)
+    movn    rRESULT0, rRESULT1, a2	#  rlo<- rhi (if shift&0x20)
+    movn    rRESULT1, a3, a2		#  rhi<- sign(ahi) (if shift&0x20)
     RETURN
 
 /* ------------------------------ */
@@ -879,16 +877,15 @@ dvmCompiler_TEMPLATE_USHR_LONG:
      * 6 bits.
      */
     /* ushr-long vAA:vBB(rARG1:rARG0), vCC(a2) - result in (rRESULT1:rRESULT0) */
-    andi    a2, 0x3f			#  shift<- shift & 0x3f
-    srl     rRESULT1, rARG1, a2		#  rhi<- ahi >> shift
-    srl     rRESULT0, rARG0, a2		#  rlo<- alo >> shift
+    srl     rRESULT1, rARG1, a2		#  rhi<- ahi >> (shift&31)
+    srl     rRESULT0, rARG0, a2		#  rlo<- alo >> (shift&31)
     not     rARG0, a2			#  alo<- 31-n  (shift is 5b)
     sll     rARG1, 1
-    sll     rARG1, rARG0		#  ahi<- ahi << (32-shift)
+    sll     rARG1, rARG0		#  ahi<- ahi << (32-(shift&31))
     or      rRESULT0, rARG1		#  rlo<- rlo | ahi
     andi    a2, 0x20			#  shift & 0x20
-    movn    rRESULT0, rRESULT1, a2	#  rlo<- rhi (if n=32)
-    movn    rRESULT1, zero, a2		#  rhi<- 0 (if n=32)
+    movn    rRESULT0, rRESULT1, a2	#  rlo<- rhi (if shift&0x20)
+    movn    rRESULT1, zero, a2		#  rhi<- 0 (if shift&0x20)
     RETURN
 
 /* ------------------------------ */
