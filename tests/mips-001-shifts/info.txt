@@ -1,0 +1,4 @@
+Test shift operations
+
+The test shifts various test patterns using shift operations and bit manipulations
+
