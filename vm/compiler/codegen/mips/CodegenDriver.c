@@ -3921,7 +3921,7 @@ static void genValidationForPredictedInline(CompilationUnit *cUnit, MIR *mir)
      * Set the misPredBranchOver target so that it will be generated when the
      * code for the non-optimized invoke is generated.
      */
-    callsiteInfo->misPredBranchOver = (LIR *) opCondBranchMips(cUnit, kMipsCondNe, regPredictedClass, regActualClass);
+    callsiteInfo->misPredBranchOver = (LIR *) opCondBranchMips(cUnit, kMipsBne, regPredictedClass, regActualClass);
 }
 
 /* Extended MIR instructions like PHI */
