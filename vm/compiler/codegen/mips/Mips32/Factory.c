@@ -109,7 +109,8 @@ static MipsLIR *loadConstantNoClobber(CompilationUnit *cUnit, int rDest,
         res = newLIR3(cUnit, kMipsAddiu, rDest, r_ZERO, value); 
     } else {
         res = newLIR2(cUnit, kMipsLui, rDest, value>>16);
-        newLIR3(cUnit, kMipsOri, rDest, rDest, value); 
+        if (value & 0xffff)
+	    newLIR3(cUnit, kMipsOri, rDest, rDest, value);
     }
 
 #ifdef __mips_hard_float
