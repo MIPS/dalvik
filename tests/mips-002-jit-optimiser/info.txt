@@ -1,0 +1,4 @@
+This test covers MIPS JIT regressions
+
+movsTest mul.d/mov.s/mov.s combinations
+
