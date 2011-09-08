@@ -60,10 +60,11 @@ static void buildInsnString(char *fmt, MipsLIR *lir, char* buf,
                        }
                        break;
                    case 's':
-                       sprintf(tbuf,"f%d",operand & FP_REG_MASK);
+                       sprintf(tbuf,"$f%d",operand & FP_REG_MASK);
                        break;
                    case 'S':
-                       sprintf(tbuf,"df%d",(operand & FP_REG_MASK) >> 1);
+		       assert(((operand & FP_REG_MASK) & 1) == 0);
+                       sprintf(tbuf,"$f%d",operand & FP_REG_MASK);
                        break;
                    case 'h':
                        sprintf(tbuf,"%04x", operand);
@@ -278,8 +279,8 @@ void dvmDumpLIRInsn(LIR *arg, unsigned char *baseAddr)
                             baseAddr, 256);
             buildInsnString(EncodingMap[lir->opCode].fmt, lir, buf, baseAddr,
                             256);
-            LOGD("%p (%04x): %-8s%s%s\n",
-                 baseAddr + offset, offset, opName, buf,
+            LOGD("%p (%04x): %08x %-9s%s%s\n",
+                 baseAddr + offset, offset, *(u4 *)(baseAddr + offset), opName, buf,
                  lir->isNop ? "(nop)" : "");
             break;
     }
