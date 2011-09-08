@@ -168,6 +168,67 @@ static void applyCopyPropagation(CompilationUnit *cUnit)
 }
 
 /*
+ * Look for pairs of instructions that can be combined
+ */
+static void mergeInstructions(CompilationUnit *cUnit)
+{
+  MipsLIR *movsLIR = NULL;
+  MipsLIR *thisLIR;
+
+  for (thisLIR = (MipsLIR *) cUnit->firstLIRInsn;
+       thisLIR != (MipsLIR *) cUnit->lastLIRInsn;
+       thisLIR = NEXT_LIR(thisLIR)) {
+    if (thisLIR->isNop)
+      continue;
+
+    if (isPseudoOpCode(thisLIR->opcode)) {
+      if (thisLIR->opcode == kMipsPseudoDalvikByteCodeBoundary ||
+                thisLIR->opcode == kMipsPseudoExtended ||
+	  thisLIR->opcode == kMipsPseudoSSARep)
+	continue;  /* ok to move across these pseudos */
+      movsLIR = NULL; /* don't merge across other pseudos */
+      continue;
+    }
+
+    /* merge pairs of mov.s instructions */
+    if (thisLIR->opcode == kMipsFmovs) {
+      if (movsLIR == NULL)
+	movsLIR = thisLIR;
+      else if (((movsLIR->operands[0] & 1) == 0) &&
+	       ((movsLIR->operands[1] & 1) == 0) &&
+	       ((movsLIR->operands[0] + 1) == thisLIR->operands[0]) &&
+	       ((movsLIR->operands[1] + 1) == thisLIR->operands[1])) {
+	/* movsLIR is handling even register - upgrade to mov.d */
+	movsLIR->opcode = kMipsFmovd;
+	movsLIR->operands[0] = S2D(movsLIR->operands[0], movsLIR->operands[0]+1);
+	movsLIR->operands[1] = S2D(movsLIR->operands[1], movsLIR->operands[1]+1);
+	thisLIR->isNop = true;
+	movsLIR = NULL;
+      }
+      else if (((movsLIR->operands[0] & 1) == 1) &&
+	       ((movsLIR->operands[1] & 1) == 1) &&
+	       ((movsLIR->operands[0] - 1) == thisLIR->operands[0]) &&
+	       ((movsLIR->operands[1] - 1) == thisLIR->operands[1])) {
+	/* thissLIR is handling even register - upgrade to mov.d */
+	thisLIR->opcode = kMipsFmovd;
+	thisLIR->operands[0] = S2D(thisLIR->operands[0], thisLIR->operands[0]+1);
+	thisLIR->operands[1] = S2D(thisLIR->operands[1], thisLIR->operands[1]+1);
+	movsLIR->isNop = true;
+	movsLIR = NULL;
+      }
+      else
+	/* carry on searching from here */
+	movsLIR = thisLIR;
+      continue;
+    }
+
+    /* intervening instruction - start search from scratch */
+    movsLIR = NULL;
+  }
+}
+
+
+/*
  * Look back first and then ahead to try to find an instruction to move into
  * the branch delay slot.  If the analysis can be done cheaply enough, it may be
  * be possible to tune this routine to be more beneficial (e.g., being more 
@@ -339,5 +400,6 @@ void dvmCompilerApplyGlobalOptimizations(CompilationUnit *cUnit)
 {
     applyRedundantBranchElimination(cUnit);
     applyCopyPropagation(cUnit);
+    mergeInstructions(cUnit);
     introduceBranchDelaySlot(cUnit);
 }
