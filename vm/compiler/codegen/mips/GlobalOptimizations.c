@@ -167,10 +167,11 @@ static void applyCopyPropagation(CompilationUnit *cUnit)
     }
 }
 
+#ifdef __mips_hard_float
 /*
- * Look for pairs of instructions that can be combined
+ * Look for pairs of mov.s instructions that can be combined into mov.d
  */
-static void mergeInstructions(CompilationUnit *cUnit)
+static void mergeMovs(CompilationUnit *cUnit)
 {
   MipsLIR *movsLIR = NULL;
   MipsLIR *thisLIR;
@@ -181,17 +182,17 @@ static void mergeInstructions(CompilationUnit *cUnit)
     if (thisLIR->isNop)
       continue;
 
-    if (isPseudoOpCode(thisLIR->opcode)) {
-      if (thisLIR->opcode == kMipsPseudoDalvikByteCodeBoundary ||
-                thisLIR->opcode == kMipsPseudoExtended ||
-	  thisLIR->opcode == kMipsPseudoSSARep)
+    if (isPseudoOpCode(thisLIR->opCode)) {
+      if (thisLIR->opCode == kMipsPseudoDalvikByteCodeBoundary ||
+                thisLIR->opCode == kMipsPseudoExtended ||
+	  thisLIR->opCode == kMipsPseudoSSARep)
 	continue;  /* ok to move across these pseudos */
       movsLIR = NULL; /* don't merge across other pseudos */
       continue;
     }
 
     /* merge pairs of mov.s instructions */
-    if (thisLIR->opcode == kMipsFmovs) {
+    if (thisLIR->opCode == kMipsFmovs) {
       if (movsLIR == NULL)
 	movsLIR = thisLIR;
       else if (((movsLIR->operands[0] & 1) == 0) &&
@@ -199,7 +200,7 @@ static void mergeInstructions(CompilationUnit *cUnit)
 	       ((movsLIR->operands[0] + 1) == thisLIR->operands[0]) &&
 	       ((movsLIR->operands[1] + 1) == thisLIR->operands[1])) {
 	/* movsLIR is handling even register - upgrade to mov.d */
-	movsLIR->opcode = kMipsFmovd;
+	movsLIR->opCode = kMipsFmovd;
 	movsLIR->operands[0] = S2D(movsLIR->operands[0], movsLIR->operands[0]+1);
 	movsLIR->operands[1] = S2D(movsLIR->operands[1], movsLIR->operands[1]+1);
 	thisLIR->isNop = true;
@@ -210,7 +211,7 @@ static void mergeInstructions(CompilationUnit *cUnit)
 	       ((movsLIR->operands[0] - 1) == thisLIR->operands[0]) &&
 	       ((movsLIR->operands[1] - 1) == thisLIR->operands[1])) {
 	/* thissLIR is handling even register - upgrade to mov.d */
-	thisLIR->opcode = kMipsFmovd;
+	thisLIR->opCode = kMipsFmovd;
 	thisLIR->operands[0] = S2D(thisLIR->operands[0], thisLIR->operands[0]+1);
 	thisLIR->operands[1] = S2D(thisLIR->operands[1], thisLIR->operands[1]+1);
 	movsLIR->isNop = true;
@@ -226,6 +227,7 @@ static void mergeInstructions(CompilationUnit *cUnit)
     movsLIR = NULL;
   }
 }
+#endif
 
 
 /*
@@ -400,6 +402,8 @@ void dvmCompilerApplyGlobalOptimizations(CompilationUnit *cUnit)
 {
     applyRedundantBranchElimination(cUnit);
     applyCopyPropagation(cUnit);
-    mergeInstructions(cUnit);
+#ifdef __mips_hard_float
+    mergeMovs(cUnit);
+#endif
     introduceBranchDelaySlot(cUnit);
 }
