@@ -107,6 +107,8 @@ static void applyCopyPropagation(CompilationUnit *cUnit)
             }
 
             if (thisLIR->defMask & nextLIR->defMask) {
+		if (nextLIR->opCode == kMipsMovz)
+		    insnCount = 0; /* movz relies on thisLIR setting dst reg so abandon propagation*/
                 break;
             }
 
