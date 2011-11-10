@@ -415,6 +415,52 @@ static int jitTraceDescriptionSize(const JitTraceDescription *desc)
     return sizeof(JitCodeDesc) + ((runCount+1) * sizeof(JitTraceRun));
 }
 
+/*
+ * Check that a jump instruction is ok from curPC to target
+ */
+static bool badJump(unsigned int curPC, unsigned int target)
+{
+    unsigned int disPC = curPC + 4;	/* branch delay slot address */
+
+    /* The branch delay slot and target must be in same segment */
+    if ((disPC & 0xf0000000) != (target & 0xf0000000))
+       return true;
+
+#ifdef ARCH_MIPS_HAS_JUMP_ERRATA
+    /*
+     * Some cores may set EPC incorrectly if a branch is taken from the
+     * first/last 32K of a 256M segment
+     */
+
+    /* Ok if the branch delay slot is not in the first/last 32K of a 256M segment */
+    if (((disPC & 0x0fff8000) != 0x00000000) &&
+	((disPC | 0xf0007fff) != 0xffffffff))
+	return false;
+
+    /* Ok to jump to an even 2MB region */
+    if ((target & 0x00200000) == 0)
+	return false;
+
+    /* Ok to jump to an even 256KB region */
+    if ((target & 0x00040000) == 0)
+	return false;
+
+    /* Ok to jump from start of 256MB region to even 128KB region */
+    if (((disPC & 0x0fff8000) == 0x00000000) && ((target & 0x00020000) == 0))
+	return false;
+
+    /* Ok to jump from end of 256MB region to odd 128KB region */
+    if (((disPC | 0xf0007fff) == 0xffffffff) && ((target & 0x00020000) != 0))
+	return false;
+
+    /* EPC may be set incorrectly if an exception is taken on this instruction */
+    LOGI("Risky jump from 0x%08x to 0x%08x\n", curPC, target);
+    return true;
+#else
+    return false;
+#endif
+}
+
 /* Return TRUE if error happens */
 static bool assembleInstructions(CompilationUnit *cUnit, intptr_t startAddr)
 {
@@ -474,15 +520,16 @@ static bool assembleInstructions(CompilationUnit *cUnit, intptr_t startAddr)
             }
             lir->operands[2] = delta >> 2;
         } else if (lir->opCode == kMipsJal) {
-            intptr_t curPC = (startAddr + lir->generic.offset + 4) & ~3;
+            intptr_t curPC = (startAddr + lir->generic.offset) & ~3;
             intptr_t target = lir->operands[0];
             /* ensure PC-region branch can be used */
-            assert((curPC & 0xF0000000) == (target & 0xF0000000));
             if (target & 0x3) {
                 LOGE("Jump target is not multiple of 4: %d\n", target);
                 dvmAbort();
             }
-            lir->operands[0] =  target >> 2;
+            if (badJump(curPC, target))
+                return true;
+            lir->operands[0] = target >> 2;
         } else if (lir->opCode == kMipsLahi) { /* load address hi (via lui) */
             MipsLIR *targetLIR = (MipsLIR *) lir->generic.target;
             intptr_t target = startAddr + targetLIR->generic.offset;
@@ -835,8 +882,8 @@ void* dvmJitChain(void* tgtAddr, u4* branchAddr)
      * suspend themselves via the interpreter.
      */
     if ((gDvmJit.pProfTable != NULL) && (gDvm.sumThreadSuspendCount == 0) &&
-        (gDvmJit.codeCacheFull == false) && 
-        ((((int) tgtAddr) & 0xF0000000) == (((int) branchAddr+4) & 0xF0000000))) {
+        (gDvmJit.codeCacheFull == false) &&
+         !badJump((int)branchAddr, (int)tgtAddr)) {
         gDvmJit.translationChains++;
 
         COMPILER_TRACE_CHAINING(
@@ -950,8 +997,8 @@ const Method *dvmJitToPatchPredictedChain(const Method *method,
         goto done;
     }
     int tgtAddr = (int) dvmJitGetCodeAddr(method->insns);
-    int baseAddr = (int) cell + 4;   // PC is cur_addr + 4
-    if ((baseAddr & 0xF0000000) != (tgtAddr & 0xF0000000)) {
+    int baseAddr = (int) cell;   // jump instruction in first location of cell
+    if (badJump(baseAddr, tgtAddr)) {
         cell->counter = PREDICTED_CHAIN_COUNTER_AVOID;
         cacheflush((long) cell, (long) (cell+1), 0);
         COMPILER_TRACE_CHAINING(
