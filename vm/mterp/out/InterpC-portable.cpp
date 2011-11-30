@@ -5359,7 +5359,7 @@ GOTO_TARGET(invokeMethod, bool methodCallRange, const Method* _methodToCall,
 
             /* pop frame off */
             dvmPopJniLocals(self, newSaveArea);
-            self->interpSave.curFrame = fp;
+            self->interpSave.curFrame = fp = newSaveArea->prevFrame;
 
             /*
              * If the native code threw an exception, or interpreted code
