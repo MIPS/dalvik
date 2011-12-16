@@ -185,7 +185,7 @@ LOCAL_SRC_FILES := \
 	test/TestIndirectRefTable.cpp
 
 # TODO: this is the wrong test, but what's the right one?
-ifeq ($(dvm_arch),arm)
+ifneq ($(filter arm mips,$(dvm_arch)),)
   LOCAL_SRC_FILES += os/android.cpp
 else
   LOCAL_SRC_FILES += os/linux.cpp
@@ -252,6 +252,33 @@ ifeq ($(dvm_arch),arm)
 		compiler/codegen/arm/LocalOptimizations.cpp \
 		compiler/codegen/arm/GlobalOptimizations.cpp \
 		compiler/codegen/arm/ArmRallocUtil.cpp \
+		compiler/template/out/CompilerTemplateAsm-$(dvm_arch_variant).S
+  endif
+endif
+
+ifeq ($(dvm_arch),mips)
+  MTERP_ARCH_KNOWN := true
+  ifeq ($(ARCH_MIPS_HAS_FPU),true)
+    LOCAL_CFLAGS += -DDOUBLE_64_BIT_ALIGNED
+  endif
+  LOCAL_C_INCLUDES += external/libffi/$(TARGET_OS)-$(TARGET_ARCH)
+  LOCAL_SHARED_LIBRARIES += libffi
+  LOCAL_SRC_FILES += \
+		arch/generic/Call.cpp \
+		arch/generic/Hints.cpp \
+		mterp/out/InterpC-mips.cpp \
+		mterp/out/InterpAsm-mips.S
+
+  ifeq ($(WITH_JIT),true)
+    dvm_arch_variant := mips
+    LOCAL_SRC_FILES += \
+		compiler/codegen/mips/RallocUtil.cpp \
+		compiler/codegen/mips/$(dvm_arch_variant)/Codegen.cpp \
+		compiler/codegen/mips/$(dvm_arch_variant)/CallingConvention.S \
+		compiler/codegen/mips/Assemble.cpp \
+		compiler/codegen/mips/ArchUtility.cpp \
+		compiler/codegen/mips/LocalOptimizations.cpp \
+		compiler/codegen/mips/GlobalOptimizations.cpp \
 		compiler/template/out/CompilerTemplateAsm-$(dvm_arch_variant).S
   endif
 endif
