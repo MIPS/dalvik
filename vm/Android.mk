@@ -48,6 +48,12 @@ LOCAL_MODULE := libdvm
 LOCAL_CFLAGS += $(target_smp_flag)
 include $(BUILD_SHARED_LIBRARY)
 
+ifeq ($(dvm_arch),mips)
+  ifeq ($(WITH_JIT),true)
+    $(error MIPS JIT is untested, please recompile with WITH_JIT=false)
+  endif
+endif
+
 # If WITH_JIT is configured, build multiple versions of libdvm.so to facilitate
 # correctness/performance bugs triage
 ifeq ($(WITH_JIT),true)
