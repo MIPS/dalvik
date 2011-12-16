@@ -414,6 +414,7 @@ typedef enum MipsOpCode {
     kMipsBgtz,    /* bgtz s,o [000111] s[25..21] [00000] o[15..0] */
     kMipsBlez,    /* blez s,o [000110] s[25..21] [00000] o[15..0] */
     kMipsBltz,    /* bltz s,o [000001] s[25..21] [00000] o[15..0] */
+    kMipsBnez,    /* bnez s,o [000101] s[25..21] [00000] o[15..0] */
     kMipsBne,     /* bne s,t,o [000101] s[25..21] t[20..16] o[15..0] */
     kMipsDiv,     /* div s,t [000000] s[25..21] t[20..16] [0000000000011010] */
 #if __mips_isa_rev>=2
