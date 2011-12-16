@@ -172,7 +172,7 @@ static MipsLIR *opCondBranchMips(CompilationUnit *cUnit, MipsOpCode opc, int rs,
 {
     MipsLIR *res;
     if (rt < 0) {
-      assert(opc >= kMipsBeqz && opc <= kMipsBltz);
+      assert(opc >= kMipsBeqz && opc <= kMipsBnez);
       res = newLIR1(cUnit, opc, rs);
     } else  {
       assert(opc == kMipsBeq || opc == kMipsBne);
@@ -914,6 +914,8 @@ static inline MipsLIR *genRegImmCheck(CompilationUnit *cUnit,
         MipsOpCode opc = kMipsNop;
         if (cond == kMipsCondEq) {
             opc = kMipsBeqz;
+	} else if (cond == kMipsCondNe) {
+            opc = kMipsBnez;
         } else if (cond == kMipsCondLt || cond == kMipsCondMi) {
             opc = kMipsBltz;
         } else if (cond == kMipsCondLe) {

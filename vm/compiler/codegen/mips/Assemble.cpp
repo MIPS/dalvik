@@ -130,6 +130,10 @@ MipsEncodingMap EncodingMap[kMipsLast] = {
                  kFmtBitBlt, 25, 21, kFmtBitBlt, 15, 0, kFmtUnused, -1, -1,
                  kFmtUnused, -1, -1, IS_UNARY_OP | IS_BRANCH | REG_USE0,
                  "bltz", "!0r,!1t", 2),
+    ENCODING_MAP(kMipsBnez, 0x14000000, /* same as bne below with t = $zero */
+                 kFmtBitBlt, 25, 21, kFmtBitBlt, 15, 0, kFmtUnused, -1, -1,
+                 kFmtUnused, -1, -1, IS_UNARY_OP | IS_BRANCH | REG_USE0,
+                 "bnez", "!0r,!1t", 2),
     ENCODING_MAP(kMipsBne, 0x14000000,
                  kFmtBitBlt, 25, 21, kFmtBitBlt, 20, 16, kFmtBitBlt, 15, 0,
                  kFmtUnused, -1, -1, IS_BINARY_OP | IS_BRANCH | REG_USE01,
@@ -466,7 +470,7 @@ static AssemblerStatus assembleInstructions(CompilationUnit *cUnit,
                 dvmAbort();
             }
             lir->operands[0] = delta >> 2;
-        } else if (lir->opcode >= kMipsBeqz && lir->opcode <= kMipsBltz) {
+        } else if (lir->opcode >= kMipsBeqz && lir->opcode <= kMipsBnez) {
             MipsLIR *targetLIR = (MipsLIR *) lir->generic.target;
             intptr_t pc = lir->generic.offset + 4;
             intptr_t target = targetLIR->generic.offset;
