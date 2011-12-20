@@ -15953,6 +15953,21 @@ dvmAsmSisterEnd:
 #if defined(WITH_JIT)
 #if defined(WITH_SELF_VERIFICATION)
 
+/*
+ * "longjmp" to a translation after single-stepping.  Before returning
+ * to translation, must save state for self-verification.
+ */
+    .global dvmJitResumeTranslation             # (Thread* self, u4* dFP)
+dvmJitResumeTranslation:
+    move    rSELF, a0                           # restore self
+    move    rPC, a1                             # restore Dalvik pc
+    move    rFP, a2                             # restore Dalvik fp
+    lw      rBIX, offThread_jitResumeNPC(rSELF)
+    sw      zero, offThread_jitResumeNPC(rSELF) # reset resume address
+    lw      sp, offThread_jitResumeNSP(rSELF)   # cut back native stack
+    b       jitSVShadowRunStart                 # resume as if cache hit
+                                                # expects resume addr in rBIX
+
     .global dvmJitToInterpPunt
 dvmJitToInterpPunt:
     li        a2, kSVSPunt                 #  a2 <- interpreter entry point
@@ -15984,21 +15999,21 @@ dvmJitToInterpTraceSelectNoChain:
 
     .global dvmJitToInterpTraceSelect
 dvmJitToInterpTraceSelect:
-    lw        a0, -1(ra)                   #  pass our target PC
+    lw        a0, 0(ra)                   #  pass our target PC
     li        a2, kSVSTraceSelect          #  a2 <- interpreter entry point
     sw        zero, offThread_inJitCodeCache(rSELF) #  Back to the interp land
     b         jitSVShadowRunEnd            #  doesn't return
 
     .global dvmJitToInterpBackwardBranch
 dvmJitToInterpBackwardBranch:
-    lw        a0, -1(ra)                   #  pass our target PC
+    lw        a0, 0(ra)                   #  pass our target PC
     li        a2, kSVSBackwardBranch       #  a2 <- interpreter entry point
     sw        zero, offThread_inJitCodeCache(rSELF) #  Back to the interp land
     b         jitSVShadowRunEnd            #  doesn't return
 
     .global dvmJitToInterpNormal
 dvmJitToInterpNormal:
-    lw        a0, -1(ra)                   #  pass our target PC
+    lw        a0, 0(ra)                   #  pass our target PC
     li        a2, kSVSNormal               #  a2 <- interpreter entry point
     sw        zero, offThread_inJitCodeCache(rSELF) #  Back to the interp land
     b         jitSVShadowRunEnd            #  doesn't return
@@ -16024,6 +16039,7 @@ dvmJitResumeTranslation:
     sw      zero, offThread_jitResumeNPC(rSELF) # reset resume address
     lw      sp, offThread_jitResumeNSP(rSELF)   # cut back native stack
     jr      a0                                  # resume translation
+
 
 /*
  * Return from the translation cache to the interpreter when the compiler is
@@ -16057,13 +16073,7 @@ dvmJitToInterpPunt:
 
     .global dvmJitToInterpSingleStep
 dvmJitToInterpSingleStep:
-#if 0
     lw        gp, STACK_OFFSET_GP(sp)
-    sw        ra, offThread_jitResumeNPC(rSELF)
-    sw        a1, offThread_jitResumeDPC(rSELF)
-    li        a1, kInterpEntryInstr
-    sw        a1, offThread_entryPoint(rSELF)
-#endif
     move      rPC, a0                       # set up dalvik pc
     EXPORT_PC()
     sw        ra, offThread_jitResumeNPC(rSELF)
@@ -16072,7 +16082,8 @@ dvmJitToInterpSingleStep:
     li        a1, 1
     sw        a1, offThread_singleStepCount(rSELF) # just step once
     move      a0, rSELF
-    JAL(dvmEnableSubMode)
+    li        a1, kSubModeCountedStep
+    JAL(dvmEnableSubMode)                   # (self, subMode)
     lw        rIBASE, offThread_curHandlerTable(rSELF)
     FETCH_INST()
     GET_INST_OPCODE(t0)
@@ -16090,6 +16101,7 @@ dvmJitToInterpTraceSelectNoChain:
     move      a0, rPC
     move      a1, rSELF
     JAL(dvmJitGetTraceAddrThread)          # (pc, self)
+    move      a0, v0
     sw        a0, offThread_inJitCodeCache(rSELF) # set the inJitCodeCache flag
     move      a1, rPC                      # arg1 of translation may need this
     move      ra, zero                     #  in case target is HANDLER_INTERPRET
@@ -16292,10 +16304,10 @@ skip_ask_for_trace_selection:
      * that translation is actually the interpret-only pseudo-translation
      * we want to treat it the same as no translation.
      */
-    move      t9, a0                       #  save target
+    move      rBIX, a0                     #  save target
     jal       dvmCompilerGetInterpretTemplate
     # special case?
-    bne       a0, t9, jitSVShadowRunStart  #  set up self verification shadow space
+    bne       v0, rBIX, jitSVShadowRunStart  #  set up self verification shadow space
     # Need to clear the inJitCodeCache flag
     sw        zero, offThread_inJitCodeCache(rSELF) #  back to the interp land
     GET_INST_OPCODE(t0)
@@ -16347,10 +16359,10 @@ jitSVShadowRunStart:
     move      a0, rPC                      #  r0 <- program counter
     move      a1, rFP                      #  r1 <- frame pointer
     move      a2, rSELF                    #  r2 <- InterpState pointer
-    move      a3, t9                       #  r3 <- target translation
+    move      a3, rBIX                     #  r3 <- target translation
     jal       dvmSelfVerificationSaveState #  save registers to shadow space
-    lw        rFP, offShadowSpace_shadowFP(a0) #  rFP <- fp in shadow space
-    jr        t9                           #  jump to the translation
+    lw        rFP, offShadowSpace_shadowFP(v0) #  rFP <- fp in shadow space
+    jr        rBIX                         #  jump to the translation
 
 /*
  * Restore PC, registers, and interpState to original values
@@ -16367,7 +16379,7 @@ jitSVShadowRunEnd:
     # Setup SV single-stepping
     move      a0, rSELF
     li        a1, kSubModeJitSV
-    jal       dvmEnableSubMode             # (self, subMode)
+    JAL(dvmEnableSubMode)                  # (self, subMode)
     li        a2, kJitSelfVerification     #  ask for self verification
     sw        a2, offThread_jitState(rSELF)
     # Intentional fallthrough
