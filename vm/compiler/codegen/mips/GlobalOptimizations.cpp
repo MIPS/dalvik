@@ -101,27 +101,9 @@ static void applyCopyPropagation(CompilationUnit *cUnit)
                 break; /* reached end for copy propagation */
             }
 
-            /* copy def reg used here, so record insn for copy propagation */
-            if (thisLIR->defMask & nextLIR->useMask) {
-                if (insnCount == max_insns || srcRedefined) {
-                    insnCount = 0;
-                    break; /* just give up if too many or not possible */
-                }
-                savedLIR[insnCount++] = nextLIR;
-            }
-
-            if (thisLIR->defMask & nextLIR->defMask) {
-		if (nextLIR->opcode == kMipsMovz)
-		    insnCount = 0; /* movz relies on thisLIR setting dst reg so abandon propagation*/
-                break;
-            }
-
-            /* copy src reg redefined here, so can't propagate further */
-            if (thisLIR->useMask & nextLIR->defMask) {
-                if (insnCount == 0)
-                    break; /* nothing to propagate */
-                srcRedefined = 1;
-            }
+            /* Since instructions with IS_BRANCH flag set will have its */
+            /* useMask and defMask set to ENCODE_ALL, any checking of   */
+            /* these flags must come after the branching checks.        */
 
             /* don't propagate across branch/jump and link case
                or jump via register */
@@ -145,6 +127,31 @@ static void applyCopyPropagation(CompilationUnit *cUnit)
                     insnCount = 0;
                     break;
                 }
+                /* FIXME - for now don't propagate across any branch/jump. */
+                insnCount = 0;
+                break;
+            }
+
+            /* copy def reg used here, so record insn for copy propagation */
+            if (thisLIR->defMask & nextLIR->useMask) {
+                if (insnCount == max_insns || srcRedefined) {
+                    insnCount = 0;
+                    break; /* just give up if too many or not possible */
+                }
+                savedLIR[insnCount++] = nextLIR;
+            }
+
+            if (thisLIR->defMask & nextLIR->defMask) {
+		if (nextLIR->opcode == kMipsMovz)
+		    insnCount = 0; /* movz relies on thisLIR setting dst reg so abandon propagation*/
+                break;
+            }
+
+            /* copy src reg redefined here, so can't propagate further */
+            if (thisLIR->useMask & nextLIR->defMask) {
+                if (insnCount == 0)
+                    break; /* nothing to propagate */
+                srcRedefined = 1;
             }
        }
 
