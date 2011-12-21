@@ -655,7 +655,7 @@ static int assignLiteralOffset(CompilationUnit *cUnit, int offset)
  *   |  .                            .
  *   |  |                            |
  *   |  +----------------------------+
- *   |  | Chaining Cells             |  -> 16 bytes, 4 byte aligned
+ *   |  | Chaining Cells             |  -> 16/20 bytes, 4 byte aligned
  *   |  .                            .
  *   |  .                            .
  *   |  |                            |
@@ -1356,7 +1356,7 @@ static u4* unchainSingle(JitEntry *trace)
                     targetOffset = offsetof(Thread,
                           jitToInterpEntries.dvmJitToInterpBackwardBranch);
                     break;
-#elif defined(WITH_JIT_TUNING)
+#else
                 case kChainingCellBackwardBranch:
                     targetOffset = offsetof(Thread,
                           jitToInterpEntries.dvmJitToInterpNormal);
