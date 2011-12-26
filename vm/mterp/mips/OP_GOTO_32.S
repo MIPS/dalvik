@@ -17,7 +17,7 @@
     addu      a1, a0, a0                   #  a1 <- byte offset
 #if defined(WITH_JIT)
     lw        a0, offThread_pJitProfTable(rSELF)
-    bgtz      a0, 1f
+    bgtz      a1, 1f
     lw        rIBASE, offThread_curHandlerTable(rSELF) #  refresh handler base
 1:
     FETCH_ADVANCE_INST_RB(a1)              #  update rPC, load rINST
