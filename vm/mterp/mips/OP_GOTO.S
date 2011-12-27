@@ -17,7 +17,7 @@
     FETCH_ADVANCE_INST_RB(a2)              #  update rPC, load rINST
 #if defined(WITH_JIT)
     lw        a0, offThread_pJitProfTable(rSELF)
-    blez      a1, common_testUpdateProfile #  (a0) check for trace hotness
+    bltz      a1, common_testUpdateProfile #  (a0) check for trace hotness
 #endif
     GET_INST_OPCODE(t0)                    #  extract opcode from rINST
     GOTO_OPCODE(t0)                        #  jump to next instruction

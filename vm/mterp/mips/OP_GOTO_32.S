@@ -21,7 +21,7 @@
     lw        rIBASE, offThread_curHandlerTable(rSELF) #  refresh handler base
 1:
     FETCH_ADVANCE_INST_RB(a1)              #  update rPC, load rINST
-    blez      a0, common_testUpdateProfile # (a0) hot trace head?
+    blez      a1, common_testUpdateProfile # (a0) hot trace head?
 #else
     FETCH_ADVANCE_INST_RB(a1)              #  update rPC, load rINST
     bgtz      a0, 2f

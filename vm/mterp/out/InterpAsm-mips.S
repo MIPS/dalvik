@@ -1356,7 +1356,7 @@ dalvik_inst:
     FETCH_ADVANCE_INST_RB(a2)              #  update rPC, load rINST
 #if defined(WITH_JIT)
     lw        a0, offThread_pJitProfTable(rSELF)
-    blez      a1, common_testUpdateProfile #  (a0) check for trace hotness
+    bltz      a1, common_testUpdateProfile #  (a0) check for trace hotness
 #endif
     GET_INST_OPCODE(t0)                    #  extract opcode from rINST
     GOTO_OPCODE(t0)                        #  jump to next instruction
@@ -1410,7 +1410,7 @@ dalvik_inst:
     lw        rIBASE, offThread_curHandlerTable(rSELF) #  refresh handler base
 1:
     FETCH_ADVANCE_INST_RB(a1)              #  update rPC, load rINST
-    blez      a0, common_testUpdateProfile # (a0) hot trace head?
+    blez      a1, common_testUpdateProfile # (a0) hot trace head?
 #else
     FETCH_ADVANCE_INST_RB(a1)              #  update rPC, load rINST
     bgtz      a0, 2f
