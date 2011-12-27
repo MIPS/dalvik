@@ -5376,7 +5376,8 @@ GOTO_TARGET(invokeMethod, bool methodCallRange, const Method* _methodToCall,
             self->interpSave.method = curMethod;
             methodClassDex = curMethod->clazz->pDvmDex;
             pc = methodToCall->insns;
-            self->interpSave.curFrame = fp = newFp;
+            self->interpSave.curFrame = newFp;
+            fp = newFp;
 #ifdef EASY_GDB
             debugSaveArea = SAVEAREA_FROM_FP(newFp);
 #endif
@@ -5413,7 +5414,8 @@ GOTO_TARGET(invokeMethod, bool methodCallRange, const Method* _methodToCall,
 
             /* pop frame off */
             dvmPopJniLocals(self, newSaveArea);
-            self->interpSave.curFrame = fp = newSaveArea->prevFrame;
+            self->interpSave.curFrame = newSaveArea->prevFrame;
+            fp = newFp;
 
             /*
              * If the native code threw an exception, or interpreted code
