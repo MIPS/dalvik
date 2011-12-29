@@ -2609,15 +2609,15 @@ dalvik_inst:
     and       a2, a0, 255                  #  a2 <- BB
     srl       a3, a0, 8                    #  a3 <- CC
     GET_VREG(rINST, a2)                    #  rINST <- vBB (array object)
-    GET_VREG(a0, a3)                       #  a0 <- vCC (requested index)
+    GET_VREG(a1, a3)                       #  a1 <- vCC (requested index)
     GET_VREG(rBIX, t1)                     #  rBIX <- vAA
     # null array object?
     beqz      rINST, common_errNullObject  #  yes, bail
 
     LOAD_base_offArrayObject_length(a3, rINST) #  a3 <- arrayObj->length
-    EAS2(rOBJ, rINST, a0)                  #  rOBJ <- arrayObj + index*width
+    EAS2(rOBJ, rINST, a1)                  #  rOBJ <- arrayObj + index*width
     # compare unsigned index, length
-    bgeu      a0, a3, common_errArrayIndex #  index >= length, bail
+    bgeu      a1, a3, common_errArrayIndex #  index >= length, bail
     /*
      * On entry:
      *  rINST = vBB (arrayObj)
