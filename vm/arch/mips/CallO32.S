@@ -17,7 +17,7 @@ The method we are calling has the form:
   return_type func(JNIEnv* pEnv, ClassObject* clazz, ...)
     -or-
   return_type func(JNIEnv* pEnv, Object* this, ...)
-a
+
 We receive a collection of 32-bit values which correspond to arguments from
 the interpreter (e.g. float occupies one, double occupies two).  It's up to
 us to convert these into local calling conventions.
@@ -260,7 +260,7 @@ dvmPlatformInvoke:
 /* Slow path - just tail call the generic routine */
 .Lno_arginfo:
 
-	la $t9,dvmPlatformInvokeMIPS
+	la $t9,dvmPlatformInvokeFFI
 	j $t9
 
 .end dvmPlatformInvoke
