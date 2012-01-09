@@ -264,8 +264,9 @@ ifeq ($(dvm_arch),mips)
   LOCAL_C_INCLUDES += external/libffi/$(TARGET_OS)-$(TARGET_ARCH)
   LOCAL_SHARED_LIBRARIES += libffi
   LOCAL_SRC_FILES += \
+                arch/mips/CallO32.S \
+                arch/mips/HintsO32.cpp \
 		arch/generic/Call.cpp \
-		arch/generic/Hints.cpp \
 		mterp/out/InterpC-mips.cpp \
 		mterp/out/InterpAsm-mips.S
 
