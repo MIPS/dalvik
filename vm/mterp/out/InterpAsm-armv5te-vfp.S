@@ -26677,7 +26677,7 @@ jitSVShadowRunEnd:
 common_gotoBail:
     SAVE_PC_FP_TO_SELF()                @ export state to "thread"
     mov     r0, rSELF                   @ r0<- self ptr
-    b       dvmMterpStdBail             @ call(self, changeInterp)
+    b       dvmMterpStdBail             @ call(self)
 
 /*
  * The JIT's invoke method needs to remember the callsite class and
