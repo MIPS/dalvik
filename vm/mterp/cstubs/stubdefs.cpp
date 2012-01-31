@@ -120,7 +120,7 @@
  * As a special case, "goto bail" turns into a longjmp.
  */
 #define GOTO_bail()                                                         \
-    dvmMterpStdBail(self, false)
+    dvmMterpStdBail(self)
 
 /*
  * Periodically check for thread suspension.
