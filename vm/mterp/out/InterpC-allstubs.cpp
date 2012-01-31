@@ -498,7 +498,7 @@ static inline bool checkForNullExportPC(Object* obj, u4* fp, const u2* pc)
  * As a special case, "goto bail" turns into a longjmp.
  */
 #define GOTO_bail()                                                         \
-    dvmMterpStdBail(self, false)
+    dvmMterpStdBail(self)
 
 /*
  * Periodically check for thread suspension.
@@ -4369,7 +4369,7 @@ DEFINE_GOTO_TABLE(gDvmMterpHandlerNames)
  *
  * This is only used for the "allstubs" variant.
  */
-bool dvmMterpStdRun(Thread* self)
+void dvmMterpStdRun(Thread* self)
 {
     jmp_buf jmpBuf;
 
@@ -4378,7 +4378,7 @@ bool dvmMterpStdRun(Thread* self)
     /* We exit via a longjmp */
     if (setjmp(jmpBuf)) {
         LOGVV("mterp threadid=%d returning", dvmThreadSelf()->threadId);
-        return false;
+	return;
     }
 
     /* run until somebody longjmp()s out */
@@ -4406,7 +4406,7 @@ bool dvmMterpStdRun(Thread* self)
 /*
  * C mterp exit point.  Call here to bail out of the interpreter.
  */
-void dvmMterpStdBail(Thread* self, bool changeInterp)
+void dvmMterpStdBail(Thread* self)
 {
     jmp_buf* pJmpBuf = (jmp_buf *)self->interpSave.bailPtr;
     longjmp(*pJmpBuf, 1);
