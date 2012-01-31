@@ -462,7 +462,7 @@ jitSVShadowRunEnd:
 common_gotoBail:
     SAVE_PC_FP_TO_SELF()                   # export state to "thread"
     move      a0, rSELF                    # a0 <- self ptr
-    b         dvmMterpStdBail              # call(self, changeInterp)
+    b         dvmMterpStdBail              # call(self)
     .end common_gotoBail
 
 /*
