@@ -447,14 +447,11 @@ static pid_t forkAndSpecializeCommon(const u4* args, bool isSystemServer)
             dvmAbort();
         }
 
-#if 0
-// Uncomment after adding personality() system call to MIPS bionic
         int current = personality(0xffffFFFF);
         int success = personality((ADDR_NO_RANDOMIZE | current));
         if (success == -1) {
           LOGW("Personality switch failed. current=%d error=%d\n", current, errno);
         }
-#endif
 
         err = setCapabilities(permittedCapabilities, effectiveCapabilities);
         if (err != 0) {
