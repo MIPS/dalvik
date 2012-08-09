@@ -2820,10 +2820,10 @@ dvmCompiler_TEMPLATE_PERIODIC_PROFILING:
      sw     a3, 0(a1)
      RETURN
 .LTEMPLATE_PERIODIC_PROFILING_disable_profiling:
-     move   rTEMP, ra                   # preserve ra
      la     a0, dvmJitTraceProfilingOff
      JALR(a0)
-     jr     rTEMP
+     # The ra register is preserved by the JALR macro.
+     jr     ra
 
 /* ------------------------------ */
     .balign 4
@@ -3295,9 +3295,8 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NATIVE_PROF:
     SCRATCH_STORE(a1, 4)
     SCRATCH_STORE(a2, 8)
     SCRATCH_STORE(a3, 12)
-    move    rTEMP, a2                            # preserve a2
 
-    move    a0, rTEMP
+    move    a0, a2
     move    a1, rSELF
     la      t9, dvmFastMethodTraceEnter
     JALR(t9)
@@ -3313,7 +3312,10 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NATIVE_PROF:
     JALR(t9)                                      # call methodToCall->nativeFunc
     lw      gp, STACK_OFFSET_GP(sp)
 
-    move    a0, rTEMP
+    # restore a2 again
+    SCRATCH_LOAD(a2, 8)
+
+    move    a0, a2
     move    a1, rSELF
     la      t9, dvmFastNativeMethodTraceExit
     JALR(t9)
