@@ -603,8 +603,8 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NO_OPT:
     move   rFP, a1                                # fp = newFp
     sw     rFP, offThread_curFrame(rSELF)         # self->curFrame = newFp
 #if defined(TEMPLATE_INLINE_PROFILING)
-    # preserve a0-a3
-    SCRATCH_STORE(a0, 0)
+    # preserve rTEMP,a1-a3
+    SCRATCH_STORE(rTEMP, 0)
     SCRATCH_STORE(a1, 4)
     SCRATCH_STORE(a2, 8)
     SCRATCH_STORE(a3, 12)
@@ -615,11 +615,11 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NO_OPT:
     JALR(t9)
     lw     gp, STACK_OFFSET_GP(sp)
 
-    # restore a0-a3
+    # restore rTEMP,a1-a3
     SCRATCH_LOAD(a3, 12)
     SCRATCH_LOAD(a2, 8)
     SCRATCH_LOAD(a1, 4)
-    SCRATCH_LOAD(a0, 0)
+    SCRATCH_LOAD(rTEMP, 0)
 #endif
 
     # Start executing the callee
@@ -2973,8 +2973,8 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NO_OPT_PROF:
     move   rFP, a1                                # fp = newFp
     sw     rFP, offThread_curFrame(rSELF)         # self->curFrame = newFp
 #if defined(TEMPLATE_INLINE_PROFILING)
-    # preserve a0-a3
-    SCRATCH_STORE(a0, 0)
+    # preserve rTEMP,a1-a3
+    SCRATCH_STORE(rTEMP, 0)
     SCRATCH_STORE(a1, 4)
     SCRATCH_STORE(a2, 8)
     SCRATCH_STORE(a3, 12)
@@ -2985,11 +2985,11 @@ dvmCompiler_TEMPLATE_INVOKE_METHOD_NO_OPT_PROF:
     JALR(t9)
     lw     gp, STACK_OFFSET_GP(sp)
 
-    # restore a0-a3
+    # restore rTEMP,a1-a3
     SCRATCH_LOAD(a3, 12)
     SCRATCH_LOAD(a2, 8)
     SCRATCH_LOAD(a1, 4)
-    SCRATCH_LOAD(a0, 0)
+    SCRATCH_LOAD(rTEMP, 0)
 #endif
 
     # Start executing the callee
