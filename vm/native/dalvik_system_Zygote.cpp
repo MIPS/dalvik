@@ -28,6 +28,11 @@
 #include <paths.h>
 #include <sys/personality.h>
 
+#ifdef HAVE_ANDROID_OS
+#include <cutils/properties.h>
+#include <sys/system_properties.h>
+#endif
+
 #if defined(HAVE_PRCTL)
 # include <sys/prctl.h>
 #endif
@@ -380,6 +385,22 @@ static pid_t forkAndSpecializeCommon(const u4* args, bool isSystemServer)
         //effectiveCapabilities = GET_ARG_LONG(args, 7);
         permittedCapabilities = args[5] | (int64_t) args[6] << 32;
         effectiveCapabilities = args[7] | (int64_t) args[8] << 32;
+#ifdef HAVE_ANDROID_OS
+        {
+          char value[PROP_VALUE_MAX];
+          /*
+           * If the "ro.LXC_KERNEL" = property is set to 1, remove CAP_SYS_BOOT
+           * which is not supported on = the LXC kernel.
+           */
+          if (property_get("ro.LXC_KERNEL", value, NULL) &&
+	      (strcmp(value, "1") == 0)) {
+            LOGI("LXC kernel, remove = reboot capability...");
+            permittedCapabilities &= ~((int64_t)(1LL << CAP_SYS_BOOT));
+            effectiveCapabilities &= ~((int64_t)(1LL << CAP_SYS_BOOT));
+            LOGI("LXC kernel, new = capabilities (%llx,%llx)", permittedCapabilities, effectiveCapabilities);
+          }
+        }
+#endif /* HAVE_ANDROID_OS */
     } else {
         permittedCapabilities = effectiveCapabilities = 0;
     }
