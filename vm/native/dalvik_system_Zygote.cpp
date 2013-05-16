@@ -397,7 +397,7 @@ static void enableDebugFeatures(u4 debugFlags)
 
     gDvm.jdwpAllowed = ((debugFlags & DEBUG_ENABLE_DEBUGGER) != 0);
 
-    if (((debugFlags & DEBUG_ENABLE_CHECKJNI) && gDvmJni.useCheckJni) != 0) {
+    if ((debugFlags & DEBUG_ENABLE_CHECKJNI) && gDvmJni.useCheckJni) {
         /* turn it on if it's not already enabled */
         dvmLateEnableCheckedJni();
     }
@@ -655,18 +655,20 @@ static pid_t forkAndSpecializeCommon(const u4* args, bool isSystemServer)
          */
         Thread* thread = dvmThreadSelf();
         thread->systemTid = dvmGetSysThreadId();
-#if 1
-        /* get to know which cpuinfo should get  */
-        int fd = open("/proc/magic", 666);
-        if ((debugFlags & MC_IS_ARM_CPU_INFO) != 0) {
-            if ((debugFlags & MC_IS_ARM_CPU_INFO_NEON) != 0)
+
+#ifdef __mips__
+        /* tell kernel what /proc/cpuinfo should show to this process */
+        int fd = open("/proc/magic", O_WRONLY, 0666);
+        if (fd >= 0) {
+            if (debugFlags & MC_IS_ARM_CPU_INFO_NEON)
                 write(fd, "arm_neon", 8);
-            else
+            else if (debugFlags & MC_IS_ARM_CPU_INFO)
                 write(fd, "arm", 3);
-        } else {
-            write(fd, "mips", 4);
-        }
-        close(fd);
+            else
+                write(fd, "mips", 4);
+            close(fd);
+        } else
+            ALOGW("Kernel does not support /proc/magic and per-process /proc/cpuinfo");
 #endif
 
         /* configure additional debug options */
