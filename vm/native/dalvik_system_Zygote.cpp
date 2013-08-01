@@ -36,6 +36,7 @@
 #include <cutils/sched_policy.h>
 #include <cutils/multiuser.h>
 #include <sched.h>
+#include <fcntl.h>
 #include <sys/utsname.h>
 #include <sys/capability.h>
 
@@ -53,6 +54,9 @@ enum {
     DEBUG_ENABLE_SAFEMODE           = 1 << 3,
     DEBUG_ENABLE_JNI_LOGGING        = 1 << 4,
 };
+
+#define MC_IS_ARM_CPU_INFO      (DEBUG_ENABLE_DEBUGGER << 5)
+#define MC_IS_ARM_CPU_INFO_NEON (DEBUG_ENABLE_DEBUGGER << 6)
 
 /* must match values in dalvik.system.Zygote */
 enum {
@@ -680,6 +684,21 @@ static pid_t forkAndSpecializeCommon(const u4* args, bool isSystemServer)
          */
         Thread* thread = dvmThreadSelf();
         thread->systemTid = dvmGetSysThreadId();
+
+#ifdef __mips__
+        /* tell kernel what /proc/cpuinfo should show to this process */
+        int fd = open("/proc/magic", O_WRONLY);
+        if (fd >= 0) {
+            if (debugFlags & MC_IS_ARM_CPU_INFO_NEON)
+                write(fd, "arm_neon", 8);
+            else if (debugFlags & MC_IS_ARM_CPU_INFO)
+                write(fd, "arm", 3);
+            else
+                write(fd, "mips", 4);
+            close(fd);
+        } else
+            ALOGW("Kernel does not support /proc/magic and per-process /proc/cpuinfo");
+#endif
 
         /* configure additional debug options */
         enableDebugFeatures(debugFlags);
