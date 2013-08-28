@@ -397,7 +397,7 @@ static void enableDebugFeatures(u4 debugFlags)
 
     gDvm.jdwpAllowed = ((debugFlags & DEBUG_ENABLE_DEBUGGER) != 0);
 
-    if ((debugFlags & DEBUG_ENABLE_CHECKJNI) && gDvmJni.useCheckJni) {
+    if ((debugFlags & DEBUG_ENABLE_CHECKJNI) != 0) {
         /* turn it on if it's not already enabled */
         dvmLateEnableCheckedJni();
     }
@@ -658,7 +658,7 @@ static pid_t forkAndSpecializeCommon(const u4* args, bool isSystemServer)
 
 #ifdef __mips__
         /* tell kernel what /proc/cpuinfo should show to this process */
-        int fd = open("/proc/magic", O_WRONLY, 0666);
+        int fd = open("/proc/magic", O_WRONLY);
         if (fd >= 0) {
             if (debugFlags & MC_IS_ARM_CPU_INFO_NEON)
                 write(fd, "arm_neon", 8);
