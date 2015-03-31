@@ -11,5 +11,5 @@
     FETCH(rINST, 0)                     # reload OP_BREAKPOINT + rest of inst
     lw      a1, offThread_mainHandlerTable(rSELF)
     and     rINST, 0xff00
-    or      rINST, rINST, a0
-    GOTO_OPCODE_BASE(a1, a0)
+    or      rINST, rINST, v0
+    GOTO_OPCODE_BASE(a1, v0)

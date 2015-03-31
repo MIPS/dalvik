@@ -8702,16 +8702,22 @@ dalvik_inst:
 /* ------------------------------ */
     .balign 128
 .L_OP_BREAKPOINT: /* 0xec */
-    /* (stub) */
-    SAVE_PC_TO_SELF()            # only need to export PC and FP
-    SAVE_FP_TO_SELF()
-    move        a0, rSELF        # self is first arg to function
-    JAL(dvmMterp_OP_BREAKPOINT)      # call
-    LOAD_PC_FROM_SELF()          # retrieve updated values
-    LOAD_FP_FROM_SELF()
-    FETCH_INST()                 # load next instruction from rPC
-    GET_INST_OPCODE(t0)          # ...trim down to just the opcode
-    GOTO_OPCODE(t0)              # ...and jump to the handler
+/* File: mips/OP_BREAKPOINT.S */
+    /*
+     * Breakpoint handler.
+     *
+     * Restart this instruction with the original opcode.  By
+     * the time we get here, the breakpoint will have already been
+     * handled.
+     */
+    move    a0, rPC
+    JAL(dvmGetOriginalOpcode)           # (rPC)
+    FETCH(rINST, 0)                     # reload OP_BREAKPOINT + rest of inst
+    lw      a1, offThread_mainHandlerTable(rSELF)
+    and     rINST, 0xff00
+    or      rINST, rINST, v0
+    GOTO_OPCODE_BASE(a1, v0)
+
 /* ------------------------------ */
     .balign 128
 .L_OP_THROW_VERIFICATION_ERROR: /* 0xed */

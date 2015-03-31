@@ -47,8 +47,7 @@ import mips/entry.S
 # opcode list; argument to op-start is default directory
 op-start mips
 
-# OP_BREAKPOINT needs explicit testing
-    op OP_BREAKPOINT c
+    op OP_BREAKPOINT mips
 
 op-end
 
